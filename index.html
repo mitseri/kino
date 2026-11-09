@@ -466,7 +466,7 @@ function whereOf(it,d){const ua=d?.["watch/providers"]?.results?.UA||{},q=encode
 function factsOf(it,d){if(!d)return[];const tv=it.kind==="tv",f=[];const ly=(d.last_air_date||"").slice(0,4);
   f.push(["Год",tv&&ly&&ly!==it.y?`${it.y}–${d.status==="Returning Series"?"…":ly}`:it.y]);
   if(tv&&d.number_of_seasons)f.push(["Сезоны",RN(d.number_of_seasons,"сезон","сезона","сезонов")+(d.number_of_episodes?" · "+RN(d.number_of_episodes,"серия","серии","серий"):"")]);
-  const rt=tv?(d.episode_run_time||[])[0]:d.runtime;if(rt)f.push([tv?"Серия":"Длительность",(tv?"≈ ":"")+dur(rt)]);
+  const rt=tv?((d.episode_run_time||[])[0]||d.last_episode_to_air?.runtime):d.runtime;if(rt)f.push([tv?"Серия":"Длительность",(tv?"≈ ":"")+dur(rt)]);
   if(tv&&d.status)f.push(["Статус",{"Returning Series":"Выходит","Ended":"Завершён","Canceled":"Закрыт","In Production":"В производстве"}[d.status]||d.status]);
   if(it.r)f.push(["Рейтинг TMDB","★ "+it.r+" / 10"]);
   const cc=tv?d.origin_country:(d.production_countries||[]).map(c=>c.iso_3166_1);if(cc?.length)f.push(["Страна",country(cc.slice(0,3))]);
@@ -672,7 +672,7 @@ function buildSources(){
   if(p.person?.id){src.push({person:p.person.id,done:false});return}
   if(p.fresh){const t=dayAgo(0);
     src.push({kind:"movie",q:{sort_by:"popularity.desc","vote_count.gte":"15",with_release_type:"4|5","release_date.gte":dayAgo(150),"release_date.lte":t},page:0,done:false});
-    src.push({kind:"tv",q:{sort_by:"popularity.desc","vote_count.gte":"40","air_date.gte":dayAgo(10),"air_date.lte":t,without_genres:"10764,10767,10763,10766"},page:0,done:false});return}
+    src.push({kind:"tv",q:{sort_by:"popularity.desc","vote_count.gte":"40","first_air_date.gte":dayAgo(1100),"air_date.gte":dayAgo(10),"air_date.lte":t,without_genres:"10764,10767,10763,10766"},page:0,done:false});return}
   const moodG=(MOODS.find(m=>m.k===p.mood)||{}).g||[];
   for(const k of kinds)for(const e of eras){
     const kind=k==="film"?"movie":"tv",dk=kind==="movie"?"primary_release_date":"first_air_date",q={sort_by:"popularity.desc","vote_count.gte":k==="kr"?"30":"150"};
