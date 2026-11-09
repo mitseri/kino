@@ -3,72 +3,162 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0e0e10">
+<meta name="theme-color" content="#0b0b0d">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Наша полка</title>
+<meta name="apple-mobile-web-app-title" content="Kinomatch">
+<title>Kinomatch — что смотрим сегодня?</title>
+<meta name="description" content="Свайпайте фильмы, сериалы, аниме и дорамы вдвоём. Когда понравится обоим — мэтч. Трейлеры, где смотреть в Украине, общая полка.">
+<meta property="og:title" content="Kinomatch — что смотрим сегодня?">
+<meta property="og:description" content="Тиндер для фильмов для пар: свайпайте вдвоём и находите кино, которое понравится обоим.">
+<meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23ed1c24'/%3E%3Cpath d='M32 50s-15-9-19-18c-3-6 1-14 8-14 4 0 7 2 11 6 4-4 7-6 11-6 7 0 11 8 8 14-4 9-19 18-19 18z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://image.tmdb.org">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@600;800;900&display=swap">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23ff2d3f'/%3E%3Crect x='14' y='16' width='22' height='32' rx='5' fill='%23fff' opacity='.55' transform='rotate(-10 25 32)'/%3E%3Crect x='28' y='16' width='22' height='32' rx='5' fill='%23fff' transform='rotate(10 39 32)'/%3E%3Cpath d='M39 39s-6-3.6-7.5-7c-1-2.4.6-5 3-5 1.5 0 2.5.8 4.5 2.5 2-1.7 3-2.5 4.5-2.5 2.4 0 4 2.6 3 5-1.5 3.4-7.5 7-7.5 7z' fill='%23ff2d3f'/%3E%3C/svg%3E">
 <style>
+/* Layout: logged-out = cinematic landing (hero with fanned posters, steps, features, poster marquee, FAQ, footer with TMDB credit).
+   Logged-in = full-height app: swipe deck + bottom tab bar; sheets and a full-screen detail page on top. */
 :root{
-  --bg:#0e0e10;--surface:#1a1a1e;--surface2:#242429;--ink:#f4f4f6;--muted:#8e8e98;--line:#2c2c33;
-  --red:#ed1c24;--want:#4aa3ff;--watching:#f5a524;--done:#2fbf71;--dropped:#8e8e98;
-  --like:#2fbf71;--nope:#ff4d5a;--gold:#ffc93c;--mega:#5aa9ff;
-  --font:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:dark;
+  --bg:#0b0b0d;--bg2:#121216;--surface:#1a1a1f;--surface2:#24242b;--ink:#f5f5f7;--muted:#9393a0;--line:#2c2c35;
+  --red:#ff2d3f;--red2:#ff5a3c;--want:#4aa3ff;--watching:#f5a524;--done:#2fbf71;--dropped:#8e8e98;
+  --like:#2fd17f;--nope:#ff4d5a;--gold:#ffc93c;--mega:#5aa9ff;
+  --font:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;--display:"Unbounded","Manrope",system-ui,sans-serif;
+  color-scheme:dark;
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--ink)}
-body{font-family:var(--font);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow:hidden}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font-family:var(--font);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body.inapp{overflow:hidden;height:100%}
 button{font:inherit;color:inherit}
+a{color:inherit}
 [hidden]{display:none!important}
+.pad{padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);font:700 .9rem var(--font);padding:12px 16px;border-radius:12px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s,background .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn.red{background:linear-gradient(135deg,var(--red),var(--red2));border-color:transparent;color:#fff;box-shadow:0 10px 30px rgb(255 45 63/.3)}
+.btn.big{padding:16px 24px;font-size:1rem;border-radius:14px}
+.btn.sm{padding:7px 11px;font-size:.8rem;border-radius:10px}
+.btn.ghost{background:transparent;color:var(--red)}
+.btn:disabled{opacity:.45;transform:none}
+.label{font:800 .66rem var(--font);text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.sub{color:var(--muted);font-size:.82rem;font-weight:600}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:12px;font-weight:700;z-index:99;max-width:calc(100% - 32px);text-align:center}
+input[type=email],input[type=text],input[type=search]{width:100%;font:500 1rem var(--font);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+input:focus{outline:2px solid var(--red);border-color:transparent}
+.spin{width:28px;height:28px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--red);animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.logo{display:flex;align-items:center;gap:10px;font:800 1.15rem var(--display);letter-spacing:-.02em;text-decoration:none}
+.logo svg{width:34px;height:34px}
+
+/* ================= LANDING ================= */
+.land{overflow-x:hidden;position:relative;z-index:1}
+#world{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block;pointer-events:none;opacity:0;transition:opacity 1.2s}
+#world.on{opacity:1}
+body.inapp #world{display:none}
+.land .sec,.land .hero{position:relative}
+.step,.feat,.faq details{background:rgb(18 18 22/.78)!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.feat.wide{background:linear-gradient(135deg,rgb(255 45 63/.22),rgb(18 18 22/.8) 60%)!important}
+.lfoot{background:rgb(11 11 13/.85)}
+.final{background:radial-gradient(60% 80% at 50% 0%,rgb(255 45 63/.25),transparent 70%)}
+.lnav{position:sticky;top:0;z-index:20;padding-top:env(safe-area-inset-top,0px);background:rgb(11 11 13/.75);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgb(255 255 255/.06)}
+.lnav .in{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:12px}
+.lnav .links{display:flex;gap:22px;font-weight:700;font-size:.9rem;color:var(--muted)}
+.lnav .links a{text-decoration:none}.lnav .links a:hover{color:var(--ink)}
+@media(max-width:760px){.lnav .links{display:none}}
+.hero{position:relative;max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;padding-block:70px 90px}
+.hero::before{content:"";position:absolute;inset:-200px -40vw auto;height:900px;background:radial-gradient(50% 50% at 70% 40%,rgb(255 45 63/.22),transparent 70%),radial-gradient(40% 40% at 20% 20%,rgb(90 169 255/.10),transparent 70%);z-index:-1;pointer-events:none}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font:800 .75rem var(--font);text-transform:uppercase;letter-spacing:.14em;color:#ffb1b8;background:rgb(255 45 63/.12);border:1px solid rgb(255 45 63/.3);padding:7px 12px;border-radius:999px}
+.hero h1{font:900 clamp(2.3rem,6vw,4.6rem)/1.02 var(--display);letter-spacing:-.035em;margin:18px 0 18px;text-wrap:balance}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--red),#ff9a3c);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{font-size:clamp(1rem,2vw,1.2rem);color:#c9c9d3;max-width:34rem;margin:0 0 28px}
+.hero .cta{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.hero .proof{margin-top:28px;display:flex;gap:22px;flex-wrap:wrap;color:var(--muted);font-weight:700;font-size:.88rem}
+.hero .proof b{color:var(--ink);font:800 1.4rem var(--display);display:block}
+.fan{position:relative;height:520px;max-width:100%}
+.fan .pc{position:absolute;top:50%;left:50%;width:230px;aspect-ratio:2/3;border-radius:22px;overflow:hidden;background:linear-gradient(160deg,#2a2a33,#3b1d22 70%,#7a1218);box-shadow:0 30px 70px rgb(0 0 0/.6);transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.fan .pc img{width:100%;height:100%;object-fit:cover;display:block}
+.fan .pc:nth-child(1){transform:translate(-118%,-46%) rotate(-14deg)}
+.fan .pc:nth-child(2){transform:translate(-14%,-56%) rotate(9deg)}
+.fan .pc:nth-child(3){transform:translate(-62%,-48%) rotate(-2deg);z-index:2}
+.fan .tag{position:absolute;z-index:3;font:900 1.3rem var(--display);padding:6px 14px;border:4px solid;border-radius:12px;text-transform:uppercase;background:rgb(11 11 13/.6)}
+.fan .tag.l{left:6%;top:16%;color:var(--like);transform:rotate(-14deg)}
+.fan .tag.m{right:2%;bottom:14%;color:var(--gold);transform:rotate(8deg);font-size:1.6rem}
+.fan:hover .pc:nth-child(1){transform:translate(-128%,-46%) rotate(-18deg)}
+.fan:hover .pc:nth-child(2){transform:translate(-4%,-58%) rotate(13deg)}
+@media(max-width:900px){.hero{grid-template-columns:1fr;padding-block:40px 60px;text-align:left}.fan{height:400px;order:-1}.fan .pc{width:170px}}
+.sec{max-width:1180px;margin:0 auto;padding-block:70px}
+.sec h2{font:800 clamp(1.7rem,4vw,2.8rem)/1.08 var(--display);letter-spacing:-.03em;margin:0 0 12px;text-wrap:balance}
+.sec .intro{color:#c0c0ca;max-width:40rem;margin:0 0 36px;font-size:1.05rem}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;counter-reset:s}
+.step{background:var(--bg2);border:1px solid var(--line);border-radius:22px;padding:26px;position:relative;overflow:hidden}
+.step::before{counter-increment:s;content:counter(s);font:900 4.5rem/1 var(--display);color:rgb(255 45 63/.16);position:absolute;right:18px;top:10px}
+.step h3{font:800 1.2rem var(--display);margin:0 0 8px;letter-spacing:-.02em}
+.step p{margin:0;color:#b9b9c4}
+.step .ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:rgb(255 45 63/.14);color:var(--red);margin-bottom:18px}
+.step .ic svg{width:24px;height:24px}
+@media(max-width:820px){.steps{grid-template-columns:1fr}}
+.feats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.feat{background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:22px;display:grid;gap:8px;align-content:start}
+.feat .ic{font-size:1.5rem;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--surface2)}
+.feat h3{margin:6px 0 0;font:800 1.02rem var(--font)}
+.feat p{margin:0;color:#b2b2be;font-size:.93rem}
+.feat.wide{grid-column:span 2;background:linear-gradient(135deg,rgb(255 45 63/.16),var(--bg2) 60%)}
+@media(max-width:900px){.feats{grid-template-columns:1fr 1fr}.feat.wide{grid-column:span 2}}
+@media(max-width:560px){.feats{grid-template-columns:1fr}.feat.wide{grid-column:auto}}
+.marq{overflow:hidden;padding-block:6px;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.marq .tr{display:flex;gap:14px;width:max-content;animation:mq 60s linear infinite}
+.marq.rev .tr{animation-direction:reverse;animation-duration:70s}
+.marq img{width:130px;aspect-ratio:2/3;object-fit:cover;border-radius:14px;background:var(--surface);display:block}
+@keyframes mq{to{transform:translateX(-50%)}}
+.faq{display:grid;gap:10px;max-width:780px}
+.faq details{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.faq summary{cursor:pointer;font-weight:800;list-style:none;display:flex;justify-content:space-between;gap:12px}
+.faq summary::after{content:"+";color:var(--red);font-weight:900}
+.faq details[open] summary::after{content:"–"}
+.faq p{margin:10px 0 0;color:#bdbdc8}
+.final{text-align:center;background:radial-gradient(60% 80% at 50% 0%,rgb(255 45 63/.25),transparent 70%);border-top:1px solid var(--line)}
+.final h2{margin-inline:auto;max-width:18ch}
+.lfoot{border-top:1px solid var(--line);padding-block:30px calc(30px + env(safe-area-inset-bottom,0px));color:var(--muted);font-size:.85rem}
+.lfoot .in{max-width:1180px;margin:0 auto;display:flex;flex-wrap:wrap;gap:16px 30px;justify-content:space-between;align-items:center}
+.tmdb{display:flex;align-items:center;gap:12px;max-width:520px}
+.tmdb .tw{font:900 .95rem var(--display);letter-spacing:.02em;padding:6px 10px;border-radius:8px;background:linear-gradient(90deg,#90cea1,#01b4e4);color:#0d253f;flex:none}
+.lfoot a{color:#c9c9d3}
+@media (prefers-reduced-motion:reduce){.marq .tr{animation:none}.fan .pc{transition:none}}
+
+/* ================= APP ================= */
 .app{position:fixed;inset:0;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
-.pad{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .main{flex:1;min-height:0;position:relative}
 .view{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain}
 .wrap{max-width:560px;margin:0 auto}
-/* bottom nav */
-.nav{flex:none;display:grid;grid-template-columns:repeat(5,1fr);background:#111114;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav{flex:none;display:grid;grid-template-columns:repeat(5,1fr);background:#0f0f12;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
 .nav button{border:0;background:none;color:var(--muted);display:grid;justify-items:center;gap:2px;padding:8px 2px 7px;font:700 .68rem var(--font);cursor:pointer;position:relative}
 .nav svg{width:24px;height:24px}
 .nav button[aria-current="true"]{color:#fff}
 .nav button[aria-current="true"] svg{color:var(--red)}
 .nav i{position:absolute;top:4px;left:calc(50% + 6px);font-style:normal;background:var(--red);color:#fff;font-size:.62rem;min-width:17px;height:17px;border-radius:9px;display:grid;place-items:center;padding:0 4px}
 .nav i.gold{background:var(--gold);color:#1a1300}
-/* generic */
-h1{font-size:1.5rem;font-weight:800;margin:0;letter-spacing:-.02em}
 .top{display:flex;align-items:center;gap:10px;padding-block:14px 10px}
 .top .grow{flex:1;min-width:0}
-.sub{color:var(--muted);font-size:.8rem;font-weight:600}
-.who{border:0;background:var(--surface);border-radius:999px;padding:6px 12px 6px 6px;display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:800;font-size:.85rem}
-.av{width:28px;height:28px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font-weight:800;font-size:.8rem}
+.top h1{font:800 1.35rem var(--display);margin:0;letter-spacing:-.03em}
+.me{border:0;background:var(--surface);border-radius:999px;padding:5px 12px 5px 5px;display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:800;font-size:.85rem;max-width:48%}
+.me span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;display:grid;place-items:center;font-weight:800;font-size:.8rem;flex:none}
+.av.pt{background:linear-gradient(135deg,#5aa9ff,#7a5cff)}
+.duo{display:flex}.duo .av+.av{margin-left:-9px;box-shadow:0 0 0 2px var(--surface)}
 .row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:10px}
 .row::-webkit-scrollbar{display:none}
 .pill{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:800 .82rem var(--font);padding:8px 13px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:6px}
 .pill.act{background:var(--red);border-color:var(--red);color:#fff}
 .pill svg{width:16px;height:16px}
 .pill b{background:rgb(255 255 255/.22);border-radius:999px;padding:0 6px;font-size:.72rem}
-.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);font:700 .88rem var(--font);padding:11px 14px;border-radius:10px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
-.btn.red{background:var(--red);border-color:var(--red);color:#fff}
-.btn.sm{padding:7px 11px;font-size:.8rem}
-.btn.ghost{color:var(--red)}
-.btn:disabled{opacity:.45}
-.label{font:800 .66rem var(--font);text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
-.empty{margin:60px auto;max-width:34ch;text-align:center;color:var(--muted);display:grid;gap:10px;justify-items:center}
-.empty strong{color:var(--ink);font-size:1.1rem}
-input[type=email],input[type=text],input[type=search]{width:100%;font:500 1rem var(--font);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
-input:focus{outline:2px solid var(--red);border-color:transparent}
-:focus-visible{outline:2px solid var(--red);outline-offset:2px}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:700;z-index:90;max-width:calc(100% - 32px);text-align:center}
-/* login */
-.login{position:fixed;inset:0;display:grid;place-items:center;padding:24px;background:radial-gradient(120% 80% at 50% 0%,#3b1d22,var(--bg) 60%)}
-.login .box{width:100%;max-width:380px;display:grid;gap:14px}
-.login h1{font-size:2rem}
-/* swipe */
+.banner{display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,rgb(90 169 255/.16),var(--surface));border:1px solid rgb(90 169 255/.3);border-radius:14px;padding:10px 12px;margin-bottom:10px;cursor:pointer;width:100%;text-align:left}
+.banner b{display:block;font-size:.9rem}.banner span{font-size:.8rem;color:var(--muted)}
 .swv{display:flex;flex-direction:column}
 .stage{flex:1;min-height:0;position:relative;max-width:560px;width:100%;margin-inline:auto}
 .stack{position:absolute;top:0;bottom:0;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px))}
-.sc{position:absolute;inset:0;border-radius:20px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;background:var(--surface);box-shadow:0 18px 40px rgb(0 0 0/.5);touch-action:pan-y;user-select:none;-webkit-user-select:none;will-change:transform;scrollbar-width:none}
+.sc{position:absolute;inset:0;border-radius:22px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;background:var(--surface);box-shadow:0 18px 40px rgb(0 0 0/.55);touch-action:pan-y;user-select:none;-webkit-user-select:none;will-change:transform;scrollbar-width:none}
 .sc::-webkit-scrollbar{display:none}
 .sc.under{transform:scale(.95) translateY(10px);filter:brightness(.7);pointer-events:none}
 .pic{position:relative;height:calc(100% - 34px);min-height:300px;overflow:hidden;background:linear-gradient(160deg,#2a2a33,#3b1d22 70%,#7a1218)}
@@ -82,20 +172,21 @@ input:focus{outline:2px solid var(--red);border-color:transparent}
 .gen{position:absolute;top:20px;left:12px;right:12px;z-index:2;display:flex;flex-wrap:wrap;gap:6px}
 .ty{font:800 .7rem var(--font);text-transform:uppercase;letter-spacing:.08em;padding:6px 9px;border-radius:8px;background:rgb(0 0 0/.7);color:#fff}
 .gn{font:800 .9rem var(--font);padding:5px 11px;border-radius:999px;background:var(--red);color:#fff;box-shadow:0 4px 12px rgb(0 0 0/.4)}
+.liked{font:800 .78rem var(--font);padding:6px 10px;border-radius:999px;background:var(--gold);color:#1a1300}
 .cap{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:16px 130px 14px 16px;display:grid;gap:4px}
-.cap b{font-size:1.55rem;font-weight:800;line-height:1.12;color:#fff;text-wrap:balance;text-shadow:0 2px 12px rgb(0 0 0/.6)}
+.cap b{font:800 1.5rem/1.12 var(--display);letter-spacing:-.03em;color:#fff;text-wrap:balance;text-shadow:0 2px 12px rgb(0 0 0/.6)}
 .cap .m{display:flex;gap:8px;flex-wrap:wrap;font-size:.84rem;font-weight:700;color:#e2e2e8}
 .rt{color:var(--gold)}
 .trb{position:absolute;right:12px;bottom:14px;z-index:4;display:flex;align-items:center;gap:6px;background:#fff;color:#111;border:0;font:800 .88rem var(--font);padding:9px 14px 9px 11px;border-radius:999px;box-shadow:0 6px 18px rgb(0 0 0/.45);cursor:pointer}
 .trb svg{width:16px;height:16px;color:var(--red)}
-.stamp{position:absolute;top:26px;z-index:3;font:800 1.7rem var(--font);letter-spacing:.06em;padding:4px 12px;border:4px solid;border-radius:10px;opacity:0;text-transform:uppercase;pointer-events:none}
+.stamp{position:absolute;top:26px;z-index:3;font:900 1.6rem var(--display);padding:4px 12px;border:4px solid;border-radius:12px;opacity:0;text-transform:uppercase;pointer-events:none}
 .stamp.yes{left:20px;color:var(--like);transform:rotate(-14deg)}
 .stamp.no{right:20px;color:var(--nope);transform:rotate(14deg)}
 .stamp.mega{left:50%;top:40%;transform:translate(-50%,0) rotate(-8deg);color:var(--mega);white-space:nowrap}
 .info{padding:12px 16px 22px;display:grid;gap:16px}
 .more{text-align:center;font:700 .78rem var(--font);color:var(--muted)}
 .tagl{margin:0;font-style:italic;color:#d8d8e0}
-.desc{margin:4px 0 0;color:#cfcfd6;font-size:.93rem;line-height:1.5}
+.desc{margin:4px 0 0;color:#cfcfd6;font-size:.94rem;line-height:1.55}
 .sect{display:grid;gap:6px}
 .facts{margin:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .facts div{background:var(--surface2);border-radius:10px;padding:9px 11px;min-width:0}
@@ -103,9 +194,10 @@ input:focus{outline:2px solid var(--red);border-color:transparent}
 .facts dd{margin:2px 0 0;font-weight:700;font-size:.9rem;overflow-wrap:anywhere}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{font:700 .78rem var(--font);padding:6px 11px;border-radius:999px;background:var(--surface2);color:var(--ink);text-decoration:none;border:1px solid var(--line)}
-.chip.free{background:rgb(47 191 113/.18);color:#7be3a8;border-color:transparent}
-.ctrl{display:flex;justify-content:center;align-items:center;gap:12px;padding-block:12px 12px}
-.cb{border:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:var(--surface);box-shadow:0 8px 20px rgb(0 0 0/.4)}
+.chip.free{background:rgb(47 209 127/.16);color:#7be3a8;border-color:transparent}
+.ctrl{display:flex;justify-content:center;align-items:center;gap:12px;padding-block:12px}
+.cb{border:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:var(--surface);box-shadow:0 8px 20px rgb(0 0 0/.4);transition:transform .12s}
+.cb:active{transform:scale(.92)}
 .cb svg{width:46%;height:46%}
 .cb.no,.cb.yes{width:62px;height:62px}.cb.no{color:var(--nope)}.cb.yes{color:var(--like)}
 .cb.mega{width:52px;height:52px;color:var(--mega)}
@@ -113,72 +205,143 @@ input:focus{outline:2px solid var(--red);border-color:transparent}
 .cb:disabled{opacity:.35}
 .swempty{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:12px;text-align:center;color:var(--muted);padding:20px}
 .swempty strong{color:var(--ink);font-size:1.15rem}
-/* lists */
 .list{display:grid;gap:10px;padding-bottom:24px}
-.lrow{display:grid;grid-template-columns:78px 1fr;gap:12px;background:var(--surface);border-radius:14px;padding:10px;align-items:start;border:0;text-align:left;width:100%;cursor:pointer}
+.lrow{display:grid;grid-template-columns:78px 1fr;gap:12px;background:var(--surface);border-radius:14px;padding:10px;align-items:start;border:0;text-align:left;width:100%;cursor:pointer;color:inherit}
 .lrow img{width:78px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;max-width:100%;background:var(--surface2)}
 .lt{display:grid;gap:3px;min-width:0}
 .lt b{font-weight:800;font-size:1.02rem}
 .lt span{font-size:.8rem;color:var(--muted)}
 .lt em{font-style:normal;color:var(--gold);font-weight:800}
+.lt .clamp{color:#b9b9c2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .la{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .onsh{font:800 .8rem var(--font);color:var(--done);padding:7px 2px}
-.stdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+.stdot{display:inline-block;width:8px;height:8px;border-radius:50%}
 .sh{display:flex;align-items:center;gap:8px;margin:18px 0 10px}
 .sh h2{font-size:1.05rem;font-weight:800;margin:0}
-/* sheets & modal */
+.empty{margin:50px auto;max-width:34ch;text-align:center;color:var(--muted);display:grid;gap:12px;justify-items:center}
+.empty strong{color:var(--ink);font-size:1.1rem}
 .scrim{position:fixed;inset:0;background:rgb(0 0 0/.7);z-index:60;display:flex;align-items:flex-end;justify-content:center}
-.sheet{background:var(--surface);width:100%;max-width:600px;max-height:92%;overflow-y:auto;border-radius:18px 18px 0 0;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));padding-block:12px calc(24px + env(safe-area-inset-bottom,0px));display:grid;gap:16px}
-.sheet h2{margin:0;font-size:1.25rem;font-weight:800}
+.sheet{background:var(--surface);width:100%;max-width:600px;max-height:92%;overflow-y:auto;border-radius:20px 20px 0 0;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));padding-block:12px calc(24px + env(safe-area-inset-bottom,0px));display:grid;gap:16px}
+.sheet h2{margin:0;font:800 1.2rem var(--display);letter-spacing:-.02em}
 .grab{width:40px;height:5px;border-radius:3px;background:var(--line);justify-self:center}
 .seg{display:flex;gap:6px;flex-wrap:wrap}
 .seg button{border:1px solid var(--line);background:transparent;color:var(--ink);font:700 .84rem var(--font);padding:8px 12px;border-radius:999px;cursor:pointer}
 .seg button[aria-pressed="true"],.seg button.yes{background:var(--red);border-color:var(--red);color:#fff}
 .seg button.no{color:var(--muted);text-decoration:line-through;border-style:dashed}
 .sticky{position:sticky;bottom:calc(-24px - env(safe-area-inset-bottom,0px));background:var(--surface);padding-block:10px 4px;display:flex;gap:10px}
-.vid{position:fixed;inset:0;z-index:80;background:rgb(0 0 0/.92);display:grid;place-items:center;padding:16px}
-.vid .frame{width:100%;max-width:960px;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden}
+.code{font:900 2rem var(--display);letter-spacing:.18em;text-align:center;background:var(--bg);border:1px dashed var(--line);border-radius:14px;padding:14px}
+.vid{position:fixed;inset:0;z-index:90;background:rgb(0 0 0/.94);display:grid;place-items:center;padding:16px}
+.vid .frame{width:100%;max-width:980px;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden}
 .vid iframe{width:100%;height:100%;border:0}
 .vid .x{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:16px;border:0;background:var(--surface);color:#fff;width:44px;height:44px;border-radius:50%;font-size:22px;cursor:pointer}
 .detail{position:fixed;inset:0;z-index:50;background:var(--bg);overflow-y:auto;padding-bottom:40px}
 .dhero{position:relative;height:min(58vh,520px);background:var(--surface)}
 .dhero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.dhero::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgb(14 14 16/.35),transparent 30%,transparent 55%,var(--bg))}
+.dhero::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgb(11 11 13/.35),transparent 30%,transparent 55%,var(--bg))}
 .dback{position:absolute;z-index:2;top:calc(12px + env(safe-area-inset-top,0px));left:16px;border:0;background:rgb(0 0 0/.6);color:#fff;font:700 .9rem var(--font);padding:8px 14px;border-radius:999px;cursor:pointer}
 .dbody{max-width:640px;margin:-60px auto 0;position:relative;z-index:2;display:grid;gap:16px}
-.dtitle{font-size:1.9rem;font-weight:800;line-height:1.12;margin:0;text-wrap:balance}
+.dtitle{font:800 1.8rem/1.12 var(--display);letter-spacing:-.03em;margin:0;text-wrap:balance}
 .gal{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory}
 .gal img{flex:none;height:200px;max-width:85%;object-fit:cover;border-radius:12px;scroll-snap-align:start;background:var(--surface2)}
 .acts{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
-.act{border:0;background:var(--surface);color:var(--muted);font:700 .72rem var(--font);display:grid;justify-items:center;gap:5px;padding:9px 2px;cursor:pointer;border-radius:10px}
-.act svg{width:22px;height:22px}
+.act{border:0;background:var(--surface);color:var(--muted);font:700 .72rem var(--font);display:grid;justify-items:center;padding:10px 2px;cursor:pointer;border-radius:10px}
 .act[aria-pressed="true"]{color:#fff;background:var(--c)}
 .stars{display:flex;flex-wrap:wrap}
 .stars button{border:0;background:none;color:var(--line);font-size:1.55rem;line-height:1;padding:2px;cursor:pointer}
 .stars button.on{color:var(--gold)}
-.match{position:fixed;inset:0;z-index:85;background:rgb(10 10 12/.9);display:grid;place-items:center;padding:24px}
+.match{position:fixed;inset:0;z-index:85;background:radial-gradient(60% 50% at 50% 40%,rgb(255 45 63/.35),rgb(10 10 12/.95));display:grid;place-items:center;padding:24px}
 .mcard{max-width:340px;width:100%;display:grid;gap:14px;justify-items:center;text-align:center}
-.mcard h3{margin:0;font-size:2.2rem;font-weight:800;color:var(--gold)}
-.mcard img{width:150px;aspect-ratio:2/3;object-fit:cover;border-radius:12px}
-.spin{width:28px;height:28px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--red);animation:sp 1s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+.mcard h3{margin:0;font:900 3rem var(--display);color:var(--gold);letter-spacing:-.03em}
+.mcard img{width:160px;aspect-ratio:2/3;object-fit:cover;border-radius:14px;box-shadow:0 20px 50px rgb(0 0 0/.6)}
+.modal{position:fixed;inset:0;z-index:70;background:rgb(0 0 0/.72);display:grid;place-items:center;padding:20px}
+.mbox{background:var(--surface);border:1px solid var(--line);border-radius:22px;width:100%;max-width:420px;padding:26px;display:grid;gap:14px;position:relative;max-height:90vh;overflow-y:auto}
+.mbox h2{margin:0;font:800 1.4rem var(--display);letter-spacing:-.02em}
+.mbox .x{position:absolute;right:12px;top:12px;border:0;background:var(--surface2);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px}
+.legal{max-width:640px}.legal p,.legal li{color:#c6c6d0;font-size:.93rem}
+@media (prefers-reduced-motion:no-preference){.mcard{animation:pop .4s cubic-bezier(.2,1.4,.4,1)}@keyframes pop{from{transform:scale(.7);opacity:0}}}
 </style>
 </head>
 <body>
-<div id="login" class="login" hidden>
-  <form class="box" id="lf">
-    <div class="av" style="width:56px;height:56px;font-size:1.6rem">♥</div>
-    <h1>Наша полка</h1>
-    <p class="sub" style="margin:0;font-size:.95rem">Свайпайте фильмы, сериалы и аниме вдвоём. Вход по ссылке из письма — без пароля.</p>
-    <label class="label" for="em">Почта</label>
-    <input type="email" id="em" required autocomplete="email" placeholder="you@gmail.com">
-    <button class="btn red" type="submit" id="lb">Прислать ссылку для входа</button>
-    <p class="sub" id="lmsg" style="margin:0"></p>
-  </form>
-</div>
-<div id="nope" class="login" hidden><div class="box"><h1>Нет доступа</h1><p class="sub" style="font-size:.95rem">Эта почта не добавлена. Попроси Рому добавить её в настройках сайта.</p><button class="btn" id="out2">Выйти</button></div></div>
 
+<!-- ================= LANDING ================= -->
+<canvas id="world" aria-hidden="true"></canvas>
+<div class="land" id="land" hidden>
+  <header class="lnav"><div class="in pad">
+    <a class="logo" href="#top"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#ff2d3f"/><rect x="14" y="16" width="22" height="32" rx="5" fill="#fff" opacity=".55" transform="rotate(-10 25 32)"/><rect x="28" y="16" width="22" height="32" rx="5" fill="#fff" transform="rotate(10 39 32)"/><path d="M39 39s-6-3.6-7.5-7c-1-2.4.6-5 3-5 1.5 0 2.5.8 4.5 2.5 2-1.7 3-2.5 4.5-2.5 2.4 0 4 2.6 3 5-1.5 3.4-7.5 7-7.5 7z" fill="#ff2d3f"/></svg>Kinomatch</a>
+    <nav class="links"><a href="#how">Как это работает</a><a href="#feat">Возможности</a><a href="#faq">Вопросы</a></nav>
+    <button class="btn red sm" data-login>Войти</button>
+  </div></header>
+
+  <section class="hero pad" id="top">
+    <div>
+      <span class="eyebrow">♥ Тиндер для фильмов</span>
+      <h1>Что смотрим <em>сегодня?</em></h1>
+      <p class="lead">Свайпайте фильмы, сериалы, аниме и дорамы вдвоём. Когда понравится обоим — мэтч. Больше никаких «давай ты выберешь» по полчаса.</p>
+      <div class="cta"><button class="btn red big" data-login>Начать бесплатно</button><a class="btn big" href="#how">Как это работает</a></div>
+      <div class="proof"><div><b>∞</b>фильмов и сериалов</div><div><b>2</b>вас — один мэтч</div><div><b>0 ₴</b>и без рекламы</div></div>
+    </div>
+    <div class="fan" aria-hidden="true">
+      <div class="pc"><img id="hp1" alt=""></div><div class="pc"><img id="hp2" alt=""></div><div class="pc"><img id="hp3" alt=""></div>
+      <span class="tag l">Нравится</span><span class="tag m">Мэтч!</span>
+    </div>
+  </section>
+
+  <section class="sec pad" id="how">
+    <span class="label">Как это работает</span>
+    <h2>Три шага до идеального вечера</h2>
+    <p class="intro">Каждый свайпает у себя на телефоне. Kinomatch сам находит, что понравилось вам обоим.</p>
+    <div class="steps">
+      <div class="step"><div class="ic"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 15s-3.5-2.1-4.4-4.2C7 9.4 7.9 8 9.4 8c1 0 1.7.5 2.6 1.4.9-.9 1.6-1.4 2.6-1.4 1.5 0 2.4 1.4 1.8 2.8C15.5 12.9 12 15 12 15z" fill="currentColor"/></svg></div><h3>Свайпайте</h3><p>Вправо — нравится, влево — мимо, звезда — сразу на полку. Листайте карточку вниз, чтобы прочитать, о чём фильм.</p></div>
+      <div class="step"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6M17 8v6M14 11h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><h3>Позовите пару</h3><p>Отправьте партнёру ссылку или код из профиля — и ваши аккаунты свяжутся.</p></div>
+      <div class="step"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="15" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2"/></svg></div><h3>Ловите мэтчи</h3><p>Фильм, который лайкнули оба, попадает в «Мэтчи». Смотрите трейлер и сразу видите, где его посмотреть.</p></div>
+    </div>
+  </section>
+
+  <section class="sec pad" id="feat">
+    <span class="label">Возможности</span>
+    <h2>Всё, чтобы выбрать быстро</h2>
+    <p class="intro">Огромная база из TMDB, обновляется каждый день.</p>
+    <div class="feats">
+      <div class="feat wide"><div class="ic">🎬</div><h3>Трейлер прямо в карточке</h3><p>Одна кнопка — и трейлер играет поверх приложения, на русском, если он есть.</p></div>
+      <div class="feat"><div class="ic">📍</div><h3>Где смотреть в Украине</h3><p>Netflix, MEGOGO, Apple TV и другие сервисы — с кнопкой перехода.</p></div>
+      <div class="feat"><div class="ic">🎯</div><h3>Фильтры под настроение</h3><p>Фильмы, сериалы, аниме, дорамы. Жанры «нравится» и «не показывать», годы, рейтинг.</p></div>
+      <div class="feat"><div class="ic">⭐</div><h3>Мега-лайк</h3><p>Точно хочу — сразу на полку, без раздумий.</p></div>
+      <div class="feat"><div class="ic">📚</div><h3>Своя полка</h3><p>Хочу, смотрю, посмотрено, брошено. Оценки по 10-балльной шкале.</p></div>
+      <div class="feat wide"><div class="ic">📖</div><h3>Всё о фильме, как в анкете</h3><p>Листайте вниз: описание, сезоны и серии, длительность, страна, режиссёр, актёры и кадры из фильма.</p></div>
+      <div class="feat"><div class="ic">🔎</div><h3>Поиск</h3><p>Нашли название в TikTok — найдите и добавьте за секунду.</p></div>
+    </div>
+  </section>
+
+  <section class="sec" style="padding-block:20px 60px" aria-hidden="true">
+    <div class="marq"><div class="tr" id="mq1"></div></div>
+    <div class="marq rev" style="margin-top:14px"><div class="tr" id="mq2"></div></div>
+  </section>
+
+  <section class="sec pad" id="faq">
+    <span class="label">Вопросы</span>
+    <h2>Частые вопросы</h2>
+    <div class="faq">
+      <details><summary>Это бесплатно?</summary><p>Да, полностью. Без рекламы и подписок.</p></details>
+      <details><summary>Можно ли смотреть фильмы прямо тут?</summary><p>Нет. Kinomatch помогает выбрать, а смотреть — в легальных сервисах: мы показываем, где фильм доступен в Украине, и ведём туда по кнопке.</p></details>
+      <details><summary>Нужен ли партнёр?</summary><p>Нет — можно свайпать одному и собирать свою полку. С партнёром появятся мэтчи.</p></details>
+      <details><summary>Как связать аккаунты?</summary><p>В профиле есть ваш код и ссылка-приглашение. Партнёр открывает ссылку (или вводит код) — и всё.</p></details>
+      <details><summary>Какие данные вы храните?</summary><p>Только почту для входа, имя, ваши свайпы, полку и фильтры. Никаких паролей. Подробнее — в <a href="#privacy" data-privacy>политике конфиденциальности</a>.</p></details>
+    </div>
+  </section>
+
+  <section class="sec pad final">
+    <h2>Хватит выбирать дольше, чем смотреть</h2>
+    <p class="intro" style="margin-inline:auto">Вход по ссылке из письма — без пароля, за 20 секунд.</p>
+    <button class="btn red big" data-login>Начать бесплатно</button>
+  </section>
+
+  <footer class="lfoot"><div class="in pad">
+    <div class="tmdb"><span class="tw">TMDB</span><span>Данные о фильмах и сериалах — The Movie Database. This product uses the TMDB API but is not endorsed or certified by TMDB.</span></div>
+    <div style="display:flex;gap:18px;flex-wrap:wrap"><a href="#privacy" data-privacy>Конфиденциальность</a><a href="https://www.themoviedb.org/" target="_blank" rel="noopener">themoviedb.org</a><span>© 2026 Kinomatch</span></div>
+  </div></footer>
+</div>
+
+<!-- ================= APP ================= -->
 <div class="app" id="app" hidden>
   <div class="main" id="main"></div>
   <nav class="nav" id="nav">
@@ -190,27 +353,30 @@ input:focus{outline:2px solid var(--red);border-color:transparent}
   </nav>
 </div>
 <div id="layer"></div>
+<div id="modalRoot"></div>
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
+const BRAND="Kinomatch";
 const SB_URL="https://atajfbfpzzrwdwtrsydw.supabase.co";
 const SB_KEY="sb_publishable_7ZTtX4mqNcA-BQs5EoKXyQ_YZ5rfvx5";
 const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,detectSessionInUrl:true,flowType:"implicit"}});
 const IMG="https://image.tmdb.org/t/p/";
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const NOM={roma:"Рома",karina:"Карина"},GEN={roma:"Ромы",karina:"Карины"},DAT={roma:"Роме",karina:"Карине"},OTHER={roma:"karina",karina:"roma"};
 const TYPES={film:"Фильм",series:"Сериал",anime:"Аниме",kr:"Дорама"};
 const ST=[{k:"want",t:"Хочу",c:"var(--want)"},{k:"watching",t:"Смотрю",c:"var(--watching)"},{k:"done",t:"Посмотрено",c:"var(--done)"},{k:"dropped",t:"Брошено",c:"var(--dropped)"}];
-function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2400)}
+function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2600)}
 const cap1=s=>s?s[0].toUpperCase()+s.slice(1):s;
 const RN=(n,a,b,c)=>{const m=n%10,h=n%100;return n+" "+(m===1&&h!==11?a:m>=2&&m<=4&&(h<10||h>=20)?b:c)};
 let DN=null;try{DN=new Intl.DisplayNames(["ru"],{type:"region"})}catch(e){}
 const country=cc=>(cc||[]).map(x=>{try{return DN?DN.of(x):x}catch(e){return x}}).join(", ");
 const dur=m=>m>=60?`${Math.floor(m/60)} ч ${m%60?m%60+" мин":""}`.trim():m+" мин";
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 
-/* ---------- TMDB through our proxy ---------- */
+/* ---------- TMDB through our server-side proxy (the key never reaches the browser) ---------- */
 const TC=new Map();
 async function tmdb(path,params={}){
   const q=new URLSearchParams({p:path,language:"ru-RU",...params});const key=q.toString();
@@ -226,19 +392,19 @@ async function loadGenres(){const [m,t]=await Promise.all([tmdb("/genre/movie/li
 const TVSPLIT={"боевик и приключения":["боевик","приключения"],"нф и фэнтези":["фантастика","фэнтези"],"война и политика":["военный"],"мыльная опера":["мелодрама"],"детский":["семейный"]};
 const FILTER_GENRES=["драма","комедия","боевик","триллер","криминал","фантастика","фэнтези","ужасы","детектив","приключения","мелодрама","семейный","мультфильм","военный","история","документальный","музыка","вестерн"];
 function genreIds(name,kind){const M=kind==="movie"?GM:GT,ids=[];for(const [id,n] of Object.entries(M)){if(n===name||(TVSPLIT[n]||[]).includes(name))ids.push(+id)}return ids}
-function genresOf(r,kind){const M=kind==="movie"?GM:GT,out=[];(r.genre_ids||r.genres?.map(g=>g.id)||[]).forEach(id=>{const n=M[id];if(!n)return;(TVSPLIT[n]||[n]).forEach(x=>out.push(x))});return [...new Set(out)].filter(x=>x!=="мультфильм"||true).slice(0,3)}
-function kindOf(r,kind){const g=r.genre_ids||r.genres?.map(x=>x.id)||[];if(g.includes(16)&&(r.original_language==="ja"))return"anime";if(kind==="tv"&&r.original_language==="ko")return"kr";return kind==="movie"?"film":"series"}
+function genresOf(r,kind){const M=kind==="movie"?GM:GT,out=[];(r.genre_ids||r.genres?.map(g=>g.id)||[]).forEach(id=>{const n=M[id];if(!n)return;(TVSPLIT[n]||[n]).forEach(x=>out.push(x))});return [...new Set(out)].slice(0,3)}
+function kindOf(r,kind){const g=r.genre_ids||r.genres?.map(x=>x.id)||[];if(g.includes(16)&&r.original_language==="ja")return"anime";if(kind==="tv"&&r.original_language==="ko")return"kr";return kind==="movie"?"film":"series"}
 function itemFrom(r,kind){kind=kind||r.media_type;return{k:kind+"-"+r.id,kind,id:r.id,t:r.title||r.name,o:r.original_title||r.original_name||"",y:(r.release_date||r.first_air_date||"").slice(0,4),
   r:Math.round((r.vote_average||0)*10)/10,d:(r.overview||"").trim(),poster:r.poster_path,backdrop:r.backdrop_path,ty:kindOf(r,kind),g:genresOf(r,kind)}}
 const DET=new Map();
-function details(it){if(!DET.has(it.k))DET.set(it.k,tmdb(`/${it.kind}/${it.id}`,{append_to_response:"videos,credits,watch/providers,images",include_image_language:"ru,null,en",include_video_language:"ru,uk,en"}).catch(()=>null));return DET.get(it.k)}
+function details(it){if(!it?.kind)return Promise.resolve(null);if(!DET.has(it.k))DET.set(it.k,tmdb(`/${it.kind}/${it.id}`,{append_to_response:"videos,credits,watch/providers,images",include_image_language:"ru,null,en",include_video_language:"ru,uk,en"}).catch(()=>null));return DET.get(it.k)}
 function trailerOf(d){const vs=(d?.videos?.results||[]).filter(v=>v.site==="YouTube");const order=["ru","uk","en"];
   const pick=t=>vs.filter(v=>v.type===t).sort((a,b)=>order.indexOf(a.iso_639_1)-order.indexOf(b.iso_639_1)||(b.official-a.official))[0];
   return pick("Trailer")||pick("Teaser")||vs[0]||null}
 const PROV={"Netflix":"https://www.netflix.com/search?q=","HBO Max":"https://play.hbomax.com/search?q=","Crunchyroll":"https://www.crunchyroll.com/search?q=","Apple TV":"https://tv.apple.com/search?term=","Apple TV Store":"https://tv.apple.com/search?term=","Amazon Prime Video":"https://www.primevideo.com/search?phrase=","MEGOGO":"https://megogo.net/ua/search-extended?q=","Disney Plus":"https://www.disneyplus.com/search?q=","Google Play Movies":"https://play.google.com/store/search?c=movies&q="};
 function whereOf(it,d){const ua=d?.["watch/providers"]?.results?.UA||{},q=encodeURIComponent(it.o||it.t),out=[];
   (ua.flatrate||[]).slice(0,4).forEach(p=>out.push({name:p.provider_name,sub:true,url:(PROV[p.provider_name]||"https://www.justwatch.com/ua/search?q=")+q}));
-  [...(ua.rent||[]),...(ua.buy||[])].forEach(p=>{if(out.some(x=>x.name===p.provider_name)||out.length>=6)return;out.push({name:p.provider_name.replace(" Store",""),sub:false,url:(PROV[p.provider_name]||"https://www.justwatch.com/ua/search?q=")+q})});
+  [...(ua.rent||[]),...(ua.buy||[])].forEach(p=>{const n=p.provider_name.replace(" Store","");if(out.some(x=>x.name===n)||out.length>=6)return;out.push({name:n,sub:false,url:(PROV[p.provider_name]||"https://www.justwatch.com/ua/search?q=")+q})});
   return out}
 function factsOf(it,d){if(!d)return[];const tv=it.kind==="tv",f=[];const ly=(d.last_air_date||"").slice(0,4);
   f.push(["Год",tv&&ly&&ly!==it.y?`${it.y}–${d.status==="Returning Series"?"…":ly}`:it.y]);
@@ -251,87 +417,200 @@ function factsOf(it,d){if(!d)return[];const tv=it.kind==="tv",f=[];const ly=(d.l
   if(tv&&d.networks?.length)f.push(["Канал",d.networks.slice(0,2).map(n=>n.name).join(", ")]);
   return f.filter(x=>x[1])}
 function framesOf(it,d){const out=[];if(it.poster)out.push({u:IMG+"w500"+it.poster,still:false});
-  const bds=(d?.images?.backdrops||[]).filter(b=>!b.iso_639_1).sort((a,b)=>b.vote_average-a.vote_average).slice(0,4);
-  (bds.length?bds:(d?.images?.backdrops||[]).slice(0,3)).forEach(b=>out.push({u:IMG+"w780"+b.file_path,still:true}));
+  const all=d?.images?.backdrops||[],bds=all.filter(b=>!b.iso_639_1).sort((a,b)=>b.vote_average-a.vote_average).slice(0,4);
+  (bds.length?bds:all.slice(0,3)).forEach(b=>out.push({u:IMG+"w780"+b.file_path,still:true}));
   if(out.length===1&&it.backdrop)out.push({u:IMG+"w780"+it.backdrop,still:true});return out}
-
-/* ---------- state ---------- */
-let me=null,who="roma",shelf={roma:new Map(),karina:new Map()},swipes={roma:new Map(),karina:new Map()},prefs={roma:null,karina:null},view="swipe";
-const DEF_PREFS=()=>({kinds:[],yes:[],no:[],eras:[],minR:0});
-async function loadAll(){
-  const [s,w,p]=await Promise.all([sb.from("kino_shelf").select("*"),sb.from("kino_swipes").select("person,tmdb,v,data,at"),sb.from("kino_prefs").select("*")]);
-  shelf={roma:new Map(),karina:new Map()};swipes={roma:new Map(),karina:new Map()};
-  (s.data||[]).forEach(r=>shelf[r.person].set(r.tmdb,r));(w.data||[]).forEach(r=>swipes[r.person].set(r.tmdb,r));
-  (p.data||[]).forEach(r=>prefs[r.person]=r.prefs);
-}
-function counts(){const l=likesOf(who).length,m=matchesList().length;$("#nL").hidden=!l;$("#nL").textContent=l;$("#nM").hidden=!m;$("#nM").textContent=m}
-const likesOf=w=>[...swipes[w].values()].filter(r=>r.v==="like").sort((a,b)=>(b.at||"").localeCompare(a.at||""));
-const matchesList=()=>likesOf("roma").filter(r=>swipes.karina.get(r.tmdb)?.v==="like");
 const slim=it=>({k:it.k,kind:it.kind,id:it.id,t:it.t,o:it.o,y:it.y,r:it.r,d:it.d,poster:it.poster,backdrop:it.backdrop,ty:it.ty,g:it.g});
 
-/* ---------- deck from TMDB, endless ---------- */
+/* ================= LANDING ================= */
+async function initLanding(){
+  $("#land").hidden=false;document.body.classList.remove("inapp");
+  document.querySelectorAll("[data-login]").forEach(b=>b.onclick=openLogin);
+  document.querySelectorAll("[data-privacy]").forEach(b=>b.onclick=e=>{e.preventDefault();openPrivacy()});
+  if(location.hash==="#privacy")openPrivacy();
+  if(new URLSearchParams(location.search).get("pair"))openLogin();
+  try{const [a,b]=await Promise.all([tmdb("/trending/all/week"),tmdb("/movie/top_rated")]);
+    const ps=[...(a.results||[]),...(b.results||[])].filter(x=>x.poster_path).map(x=>x.poster_path);
+    ["#hp1","#hp2","#hp3"].forEach((s,i)=>{if(ps[i])$(s).src=IMG+"w500"+ps[i]});
+    const row=arr=>arr.concat(arr).map(p=>`<img src="${IMG}w185${p}" alt="" loading="lazy">`).join("");
+    $("#mq1").innerHTML=row(ps.slice(3,21));$("#mq2").innerHTML=row(ps.slice(21,40));
+    world(ps);
+  }catch(e){}
+}
+/* Scroll-driven 3D world: the camera flies down a spiral tunnel of floating posters as you scroll. */
+function world(posters){
+  if(!window.THREE||matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const cv=$("#world");let r;try{r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true,powerPreference:"high-performance"})}catch(e){return}
+  const mobile=innerWidth<760;r.setPixelRatio(Math.min(devicePixelRatio,mobile?1.5:2));
+  const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x0b0b0d,mobile?.018:.014);
+  const cam=new THREE.PerspectiveCamera(mobile?72:60,1,.1,600);
+  const N=mobile?42:70,DEPTH=520,loader=new THREE.TextureLoader();loader.setCrossOrigin("anonymous");
+  const geo=new THREE.PlaneGeometry(2,3),cards=[];
+  const glowTex=(()=>{const c=document.createElement("canvas");c.width=c.height=64;const g=c.getContext("2d"),gr=g.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,"rgba(255,255,255,1)");gr.addColorStop(1,"rgba(255,255,255,0)");g.fillStyle=gr;g.fillRect(0,0,64,64);return new THREE.CanvasTexture(c)})();
+  for(let i=0;i<N;i++){
+    const src=posters[i%posters.length];
+    const mat=new THREE.MeshBasicMaterial({color:0x222228,side:THREE.DoubleSide,transparent:true});
+    loader.load(IMG+"w342"+src,t=>{t.colorSpace=THREE.SRGBColorSpace;mat.map=t;mat.color.set(0xffffff);mat.needsUpdate=true});
+    const m=new THREE.Mesh(geo,mat),a=i*2.399,rad=4.2+((i*37)%10)/4;
+    m.position.set(Math.cos(a)*rad,Math.sin(a)*rad*.62,-8-i*(DEPTH/N));
+    m.rotation.set((Math.random()-.5)*.25,-Math.cos(a)*.55,(Math.random()-.5)*.3);
+    m.userData={a,rad,spin:(Math.random()-.5)*.004,bob:Math.random()*6};
+    const s=1+((i*13)%5)/6;m.scale.set(s,s,s);scene.add(m);cards.push(m);
+  }
+  // glowing dust
+  const P=mobile?500:1100,pos=new Float32Array(P*3),col=new Float32Array(P*3);
+  for(let i=0;i<P;i++){pos[i*3]=(Math.random()-.5)*40;pos[i*3+1]=(Math.random()-.5)*26;pos[i*3+2]=-Math.random()*DEPTH;
+    const red=Math.random()<.55;col[i*3]=red?1:.36;col[i*3+1]=red?.18:.66;col[i*3+2]=red?.25:1}
+  const pg=new THREE.BufferGeometry();pg.setAttribute("position",new THREE.BufferAttribute(pos,3));pg.setAttribute("color",new THREE.BufferAttribute(col,3));
+  const dust=new THREE.Points(pg,new THREE.PointsMaterial({size:.22,map:glowTex,vertexColors:true,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));scene.add(dust);
+  // big heart-red sun at the end of the tunnel
+  const sun=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:0xff2d3f,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));
+  sun.scale.set(60,60,1);sun.position.set(0,0,-DEPTH-30);scene.add(sun);
+  let w=0,h=0,mx=0,my=0,tx=0,ty=0,prog=0,vis=true;
+  const size=()=>{w=innerWidth;h=innerHeight;r.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()};size();addEventListener("resize",size);
+  addEventListener("pointermove",e=>{tx=(e.clientX/w-.5);ty=(e.clientY/h-.5)},{passive:true});
+  document.addEventListener("visibilitychange",()=>vis=!document.hidden);
+  cv.classList.add("on");
+  const clock=new THREE.Clock();
+  (function loop(){
+    if($("#land").hidden){r.dispose();return}
+    requestAnimationFrame(loop);if(!vis)return;
+    const t=clock.getElapsedTime(),max=Math.max(1,document.documentElement.scrollHeight-h),target=scrollY/max;
+    prog+=(target-prog)*.06;mx+=(tx-mx)*.05;my+=(ty-my)*.05;
+    const z=6-prog*(DEPTH-20);
+    cam.position.set(Math.sin(prog*Math.PI*2)*1.6+mx*2.2,Math.cos(prog*Math.PI*3)*.8-my*1.4,z);
+    cam.rotation.set(-my*.12,-mx*.18,prog*Math.PI*.6+Math.sin(t*.2)*.02);
+    for(const m of cards){const u=m.userData;m.rotation.z+=u.spin;m.position.y+=Math.sin(t+u.bob)*.0025;
+      const d=m.position.z-z;m.material.opacity=d>1?0:Math.min(1,Math.max(0,(-d-.5)/5))}
+    dust.rotation.z=t*.02;sun.material.opacity=.35+prog*.5;
+    r.render(scene,cam);
+  })();
+}
+function modal(html){$("#modalRoot").innerHTML=`<div class="modal" id="md"><div class="mbox" role="dialog" aria-modal="true"><button class="x" id="mx" aria-label="Закрыть">✕</button>${html}</div></div>`;
+  $("#mx").onclick=closeModal;$("#md").onclick=e=>{if(e.target.id==="md")closeModal()}}
+function closeModal(){$("#modalRoot").innerHTML=""}
+function openLogin(){
+  const pair=new URLSearchParams(location.search).get("pair");
+  modal(`<h2>Вход в ${BRAND}</h2>${pair?`<p class="sub" style="margin:0;color:#ffb1b8">Вас пригласили в пару — после входа аккаунты свяжутся сами.</p>`:""}
+    <p class="sub" style="margin:0;font-size:.92rem">Введите почту — пришлём ссылку для входа. Без пароля.</p>
+    <form id="lf" style="display:grid;gap:12px"><input type="email" id="em" required autocomplete="email" placeholder="you@gmail.com" value="${esc(ls.get("lastEmail",""))}">
+    <button class="btn red big" type="submit" id="lb">Прислать ссылку</button></form><p class="sub" id="lmsg" style="margin:0"></p>
+    <p class="sub" style="margin:0;font-size:.75rem">Входя, вы соглашаетесь с <a href="#privacy" data-privacy>политикой конфиденциальности</a>.</p>`);
+  document.querySelectorAll("#modalRoot [data-privacy]").forEach(b=>b.onclick=e=>{e.preventDefault();openPrivacy()});
+  $("#lf").onsubmit=async e=>{e.preventDefault();const b=$("#lb");b.disabled=true;const email=$("#em").value.trim();ls.set("lastEmail",email);
+    const redirect=location.origin+location.pathname+(pair?"?pair="+encodeURIComponent(pair):"");
+    const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:redirect,shouldCreateUser:true}});
+    $("#lmsg").innerHTML=error?(/rate|limit|seconds/i.test(error.message)?"Слишком много писем подряд — подождите минуту и попробуйте снова.":"Ошибка: "+esc(error.message))
+      :`Письмо отправлено на <b>${esc(email)}</b>. Откройте ссылку из него на этом же устройстве. Не пришло — проверьте «Спам».`;b.disabled=false};
+}
+function openPrivacy(){
+  modal(`<div class="legal"><h2>Конфиденциальность</h2>
+    <p>${BRAND} хранит только то, что нужно для работы:</p>
+    <ul><li>почту — чтобы присылать ссылку для входа;</li><li>имя, которое вы укажете в профиле;</li><li>ваши свайпы, полку, оценки и фильтры;</li><li>связь с партнёром, если вы её создали.</li></ul>
+    <p>Мы не продаём и не передаём данные третьим лицам и не показываем рекламу. Данные хранятся в Supabase (ЕС, Франкфурт). Ваш партнёр видит ваши лайки и полку — больше никто.</p>
+    <p>Удалить аккаунт и все данные можно в профиле: «Удалить аккаунт».</p>
+    <p>Информация о фильмах предоставлена TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.</p></div>`);
+}
+
+/* ================= APP STATE ================= */
+let me=null,partner=null,mine={shelf:new Map(),swipes:new Map()},theirs={shelf:new Map(),swipes:new Map()},prefs=null,view="swipe";
+const DEF_PREFS=()=>({kinds:[],yes:[],no:[],eras:[],minR:0});
+const myName=()=>me?.name||"Я",ptName=()=>partner?.name||"Партнёр";
+async function loadAll(){
+  const [s,w,p,pr]=await Promise.all([sb.from("km_shelf").select("*"),sb.from("km_swipes").select("user_id,tmdb,v,data,at"),sb.from("km_prefs").select("prefs").eq("user_id",me.user_id).maybeSingle(),sb.from("km_profiles").select("*")]);
+  (pr.data||[]).forEach(r=>{if(r.user_id===me.user_id)me={...me,...r};else partner=r});
+  if(!me.partner)partner=null;
+  mine={shelf:new Map(),swipes:new Map()};theirs={shelf:new Map(),swipes:new Map()};
+  (s.data||[]).forEach(r=>(r.user_id===me.user_id?mine:theirs).shelf.set(r.tmdb,r));
+  (w.data||[]).forEach(r=>(r.user_id===me.user_id?mine:theirs).swipes.set(r.tmdb,r));
+  prefs=p.data?.prefs||prefs||null;
+}
+const likes=side=>[...side.swipes.values()].filter(r=>r.v==="like").sort((a,b)=>(b.at||"").localeCompare(a.at||""));
+const matchesList=()=>partner?likes(mine).filter(r=>theirs.swipes.get(r.tmdb)?.v==="like"):[];
+function counts(){const l=likes(mine).length,m=matchesList().length;$("#nL").hidden=!l;$("#nL").textContent=l;$("#nM").hidden=!m;$("#nM").textContent=m}
+
+/* ---------- endless deck straight from TMDB ---------- */
 let deck=[],src=[],loading=false,hist=[],busy=false,deckErr=false;
 const ERAS=[{k:"new",t:"2020 и новее",a:"2020-01-01"},{k:"10s",t:"2010-е",a:"2010-01-01",b:"2019-12-31"},{k:"00s",t:"2000-е",a:"2000-01-01",b:"2009-12-31"},{k:"old",t:"До 2000",b:"1999-12-31"}];
 const KINDS=[{k:"film",t:"Фильмы"},{k:"series",t:"Сериалы"},{k:"anime",t:"Аниме"},{k:"kr",t:"Дорамы"}];
 function buildSources(){
-  const p=prefs[who]||DEF_PREFS(),kinds=p.kinds?.length?p.kinds:["film","series","anime","kr"];
+  const p=prefs||DEF_PREFS(),kinds=p.kinds?.length?p.kinds:["film","series","anime","kr"];
   const eras=p.eras?.length?ERAS.filter(e=>p.eras.includes(e.k)):[{}];
-  src=[];let seed=0;
+  src=[];
   for(const k of kinds)for(const e of eras){
     const kind=k==="film"?"movie":"tv",dk=kind==="movie"?"primary_release_date":"first_air_date",q={sort_by:"popularity.desc","vote_count.gte":k==="kr"?"30":"150"};
     if(e.a)q[dk+".gte"]=e.a;if(e.b)q[dk+".lte"]=e.b;if(p.minR)q["vote_average.gte"]=String(p.minR);
-    let yes=(p.yes||[]).flatMap(g=>genreIds(g,kind)),no=(p.no||[]).flatMap(g=>genreIds(g,kind));
+    const yes=(p.yes||[]).flatMap(g=>genreIds(g,kind));let no=(p.no||[]).flatMap(g=>genreIds(g,kind));
     if(k==="anime"){q.with_genres=[16,...yes].join(",");q.with_original_language="ja"}
-    else{if(yes.length)q.with_genres=yes.join("|");no=[...no,16];q.with_original_language=undefined}
+    else{if(yes.length)q.with_genres=yes.join("|");no=[...no,16]}
     if(k==="kr")q.with_original_language="ko";
     if(k==="series")q.without_genres=[...no,10764,10767,10763,10766].join(",");else if(no.length)q.without_genres=no.join(",");
-    Object.keys(q).forEach(x=>q[x]===undefined&&delete q[x]);
-    src.push({kind,q,page:0,done:false,id:seed++});
+    src.push({kind,q,page:0,done:false});
   }
 }
-function seenK(k){return swipes[who].has(k)||shelf[who].has(k)||deck.some(x=>x.k===k)}
+function seenK(k){return mine.swipes.has(k)||mine.shelf.has(k)||deck.some(x=>x.k===k)}
 async function fill(min=8){
   if(loading)return;loading=true;
   try{let guard=0;
     while(deck.length<min&&src.some(s=>!s.done)&&guard++<12){
-      const live=src.filter(s=>!s.done);const s=live[guard%live.length];s.page++;
+      const live=src.filter(s=>!s.done),s=live[guard%live.length];s.page++;
       const r=await tmdb("/discover/"+s.kind,{...s.q,page:String(s.page)});
       if(!r.results?.length||s.page>=r.total_pages)s.done=true;
       const items=(r.results||[]).filter(x=>x.poster_path&&x.overview).map(x=>itemFrom(x,s.kind)).filter(x=>!seenK(x.k));
-      // shuffle a little so it doesn't feel like a ranking
       for(let i=items.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[items[i],items[j]]=[items[j],items[i]]}
       deck.push(...items);
     }
-    // the other person's likes come first — easy matches
-    const other=likesOf(OTHER[who]).filter(r=>!seenK(r.tmdb)&&r.data).map(r=>r.data);if(other.length&&deck.length)deck.splice(1,0,...other.slice(0,3));
+    // what the partner already liked goes near the top — quick matches
+    const pl=likes(theirs).filter(r=>r.data?.kind&&!seenK(r.tmdb)).map(r=>r.data);if(pl.length)deck.splice(Math.min(1,deck.length),0,...pl.slice(0,3));
     deckErr=false;
   }catch(e){deckErr=true}finally{loading=false}
 }
 function resetDeck(){deck=[];hist=[];buildSources();renderSwipe(true);fill().then(()=>renderSwipe())}
 
-/* ---------- views ---------- */
+/* ---------- shell ---------- */
 const backSvg='<svg width="16" height="16" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const avatar=(n,pt)=>`<span class="av ${pt?"pt":""}">${esc((n||"?").trim()[0]?.toUpperCase()||"?")}</span>`;
 function topBar(title,sub){return `<div class="top"><div class="grow"><h1>${title}</h1>${sub?`<div class="sub">${sub}</div>`:""}</div>
-  <button class="who" id="whoBtn" type="button"><span class="av">${NOM[who][0]}</span>${NOM[who]}</button></div>`}
+  <button class="me" id="meBtn" type="button"><span class="duo">${avatar(myName())}${partner?avatar(ptName(),1):""}</span><span>${esc(myName())}</span></button></div>`}
 function go(v){view=v;document.querySelectorAll("#nav button").forEach(b=>b.setAttribute("aria-current",b.dataset.v===v));
-  ({swipe:renderSwipeView,likes:renderLikes,matches:renderMatches,shelf:renderShelf,search:renderSearch})[v]();counts()}
+  $("#main").onclick=null;({swipe:renderSwipeView,likes:renderLikes,matches:renderMatches,shelf:renderShelf,search:renderSearch})[v]();counts()}
 $("#nav").onclick=e=>{const b=e.target.closest("button");if(b)go(b.dataset.v)};
-document.addEventListener("click",e=>{if(e.target.closest("#whoBtn"))openWho()});
-function openWho(){
-  sheet(`<h2>Кто сейчас смотрит?</h2>
-    <div class="seg" id="wseg">${["roma","karina"].map(w=>`<button data-w="${w}" aria-pressed="${who===w}">${NOM[w]}</button>`).join("")}</div>
-    <p class="sub" style="margin:0">Свайпы, лайки и полка у каждого свои. Вход: ${esc(me.email)}</p>
-    ${me.person==="roma"?`<div class="sect"><span class="label">Пригласить Карину</span><div style="display:flex;gap:8px"><input type="email" id="inv" placeholder="почта Карины"><button class="btn red" id="invB">Добавить</button></div></div>`:""}
-    <button class="btn" id="logout">Выйти из аккаунта</button>`);
-  $("#wseg").onclick=e=>{const b=e.target.closest("button");if(!b)return;who=b.dataset.w;try{localStorage.setItem("who",who)}catch(err){}closeSheet();resetDeck();go(view)};
-  $("#logout").onclick=async()=>{await sb.auth.signOut();location.reload()};
-  const ib=$("#invB");if(ib)ib.onclick=async()=>{const v=$("#inv").value.trim().toLowerCase();if(!v.includes("@"))return toast("Введите почту");
-    const {error}=await sb.from("kino_allowed").upsert({email:v,person:"karina"});toast(error?"Не получилось: "+error.message:"Готово! Карина может входить с этой почты")};
+document.addEventListener("click",e=>{if(e.target.closest("#meBtn"))openProfile();if(e.target.closest("#pairBanner"))openProfile()});
+function sheet(html){$("#layer").innerHTML=`<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`;$("#scrim").onclick=e=>{if(e.target.id==="scrim")closeSheet()}}
+function closeSheet(){$("#layer").innerHTML=""}
+const inviteLink=()=>location.origin+location.pathname+"?pair="+me.pair_code;
+function openProfile(){
+  sheet(`<h2>Профиль</h2>
+    <div class="sect"><span class="label">Как вас зовут</span><div style="display:flex;gap:8px"><input type="text" id="nm" maxlength="30" value="${esc(me.name)}" placeholder="Имя"><button class="btn" id="nmB">Сохранить</button></div></div>
+    ${partner?`<div class="sect"><span class="label">Ваша пара</span><div style="display:flex;align-items:center;gap:10px">${avatar(ptName(),1)}<b style="flex:1">${esc(ptName())}</b><button class="btn ghost sm" id="unp">Отвязать</button></div></div>`
+    :`<div class="sect"><span class="label">Позовите пару</span><p class="sub" style="margin:0">Отправьте ссылку партнёру — после входа ваши аккаунты свяжутся, и появятся мэтчи.</p>
+      <div class="code">${esc(me.pair_code)}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn red" id="shr" style="flex:1">Отправить ссылку</button><button class="btn" id="cpy">Скопировать</button></div></div>
+      <div class="sect"><span class="label">Есть код партнёра?</span><div style="display:flex;gap:8px"><input type="text" id="pc" maxlength="6" placeholder="Например, 7F3A9C" style="text-transform:uppercase"><button class="btn" id="pcB">Связать</button></div></div>`}
+    <div class="sect"><span class="label">Аккаунт</span><span class="sub">${esc(me.email)}</span><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="out">Выйти</button><button class="btn ghost" id="del">Удалить аккаунт</button></div></div>
+    <p class="sub" style="margin:0;font-size:.72rem">Данные о фильмах — TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>`);
+  $("#nmB").onclick=async()=>{const n=$("#nm").value.trim().slice(0,30);await sb.from("km_profiles").update({name:n}).eq("user_id",me.user_id);me.name=n;toast("Сохранено");closeSheet();go(view)};
+  const shr=$("#shr");if(shr)shr.onclick=async()=>{const url=inviteLink(),text=`Давай выбирать кино вместе в ${BRAND}! Свайпаем, и что понравится обоим — смотрим 🍿`;
+    if(navigator.share){try{await navigator.share({title:BRAND,text,url})}catch(e){}}else copy(url)};
+  const cpy=$("#cpy");if(cpy)cpy.onclick=()=>copy(inviteLink());
+  const pcB=$("#pcB");if(pcB)pcB.onclick=()=>pairWith($("#pc").value);
+  const unp=$("#unp");if(unp)unp.onclick=async()=>{if(!unp.dataset.c){unp.dataset.c=1;unp.textContent="Точно? Нажмите ещё раз";return}
+    await sb.rpc("km_unpair");partner=null;me.partner=null;theirs={shelf:new Map(),swipes:new Map()};closeSheet();toast("Пара отвязана");go(view)};
+  $("#out").onclick=async()=>{await sb.auth.signOut();location.href=location.pathname};
+  $("#del").onclick=async()=>{const d=$("#del");if(!d.dataset.c){d.dataset.c=1;d.textContent="Удалить всё безвозвратно? Нажмите ещё раз";return}
+    await sb.rpc("km_unpair");await Promise.all([sb.from("km_swipes").delete().eq("user_id",me.user_id),sb.from("km_shelf").delete().eq("user_id",me.user_id),sb.from("km_prefs").delete().eq("user_id",me.user_id)]);
+    await sb.auth.signOut();alert?.call;location.href=location.pathname};
 }
-/* swipe */
+function copy(t){(navigator.clipboard?.writeText(t)||Promise.reject()).then(()=>toast("Ссылка скопирована")).catch(()=>prompt("Скопируйте ссылку:",t))}
+async function pairWith(code){code=(code||"").trim().toUpperCase();if(code.length<4)return toast("Введите код");
+  const {data,error}=await sb.rpc("km_pair",{code});
+  const msg={ok:"Готово! Вы теперь пара 💞",not_found:"Код не найден",self:"Это ваш собственный код",taken:"У этого человека уже есть пара",auth:"Сначала войдите"}[data]||("Ошибка: "+(error?.message||data));
+  toast(msg);if(data==="ok"){await loadAll();closeSheet();resetDeck();go(view)}}
+
+/* ---------- swipe view ---------- */
 function renderSwipeView(){
-  const p=prefs[who]||DEF_PREFS(),nf=(p.yes?.length||0)+(p.no?.length||0)+(p.eras?.length||0)+(p.minR?1:0),kk=p.kinds?.length===1?p.kinds[0]:"";
-  $("#main").innerHTML=`<div class="view swv" style="overflow:hidden"><div class="wrap pad" style="width:100%">${topBar("Свайп",`Свайпает ${NOM[who]}`)}
+  const p=prefs||DEF_PREFS(),nf=(p.yes?.length||0)+(p.no?.length||0)+(p.eras?.length||0)+(p.minR?1:0),kk=p.kinds?.length===1?p.kinds[0]:"";
+  $("#main").innerHTML=`<div class="view swv" style="overflow:hidden"><div class="wrap pad" style="width:100%">${topBar("Свайп",partner?`Вы с ${esc(ptName())} в паре`:"")}
+    ${partner?"":`<button class="banner" id="pairBanner"><span class="duo">${avatar(myName())}<span class="av pt">+</span></span><span><b>Позовите пару</b><span>Чтобы ловить общие мэтчи</span></span></button>`}
     <div class="row" id="kinds">${[{k:"",t:"Всё"},...KINDS].map(x=>`<button class="pill ${x.k===kk?"act":""}" data-k="${x.k}">${x.t}</button>`).join("")}
       <button class="pill ${nf?"act":""}" id="flt"><svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Жанры и годы${nf?` <b>${nf}</b>`:""}</button></div></div>
     <div class="stage"><div class="stack" id="stack"></div></div>
@@ -342,17 +621,17 @@ function renderSwipeView(){
       <button class="cb yes" id="bY" aria-label="Нравится"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C1 8.7 3 5 6.6 5c2.1 0 3.6 1.2 5.4 3.2C13.8 6.2 15.3 5 17.4 5 21 5 23 8.7 21.6 11.8 19.5 16.4 12 21 12 21z" fill="currentColor"/></svg></button>
       <button class="cb info" id="bI" aria-label="Подробнее"><svg viewBox="0 0 24 24"><path d="M12 11v6M12 7.5v.01" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg></button>
     </div></div>`;
-  $("#kinds").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;const p=prefs[who]||DEF_PREFS();p.kinds=b.dataset.k?[b.dataset.k]:[];savePrefs(p)};
+  $("#kinds").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;const p=prefs||DEF_PREFS();p.kinds=b.dataset.k?[b.dataset.k]:[];savePrefs(p)};
   $("#flt").onclick=openPrefs;$("#bN").onclick=()=>decide("nope");$("#bY").onclick=()=>decide("like");$("#bM").onclick=()=>decide("mega");$("#bU").onclick=undo;
   $("#bI").onclick=()=>{const t=$("#stack .sc.front");if(t)t.scrollTo({top:t.scrollTop>40?0:t.querySelector(".info").offsetTop-50,behavior:"smooth"})};
-  renderSwipe(!deck.length);if(deck.length<6)fill().then(()=>renderSwipe());
+  renderSwipe(!deck.length);if(deck.length<6)fill().then(()=>{if(view==="swipe")renderSwipe()});
 }
-async function savePrefs(p){prefs[who]=p;resetDeck();renderSwipeView();await sb.from("kino_prefs").upsert({person:who,prefs:p})}
-function cardHTML(it,front){
+async function savePrefs(p){prefs=p;resetDeck();renderSwipeView();await sb.from("km_prefs").upsert({user_id:me.user_id,prefs:p})}
+function cardHTML(it,front){const pl=partner&&theirs.swipes.get(it.k)?.v==="like";
   return `<div class="sc ${front?"front":"under"}" data-k="${esc(it.k)}">
     <div class="pic"><img class="bg" alt=""><img class="fg" alt="" ${it.poster?`src="${IMG}w500${it.poster}"`:""}>
       <div class="bars"></div>
-      <div class="gen"><span class="ty">${TYPES[it.ty]}</span>${(it.g||[]).map(x=>`<span class="gn">${esc(cap1(x))}</span>`).join("")}</div>
+      <div class="gen">${pl?`<span class="liked">♥ ${esc(ptName())} уже лайкнул(а)</span>`:""}<span class="ty">${TYPES[it.ty]||""}</span>${(it.g||[]).map(x=>`<span class="gn">${esc(cap1(x))}</span>`).join("")}</div>
       <span class="stamp yes">Нравится</span><span class="stamp no">Мимо</span><span class="stamp mega">Мега-лайк</span>
       <button class="trb" data-tr type="button"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>Трейлер</button>
       <div class="cap"><b>${esc(it.t)}</b><div class="m">${it.y?`<span>${esc(it.y)}</span>`:""}${it.r?`<span class="rt">★ ${it.r}</span>`:""}</div></div></div>
@@ -367,9 +646,8 @@ async function hydrateCard(el,it){
   el._frames=framesOf(it,d);el._i=0;
   el.querySelector(".bars").innerHTML=el._frames.length>1?el._frames.map((_,j)=>`<span class="${j?"":"on"}"></span>`).join(""):"";
   const dx=el.querySelector(".dx");if(dx)dx.outerHTML=detailsHTML(it,d);
-  const tr=trailerOf(d);const b=el.querySelector("[data-tr]");if(!tr)b.innerHTML="▶ Трейлер (поиск)";b.onclick=e=>{e.stopPropagation();playTrailer(it,tr)};
-  el._frames.slice(1).forEach(f=>{const im=new Image();im.src=f.u});
-  showFrame(el,0);
+  const tr=trailerOf(d),b=el.querySelector("[data-tr]");b.onclick=e=>{e.stopPropagation();playTrailer(it,tr)};
+  el._frames.slice(1).forEach(f=>{const im=new Image();im.src=f.u});showFrame(el,0);
 }
 function showFrame(el,i){const a=el._frames||[];if(!a.length)return;i=(i+a.length)%a.length;el._i=i;const pic=el.querySelector(".pic");
   pic.querySelector(".fg").src=a[i].u;pic.querySelector(".bg").src=a[i].u;pic.classList.toggle("still",a[i].still);
@@ -377,11 +655,12 @@ function showFrame(el,i){const a=el._frames||[];if(!a.length)return;i=(i+a.lengt
 function renderSwipe(loadingNow){
   const S=$("#stack");if(!S)return;$("#bU").disabled=!hist.length;
   const off=!deck.length;["#bN","#bY","#bM"].forEach(s=>$(s).disabled=off);
-  if(!deck.length){S.innerHTML=deckErr?`<div class="swempty"><strong>Не загрузилось</strong>Проверьте интернет.<button class="btn red" onclick="resetDeck()">Ещё раз</button></div>`
+  if(!deck.length){S.innerHTML=deckErr?`<div class="swempty"><strong>Не загрузилось</strong>Проверьте интернет.<button class="btn red" id="rt">Ещё раз</button></div>`
     :(loading||loadingNow)?`<div class="swempty"><div class="spin"></div>Подбираю фильмы…</div>`
-    :`<div class="swempty"><strong>По этому фильтру всё</strong>Ослабьте «Жанры и годы».<button class="btn red" onclick="openPrefs()">Изменить</button></div>`;return}
+    :`<div class="swempty"><strong>По этому фильтру всё</strong>Ослабьте «Жанры и годы».<button class="btn red" id="rt">Изменить</button></div>`;
+    const rt=$("#rt");if(rt)rt.onclick=deckErr?resetDeck:openPrefs;return}
   S.innerHTML=(deck[1]?cardHTML(deck[1],false):"")+cardHTML(deck[0],true);
-  const f=S.querySelector(".sc.front"),u=S.querySelector(".sc.under");hydrateCard(f,deck[0]);if(u)details(deck[1]);if(deck[2])details(deck[2]);
+  const f=S.querySelector(".sc.front");hydrateCard(f,deck[0]);if(deck[1])details(deck[1]);if(deck[2])details(deck[2]);
   attachDrag(f);
 }
 function attachDrag(el){
@@ -396,110 +675,109 @@ function attachDrag(el){
       if(!moved&&e.target.closest(".pic")){const r=el.getBoundingClientRect();showFrame(el,(el._i||0)+(e.clientX-r.left<r.width/3?-1:1))}}};
   el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);
 }
+document.addEventListener("keydown",e=>{if(view!=="swipe"||$("#layer").innerHTML||$("#modalRoot").innerHTML||/INPUT|TEXTAREA/.test(document.activeElement?.tagName))return;
+  if(e.key==="ArrowRight")decide("like");else if(e.key==="ArrowLeft")decide("nope");else if(e.key==="ArrowUp")decide("mega")});
 async function decide(v,dragged){
-  if(busy||!deck.length)return;busy=true;const it=deck[0],el=$("#stack .sc.front"),w=who,like=v!=="nope";
+  if(busy||!deck.length)return;busy=true;const it=deck[0],el=$("#stack .sc.front"),like=v!=="nope";
   if(el){const dir=like?1:-1;el.style.transition="transform .3s ease-out,opacity .3s";el.querySelector(".stamp."+(v==="mega"?"mega":like?"yes":"no")).style.opacity=1;
     el.style.transform=`translate(${dir*Math.max(innerWidth,500)}px,${dragged?0:-30}px) rotate(${dir*24}deg)`;el.style.opacity=.6}
-  const row={person:w,tmdb:it.k,v:like?"like":"nope",data:slim(it),at:new Date().toISOString()};
-  swipes[w].set(it.k,row);deck.shift();hist.push({it,w,mega:v==="mega"});if(hist.length>30)hist.shift();
+  const row={user_id:me.user_id,tmdb:it.k,v:like?"like":"nope",data:slim(it),at:new Date().toISOString()};
+  mine.swipes.set(it.k,row);deck.shift();hist.push({it,mega:v==="mega"});if(hist.length>30)hist.shift();
   setTimeout(()=>{busy=false;renderSwipe();counts();if(deck.length<6)fill().then(()=>{if(view==="swipe")renderSwipe()})},230);
-  const {error}=await sb.from("kino_swipes").upsert(row);if(error)return toast("Не сохранилось: "+error.message);
-  if(v==="mega"){await addToShelf(w,it);toast("Мега-лайк! «"+it.t+"» уже на полке "+GEN[w])}
-  if(like&&swipes[OTHER[w]].get(it.k)?.v==="like")showMatch(it);
+  const {error}=await sb.from("km_swipes").upsert(row);if(error)return toast("Не сохранилось: "+error.message);
+  if(v==="mega"){await addToShelf(it);toast("Мега-лайк! «"+it.t+"» уже на полке")}
+  if(like&&partner&&theirs.swipes.get(it.k)?.v==="like")showMatch(it);
 }
-async function undo(){const h=hist.pop();if(!h)return;swipes[h.w].delete(h.it.k);await sb.from("kino_swipes").delete().match({person:h.w,tmdb:h.it.k});
-  if(h.mega){shelf[h.w].delete(h.it.k);await sb.from("kino_shelf").delete().match({person:h.w,tmdb:h.it.k})}
-  if(h.w===who){deck=deck.filter(x=>x.k!==h.it.k);deck.unshift(h.it)}renderSwipe();counts()}
-async function addToShelf(w,it){const row={person:w,tmdb:it.k,data:slim(it),status:"want",rating:0,note:"",updated_at:new Date().toISOString()};
-  shelf[w].set(it.k,{...row,added_at:row.updated_at});const {error}=await sb.from("kino_shelf").upsert(row);if(error)toast("Не сохранилось: "+error.message)}
-function showMatch(it){const L=$("#layer");L.innerHTML=`<div class="match" id="mt"><div class="mcard"><h3>Мэтч!</h3>${it.poster?`<img src="${IMG}w342${it.poster}" alt="">`:""}<p>Рома и Карина оба хотят посмотреть<br><b>${esc(it.t)}</b></p><button class="btn red" id="mtOk">Круто!</button></div></div>`;
-  $("#mtOk").onclick=()=>L.innerHTML="";$("#mt").onclick=e=>{if(e.target.id==="mt")L.innerHTML=""}}
+async function undo(){const h=hist.pop();if(!h)return;mine.swipes.delete(h.it.k);await sb.from("km_swipes").delete().match({user_id:me.user_id,tmdb:h.it.k});
+  if(h.mega){mine.shelf.delete(h.it.k);await sb.from("km_shelf").delete().match({user_id:me.user_id,tmdb:h.it.k})}
+  deck=deck.filter(x=>x.k!==h.it.k);deck.unshift(h.it);renderSwipe();counts()}
+async function addToShelf(it){const row={user_id:me.user_id,tmdb:it.k,data:slim(it),status:"want",rating:0,note:"",updated_at:new Date().toISOString()};
+  mine.shelf.set(it.k,{...row,added_at:row.updated_at});const {error}=await sb.from("km_shelf").upsert(row);if(error)toast("Не сохранилось: "+error.message)}
+function showMatch(it){const L=$("#layer");L.innerHTML=`<div class="match" id="mt"><div class="mcard"><h3>Мэтч!</h3>${it.poster?`<img src="${IMG}w342${it.poster}" alt="">`:""}<p>Вы с ${esc(ptName())} оба хотите посмотреть<br><b>${esc(it.t)}</b></p><div style="display:flex;gap:10px"><button class="btn red" id="mtS">На полку</button><button class="btn" id="mtOk">Дальше</button></div></div></div>`;
+  $("#mtOk").onclick=()=>L.innerHTML="";$("#mtS").onclick=async()=>{await addToShelf(it);L.innerHTML="";toast("На полке")};$("#mt").onclick=e=>{if(e.target.id==="mt")L.innerHTML=""}}
 function playTrailer(it,tr){
   if(!tr){window.open("https://www.youtube.com/results?search_query="+encodeURIComponent((it.o||it.t)+" трейлер"),"_blank");return}
-  const L=$("#layer");L.innerHTML=`<div class="vid" id="vd"><button class="x" id="vx" aria-label="Закрыть">✕</button><div class="frame"><iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(tr.key)}?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="Трейлер"></iframe></div></div>`;
+  const L=$("#modalRoot");L.innerHTML=`<div class="vid" id="vd"><button class="x" id="vx" aria-label="Закрыть">✕</button><div class="frame"><iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(tr.key)}?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="Трейлер"></iframe></div></div>`;
   $("#vx").onclick=()=>L.innerHTML="";$("#vd").onclick=e=>{if(e.target.id==="vd")L.innerHTML=""}}
-/* filter sheet */
-function sheet(html){$("#layer").innerHTML=`<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`;$("#scrim").onclick=e=>{if(e.target.id==="scrim")closeSheet()}}
-function closeSheet(){$("#layer").innerHTML=""}
 function openPrefs(){
-  const p=JSON.parse(JSON.stringify(prefs[who]||DEF_PREFS()));["kinds","yes","no","eras"].forEach(k=>p[k]=p[k]||[]);
-  const draw=()=>{const sc=$(".sheet")?.scrollTop||0;const gs=g=>p.yes.includes(g)?"yes":p.no.includes(g)?"no":"";
-    sheet(`<h2>Что нравится ${DAT[who]}</h2><p class="sub" style="margin:-6px 0 0">Тап по жанру — нравится, ещё тап — не показывать. Сохраняется для каждого отдельно.</p>
+  const p=JSON.parse(JSON.stringify(prefs||DEF_PREFS()));["kinds","yes","no","eras"].forEach(k=>p[k]=p[k]||[]);
+  const draw=()=>{const sc=$(".sheet")?.scrollTop||0,gs=g=>p.yes.includes(g)?"yes":p.no.includes(g)?"no":"";
+    sheet(`<h2>Что вам нравится?</h2><p class="sub" style="margin:-6px 0 0">Тап по жанру — нравится, ещё тап — не показывать.</p>
       <div class="sect"><span class="label">Что смотрим</span><div class="seg" id="pK">${KINDS.map(x=>`<button data-v="${x.k}" aria-pressed="${p.kinds.includes(x.k)}">${x.t}</button>`).join("")}</div></div>
       <div class="sect"><span class="label">Жанры</span><div class="seg" id="pG">${FILTER_GENRES.map(g=>`<button data-v="${g}" class="${gs(g)}">${gs(g)==="no"?"✕ ":gs(g)==="yes"?"♥ ":""}${cap1(g)}</button>`).join("")}</div></div>
       <div class="sect"><span class="label">Годы</span><div class="seg" id="pE">${ERAS.map(x=>`<button data-v="${x.k}" aria-pressed="${p.eras.includes(x.k)}">${x.t}</button>`).join("")}</div></div>
       <div class="sect"><span class="label">Рейтинг</span><div class="seg" id="pR">${[0,6,7,8].map(r=>`<button data-v="${r}" aria-pressed="${(p.minR||0)===r}">${r?"от "+r+" ★":"Любой"}</button>`).join("")}</div></div>
       <div class="sticky"><button class="btn red" id="pGo" style="flex:1">Показать</button><button class="btn" id="pRs">Сбросить</button></div>`);
-    $(".sheet").scrollTop=sc;
-    const tog=(arr,v)=>arr.includes(v)?arr.filter(x=>x!==v):[...arr,v];
+    $(".sheet").scrollTop=sc;const tog=(a,v)=>a.includes(v)?a.filter(x=>x!==v):[...a,v];
     $("#pK").onclick=e=>{const b=e.target.closest("button");if(b){p.kinds=tog(p.kinds,b.dataset.v);draw()}};
     $("#pE").onclick=e=>{const b=e.target.closest("button");if(b){p.eras=tog(p.eras,b.dataset.v);draw()}};
     $("#pR").onclick=e=>{const b=e.target.closest("button");if(b){p.minR=+b.dataset.v;draw()}};
     $("#pG").onclick=e=>{const b=e.target.closest("button");if(!b)return;const g=b.dataset.v;if(p.yes.includes(g)){p.yes=p.yes.filter(x=>x!==g);p.no.push(g)}else if(p.no.includes(g))p.no=p.no.filter(x=>x!==g);else p.yes.push(g);draw()};
-    $("#pRs").onclick=()=>{Object.assign(p,DEF_PREFS());draw()};
-    $("#pGo").onclick=()=>{closeSheet();savePrefs(p)};
+    $("#pRs").onclick=()=>{Object.assign(p,DEF_PREFS());draw()};$("#pGo").onclick=()=>{closeSheet();savePrefs(p)};
   };draw();
 }
-/* lists */
-const thumb=d=>d?.poster?`<img src="${IMG}w185${d.poster}" alt="" loading="lazy">`:`<img alt="">`;
+/* ---------- lists ---------- */
+const PC=ls.get("pc",{});
+const thumb=d=>{const p=d?.poster||PC[d?.k];return p?`<img src="${IMG}w185${p}" alt="" loading="lazy">`:`<img alt="">`};
 const metaOf=d=>[TYPES[d?.ty]||"",d?.y,d?.r?"★ "+d.r:""].filter(Boolean).join(" · ");
-function rowHTML(r,opt){const d=r.data||{},on=shelf[who].has(r.tmdb),m=swipes[OTHER[who]].get(r.tmdb)?.v==="like";
-  return `<div class="lrow" data-k="${esc(r.tmdb)}">${thumb(d)}<div class="lt"><b>${esc(d.t||r.tmdb)}</b><span>${esc(metaOf(d))}${m&&opt.mark?' · <em>мэтч</em>':""}</span>
-    <span style="color:#b9b9c2">${esc((d.g||[]).map(cap1).join(", "))}</span>
-    <div class="la">${on?`<span class="onsh">На полке ✓</span>`:`<button class="btn red sm" data-a="add">На полку</button>`}${opt.rm?`<button class="btn ghost sm" data-a="rm">Убрать</button>`:""}</div></div></div>`}
-function listWire(){$("#main").onclick=async e=>{const b=e.target.closest("[data-a]"),row=e.target.closest(".lrow");if(!row)return;const k=row.dataset.k;
-  const r=swipes[who].get(k)||swipes[OTHER[who]].get(k)||shelf[who].get(k);const d=r?.data;
-  if(!b){if(d)openDetail(d);return}e.stopPropagation();b.disabled=true;
-  if(b.dataset.a==="add"){await addToShelf(who,d);b.outerHTML='<span class="onsh">На полке ✓</span>';toast("На полке "+GEN[who])}
-  else if(b.dataset.a==="rm"){const nr={...swipes[who].get(k),v:"nope",at:new Date().toISOString()};swipes[who].set(k,nr);await sb.from("kino_swipes").upsert(nr);row.remove();counts()}}}
-function renderLikes(){const l=likesOf(who);
-  $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Лайки",`Что ${NOM[who]} свайпнул${who==="karina"?"а":""} вправо`)}
-    ${l.length?`<div class="list">${l.map(r=>rowHTML(r,{rm:true,mark:true})).join("")}</div>`:`<div class="empty"><strong>Пока пусто</strong>Свайпайте вправо — фильмы появятся здесь, и отсюда можно положить их на полку.</div>`}</div></div>`;listWire()}
+function rowHTML(r,opt){const d=r.data||{},on=mine.shelf.has(r.tmdb),m=partner&&theirs.swipes.get(r.tmdb)?.v==="like";
+  return `<div class="lrow" data-k="${esc(r.tmdb)}">${thumb({...d,k:r.tmdb})}<div class="lt"><b>${esc(d.t||r.tmdb)}</b><span>${esc(metaOf(d))}${m&&opt.mark?' · <em>мэтч</em>':""}</span>
+    <span class="clamp">${esc((d.g||[]).map(cap1).join(", "))}</span>
+    <div class="la">${on?`<span class="onsh">На полке ✓</span>`:`<button class="btn red sm" data-a="add">На полку</button>`}<button class="btn sm" data-a="tr">▶ Трейлер</button>${opt.rm?`<button class="btn ghost sm" data-a="rm">Убрать</button>`:""}</div></div></div>`}
+function wireList(lookup){$("#main").onclick=async e=>{if(e.target.closest("#meBtn,#pairBanner"))return;const b=e.target.closest("[data-a]"),row=e.target.closest(".lrow");if(!row)return;const k=row.dataset.k,d=lookup(k)?.data;
+  if(!b){if(d)openDetail(d);return}e.stopPropagation();
+  if(b.dataset.a==="tr"){playTrailer(d,trailerOf(await details(d)));return}b.disabled=true;
+  if(b.dataset.a==="add"){await addToShelf(d);b.outerHTML='<span class="onsh">На полке ✓</span>';toast("На полке")}
+  else if(b.dataset.a==="rm"){const nr={...mine.swipes.get(k),v:"nope",at:new Date().toISOString()};mine.swipes.set(k,nr);await sb.from("km_swipes").upsert(nr);row.remove();counts()}}}
+function renderLikes(){const l=likes(mine);
+  $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Лайки","Всё, что вы свайпнули вправо")}
+    ${l.length?`<div class="list">${l.map(r=>rowHTML(r,{rm:true,mark:true})).join("")}</div>`:`<div class="empty"><strong>Пока пусто</strong>Свайпайте вправо — фильмы появятся здесь, и отсюда можно положить их на полку.</div>`}</div></div>`;
+  wireList(k=>mine.swipes.get(k))}
 function renderMatches(){const l=matchesList();
-  $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Мэтчи","Что понравилось вам обоим")}
-    ${l.length?`<div class="list">${l.map(r=>rowHTML(r,{})).join("")}</div>`:`<div class="empty"><strong>Пока нет мэтчей</strong>Свайпайте по очереди — когда обоим понравится один фильм, он появится тут.</div>`}</div></div>`;listWire()}
-let shelfType="";
-function renderShelf(){const all=[...shelf[who].values()].filter(r=>!shelfType||r.data?.ty===shelfType||(shelfType==="series"&&r.data?.type==="series"));
-  $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Полка "+GEN[who],all.length?`${all.filter(r=>r.status==="done").length} из ${all.length} посмотрено`:"")}
+  $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Мэтчи",partner?`Что понравилось вам с ${esc(ptName())}`:"")}
+    ${!partner?`<div class="empty"><strong>Нужна пара</strong>Мэтчи появятся, когда вы позовёте партнёра.<button class="btn red" id="inv">Позвать пару</button></div>`
+      :l.length?`<div class="list">${l.map(r=>rowHTML(r,{})).join("")}</div>`:`<div class="empty"><strong>Пока нет мэтчей</strong>Свайпайте оба — когда фильм понравится вам двоим, он появится тут.</div>`}</div></div>`;
+  const inv=$("#inv");if(inv)inv.onclick=openProfile;wireList(k=>mine.swipes.get(k))}
+let shelfType="",shelfWho="me";
+function renderShelf(){
+  const side=shelfWho==="me"?mine:theirs;
+  const all=[...side.shelf.values()].filter(r=>!shelfType||(r.data?.ty||({film:"film",series:"series",anime:"anime"})[r.data?.type])===shelfType);
+  $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Полка",all.length?`${all.filter(r=>r.status==="done").length} из ${all.length} посмотрено`:"")}
+    ${partner?`<div class="row"><button class="pill ${shelfWho==="me"?"act":""}" data-w="me">Моя</button><button class="pill ${shelfWho==="pt"?"act":""}" data-w="pt">${esc(ptName())}</button></div>`:""}
     <div class="row" id="stt">${[{k:"",t:"Всё"},...KINDS].map(x=>`<button class="pill ${x.k===shelfType?"act":""}" data-k="${x.k}">${x.t}</button>`).join("")}</div>
     ${all.length?ST.map(s=>{const l=all.filter(r=>(r.status||"want")===s.k).sort((a,b)=>(b.updated_at||"").localeCompare(a.updated_at||""));if(!l.length)return"";
       return `<div class="sh"><span class="stdot" style="background:${s.c}"></span><h2>${s.t}</h2><span class="sub">${l.length}</span></div><div class="list">${l.map(r=>{const d=r.data||{};
-        return `<button class="lrow" data-open="${esc(r.tmdb)}">${thumb(d.poster?d:posterCache(r))}<div class="lt"><b>${esc(d.t||d.title||r.tmdb)}</b><span>${esc(metaOf(d.ty?d:{ty:d.type,y:d.year,r:d.tmdbRating}))}</span>
-          ${r.rating?`<span class="rt">★ ${r.rating}/10 моя оценка</span>`:""}<span style="color:#b9b9c2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(d.d||d.description||"")}</span></div></button>`}).join("")}</div>`}).join("")
-      :`<div class="empty"><strong>Полка пустая</strong>Мега-лайк в свайпе или «На полку» в лайках — и фильм окажется тут.</div>`}</div></div>`;
-  $("#stt").onclick=e=>{const b=e.target.closest("[data-k]");if(b){shelfType=b.dataset.k;renderShelf()}};
-  $("#main").onclick=e=>{const b=e.target.closest("[data-open]");if(b)openShelfItem(b.dataset.open)};
-  fixPosters();
+        return `<button class="lrow" data-open="${esc(r.tmdb)}">${thumb({...d,k:r.tmdb})}<div class="lt"><b>${esc(d.t||d.title||r.tmdb)}</b><span>${esc(metaOf(d.ty?d:{ty:d.type==="film"?"film":d.type,y:d.year,r:d.tmdbRating}))}</span>
+          ${r.rating?`<span class="rt">★ ${r.rating}/10</span>`:""}<span class="clamp">${esc(d.d||d.description||"")}</span></div></button>`}).join("")}</div>`}).join("")
+      :`<div class="empty"><strong>${shelfWho==="me"?"Полка пустая":"У партнёра пока пусто"}</strong>${shelfWho==="me"?"Мега-лайк в свайпе или «На полку» в лайках — и фильм окажется тут.":""}</div>`}</div></div>`;
+  $("#main").onclick=e=>{const w=e.target.closest("[data-w]");if(w){shelfWho=w.dataset.w;return renderShelf()}
+    const t=e.target.closest("#stt [data-k]");if(t){shelfType=t.dataset.k;return renderShelf()}
+    const b=e.target.closest("[data-open]");if(b)openShelfItem(b.dataset.open,side)};
+  fixPosters(side);
 }
-/* migrated items have only a tmdb key: fetch poster once */
-const PC=(()=>{try{return JSON.parse(localStorage.getItem("pc")||"{}")}catch(e){return{}}})();
-function posterCache(r){return PC[r.tmdb]?{poster:PC[r.tmdb]}:null}
-async function fixPosters(){const miss=[...shelf[who].values()].filter(r=>!r.data?.poster&&/^(movie|tv)-\d+$/.test(r.tmdb)&&!PC[r.tmdb]);
+async function fixPosters(side){const miss=[...side.shelf.values()].filter(r=>!r.data?.poster&&!r.data?.kind&&/^(movie|tv)-\d+$/.test(r.tmdb)&&!PC[r.tmdb]);if(!miss.length)return;
   for(const r of miss){const [kind,id]=r.tmdb.split("-");try{const d=await tmdb(`/${kind}/${id}`);const it=itemFrom(d,kind);PC[r.tmdb]=it.poster;
-    const nd={...it,...(r.data||{}),poster:it.poster,t:r.data?.title||it.t,ty:it.ty,g:it.g,y:it.y,r:it.r,d:r.data?.description||it.d};r.data=nd;
-    await sb.from("kino_shelf").update({data:nd}).match({person:r.person,tmdb:r.tmdb})}catch(e){}}
-  try{localStorage.setItem("pc",JSON.stringify(PC))}catch(e){}
-  if(miss.length&&view==="shelf")renderShelf()}
-function openShelfItem(k){const r=shelf[who].get(k);if(!r)return;const d=r.data||{};
+    if(r.user_id===me.user_id){const nd={...it,t:r.data?.title||it.t,d:r.data?.description||it.d};r.data=nd;await sb.from("km_shelf").update({data:nd}).match({user_id:me.user_id,tmdb:r.tmdb})}}catch(e){}}
+  ls.set("pc",PC);if(view==="shelf"&&!$("#layer").innerHTML)renderShelf()}
+function openShelfItem(k,side){const r=side.shelf.get(k);if(!r)return;const d=r.data||{};
   const it=d.kind?d:(/^(movie|tv)-\d+$/.test(k)?{...d,k,kind:k.split("-")[0],id:+k.split("-")[1],t:d.title||d.t,y:d.year,d:d.description,poster:PC[k]}:null);
-  if(it)openDetail(it,r);}
-/* detail page (from lists, shelf, search) */
-async function openDetail(it,shelfRow){
+  if(it)openDetail(it)}
+/* ---------- detail page ---------- */
+async function openDetail(it){
   const L=$("#layer");
-  L.innerHTML=`<div class="detail" id="det"><div class="dhero">${it.poster?`<img src="${IMG}w780${it.backdrop||it.poster}" alt="">`:""}<button class="dback" id="dBack">${backSvg} Назад</button></div>
+  L.innerHTML=`<div class="detail" id="det"><div class="dhero">${(it.backdrop||it.poster)?`<img src="${IMG}w780${it.backdrop||it.poster}" alt="">`:""}<button class="dback" id="dBack">${backSvg} Назад</button></div>
     <div class="dbody pad"><div><div class="sub">${esc(TYPES[it.ty]||"")}${it.y?" · "+esc(it.y):""}${it.g?.length?" · "+esc(it.g.join(", ")):""}</div><h2 class="dtitle">${esc(it.t)}</h2></div>
     <div id="dAct"></div><div class="gal" id="dGal"></div>
     <div class="sect"><span class="label">О чём</span><p class="desc">${esc(it.d||"")}</p></div><div id="dX"><div class="spin"></div></div></div></div>`;
   $("#dBack").onclick=()=>{L.innerHTML="";go(view)};
-  const act=()=>{const r=shelf[who].get(it.k);$("#dAct").innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn red" id="dTr">▶ Трейлер</button>
-      ${r?"":`<button class="btn" id="dAdd">На полку ${GEN[who]}</button>`}</div>
+  const act=()=>{const r=mine.shelf.get(it.k);$("#dAct").innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn red" id="dTr">▶ Трейлер</button>${r?"":`<button class="btn" id="dAdd">На мою полку</button>`}</div>
       ${r?`<div class="sect" style="margin-top:12px"><span class="label">Статус</span><div class="acts">${ST.map(s=>`<button class="act" data-st="${s.k}" style="--c:${s.c}" aria-pressed="${r.status===s.k}">${s.t}</button>`).join("")}</div></div>
-      <div class="sect" style="margin-top:12px"><span class="label">Моя оценка</span><div class="stars">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button data-r="${n}" class="${r.rating>=n?"on":""}">★</button>`).join("")}</div></div>
+      <div class="sect" style="margin-top:12px"><span class="label">Моя оценка</span><div class="stars">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button data-r="${n}" class="${r.rating>=n?"on":""}" aria-label="${n} из 10">★</button>`).join("")}</div></div>
       <button class="btn ghost sm" id="dDel" style="margin-top:8px">Убрать с полки</button>`:""}`;
-    const add=$("#dAdd");if(add)add.onclick=async()=>{await addToShelf(who,it);act()};
-    $("#dAct").querySelectorAll("[data-st]").forEach(b=>b.onclick=async()=>{r.status=b.dataset.st;await sb.from("kino_shelf").update({status:r.status,updated_at:new Date().toISOString()}).match({person:who,tmdb:it.k});act()});
-    $("#dAct").querySelectorAll("[data-r]").forEach(b=>b.onclick=async()=>{const n=+b.dataset.r;r.rating=r.rating===n?0:n;await sb.from("kino_shelf").update({rating:r.rating}).match({person:who,tmdb:it.k});act()});
-    const del=$("#dDel");if(del)del.onclick=async()=>{if(del.dataset.c){shelf[who].delete(it.k);await sb.from("kino_shelf").delete().match({person:who,tmdb:it.k});act()}else{del.dataset.c=1;del.textContent="Точно убрать? Нажми ещё раз"}};
+    const add=$("#dAdd");if(add)add.onclick=async()=>{await addToShelf(it);act()};
+    $("#dAct").querySelectorAll("[data-st]").forEach(b=>b.onclick=async()=>{r.status=b.dataset.st;r.updated_at=new Date().toISOString();await sb.from("km_shelf").update({status:r.status,updated_at:r.updated_at}).match({user_id:me.user_id,tmdb:it.k});act()});
+    $("#dAct").querySelectorAll("[data-r]").forEach(b=>b.onclick=async()=>{const n=+b.dataset.r;r.rating=r.rating===n?0:n;await sb.from("km_shelf").update({rating:r.rating}).match({user_id:me.user_id,tmdb:it.k});act()});
+    const del=$("#dDel");if(del)del.onclick=async()=>{if(!del.dataset.c){del.dataset.c=1;del.textContent="Точно убрать? Нажмите ещё раз";return}mine.shelf.delete(it.k);await sb.from("km_shelf").delete().match({user_id:me.user_id,tmdb:it.k});act()};
     $("#dTr").onclick=async()=>playTrailer(it,trailerOf(await details(it)));
   };act();
   if(!it.kind){$("#dX").innerHTML="";return}
@@ -507,46 +785,54 @@ async function openDetail(it,shelfRow){
   $("#dGal").innerHTML=framesOf(it,d).slice(1).map(f=>`<img src="${f.u}" alt="" loading="lazy">`).join("");
   $("#dX").innerHTML=detailsHTML(it,d);
 }
-/* search */
+/* ---------- search ---------- */
 let sq="",sres=[];
 function renderSearch(){
   $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Поиск","Любой фильм, сериал или аниме")}
-    <input type="search" id="sq" placeholder="Название…" value="${esc(sq)}" autocomplete="off">
-    <div class="list" id="sr" style="margin-top:12px"></div></div></div>`;
-  const draw=()=>{$("#sr").innerHTML=sres.length?sres.map(it=>`<div class="lrow" data-s="${esc(it.k)}">${thumb(it)}<div class="lt"><b>${esc(it.t)}</b><span>${esc(metaOf(it))}</span><span style="color:#b9b9c2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(it.d)}</span>
-      <div class="la">${shelf[who].has(it.k)?`<span class="onsh">На полке ✓</span>`:`<button class="btn red sm" data-add="${esc(it.k)}">На полку</button>`}</div></div></div>`).join(""):sq?`<div class="empty">Ничего не нашлось</div>`:""};
+    <input type="search" id="sq" placeholder="Название…" value="${esc(sq)}" autocomplete="off"><div class="list" id="sr" style="margin-top:12px"></div></div></div>`;
+  const draw=()=>{$("#sr").innerHTML=sres.length?sres.map(it=>`<div class="lrow" data-s="${esc(it.k)}">${thumb(it)}<div class="lt"><b>${esc(it.t)}</b><span>${esc(metaOf(it))}</span><span class="clamp">${esc(it.d)}</span>
+      <div class="la">${mine.shelf.has(it.k)?`<span class="onsh">На полке ✓</span>`:`<button class="btn red sm" data-add="${esc(it.k)}">На полку</button>`}</div></div></div>`).join(""):sq?`<div class="empty">Ничего не нашлось</div>`:""};
   draw();let t;$("#sq").oninput=e=>{clearTimeout(t);t=setTimeout(async()=>{sq=e.target.value.trim();if(!sq){sres=[];return draw()}
-    const r=await tmdb("/search/multi",{query:sq,include_adult:"false"});sres=(r.results||[]).filter(x=>(x.media_type==="movie"||x.media_type==="tv")&&x.poster_path).map(x=>itemFrom(x)).slice(0,20);draw()},300)};
-  $("#main").onclick=async e=>{const a=e.target.closest("[data-add]");if(a){const it=sres.find(x=>x.k===a.dataset.add);await addToShelf(who,it);a.outerHTML='<span class="onsh">На полке ✓</span>';toast("На полке "+GEN[who]);return}
+    try{const r=await tmdb("/search/multi",{query:sq,include_adult:"false"});sres=(r.results||[]).filter(x=>(x.media_type==="movie"||x.media_type==="tv")&&x.poster_path).map(x=>itemFrom(x)).slice(0,20)}catch(err){sres=[]}draw()},300)};
+  $("#main").onclick=async e=>{const a=e.target.closest("[data-add]");if(a){await addToShelf(sres.find(x=>x.k===a.dataset.add));a.outerHTML='<span class="onsh">На полке ✓</span>';toast("На полке");return}
     const row=e.target.closest("[data-s]");if(row)openDetail(sres.find(x=>x.k===row.dataset.s))};
 }
 /* ---------- boot ---------- */
-async function migrateOnce(){
-  if(me.person!=="roma"||shelf.roma.size)return;
+async function ensureProfile(user){
+  let {data}=await sb.from("km_profiles").select("*").eq("user_id",user.id).maybeSingle();
+  if(!data){const name=(user.email||"").split("@")[0].replace(/[._\d]+/g," ").trim().slice(0,20);
+    const r=await sb.from("km_profiles").insert({user_id:user.id,name:cap1(name)}).select().single();data=r.data;
+    try{await sb.rpc("km_import_legacy")}catch(e){}}
+  return data;
+}
+async function importFirstVersion(){
+  // the first private version lived elsewhere; bring its shelf over once for its owner
+  if(mine.shelf.size||ls.get("imported1",false)||(me.email||"").toLowerCase()!=="legionerpropro@gmail.com")return;
   try{const m=await fetch("migrate.json").then(r=>r.ok?r.json():null);if(!m)return;
-    if(m.shelf?.length){await sb.from("kino_shelf").upsert(m.shelf.map(r=>({...r,added_at:r.added_at||new Date().toISOString()})),{ignoreDuplicates:true})}
-    if(m.swipes?.length){await sb.from("kino_swipes").upsert(m.swipes,{ignoreDuplicates:true})}
-    await loadAll();toast("Перенёс полку со старой страницы")}catch(e){}
+    if(m.shelf?.length)await sb.from("km_shelf").upsert(m.shelf.map(r=>({user_id:me.user_id,tmdb:r.tmdb,data:r.data,status:r.status,rating:r.rating,note:r.note||"",added_at:r.added_at||new Date().toISOString()})),{ignoreDuplicates:true});
+    if(m.swipes?.length)await sb.from("km_swipes").upsert(m.swipes.map(r=>({user_id:me.user_id,tmdb:r.tmdb,v:r.v})),{ignoreDuplicates:true});
+    ls.set("imported1",true);await loadAll();toast("Перенёс вашу полку из первой версии")}catch(e){}
 }
+let started=false;
 async function start(session){
-  const email=session.user.email.toLowerCase();
-  const {data}=await sb.from("kino_allowed").select("email,person");
-  const mine=(data||[]).find(r=>r.email.toLowerCase()===email);
-  if(!mine){$("#nope").hidden=false;$("#out2").onclick=async()=>{await sb.auth.signOut();location.reload()};return}
-  me={email,person:mine.person};try{who=localStorage.getItem("who")||mine.person}catch(e){who=mine.person}if(!NOM[who])who=mine.person;
-  $("#app").hidden=false;$("#main").innerHTML=`<div class="swempty"><div class="spin"></div></div>`;
-  await Promise.all([loadAll(),loadGenres()]);await migrateOnce();
+  if(started)return;started=true;
+  $("#land").hidden=true;closeModal();$("#app").hidden=false;document.body.classList.add("inapp");
+  $("#main").innerHTML=`<div class="swempty"><div class="spin"></div></div>`;
+  const p=await ensureProfile(session.user);me={...p,email:session.user.email};
+  await Promise.all([loadAll(),loadGenres()]);await importFirstVersion();
+  const pair=new URLSearchParams(location.search).get("pair");
+  if(pair){history.replaceState(null,"",location.pathname);if(!partner&&pair.toUpperCase()!==me.pair_code)await pairWith(pair)}
   buildSources();go("swipe");
-  // keep the two phones in sync
-  sb.channel("kino").on("postgres_changes",{event:"*",schema:"public",table:"kino_swipes"},p=>{const r=p.new?.person?p.new:p.old;if(!r?.person)return;if(p.eventType==="DELETE")swipes[r.person].delete(r.tmdb);else swipes[r.person].set(r.tmdb,p.new);counts()})
-    .on("postgres_changes",{event:"*",schema:"public",table:"kino_shelf"},p=>{const r=p.new?.person?p.new:p.old;if(!r?.person)return;if(p.eventType==="DELETE")shelf[r.person].delete(r.tmdb);else shelf[r.person].set(r.tmdb,p.new);if(view==="shelf"&&!$("#layer").innerHTML)renderShelf()}).subscribe();
-  document.addEventListener("visibilitychange",async()=>{if(!document.hidden){await loadAll();counts();if(view!=="swipe")go(view)}});
+  sb.channel("km").on("postgres_changes",{event:"*",schema:"public",table:"km_swipes"},pl=>{const r=pl.new?.user_id?pl.new:pl.old;if(!r?.user_id||r.user_id===me.user_id)return;
+      if(pl.eventType==="DELETE")theirs.swipes.delete(r.tmdb);else{theirs.swipes.set(r.tmdb,pl.new);if(pl.new.v==="like"&&mine.swipes.get(pl.new.tmdb)?.v==="like"&&pl.new.data)showMatch(pl.new.data)}counts()})
+    .on("postgres_changes",{event:"*",schema:"public",table:"km_shelf"},pl=>{const r=pl.new?.user_id?pl.new:pl.old;if(!r?.user_id||r.user_id===me.user_id)return;if(pl.eventType==="DELETE")theirs.shelf.delete(r.tmdb);else theirs.shelf.set(r.tmdb,pl.new)}).subscribe();
+  document.addEventListener("visibilitychange",async()=>{if(!document.hidden){await loadAll();counts();if(view!=="swipe"&&!$("#layer").innerHTML)go(view)}});
 }
-$("#lf").onsubmit=async e=>{e.preventDefault();const b=$("#lb");b.disabled=true;const email=$("#em").value.trim();
-  const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname,shouldCreateUser:true}});
-  $("#lmsg").textContent=error?"Ошибка: "+error.message:"Письмо отправлено на "+email+". Открой ссылку из него на этом же телефоне.";b.disabled=false};
-(async()=>{const {data:{session}}=await sb.auth.getSession();if(session)start(session);else $("#login").hidden=false;
-  sb.auth.onAuthStateChange((ev,s)=>{if(ev==="SIGNED_IN"&&s&&!me){$("#login").hidden=true;start(s)}})})();
+(async()=>{
+  const {data:{session}}=await sb.auth.getSession();
+  if(session)start(session);else initLanding();
+  sb.auth.onAuthStateChange((ev,s)=>{if(ev==="SIGNED_IN"&&s)start(s)});
+})();
 </script>
 </body>
 </html>
