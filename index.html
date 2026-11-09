@@ -382,8 +382,8 @@ const TC=new Map();
 async function tmdb(path,params={}){
   const q=new URLSearchParams({p:path,language:"ru-RU",...params});const key=q.toString();
   if(TC.has(key))return TC.get(key);
-  const pr=(async()=>{const {data:{session}}=await sb.auth.getSession();
-    const r=await fetch(`${SB_URL}/functions/v1/kino-tmdb?${key}`,{headers:{apikey:SB_KEY,Authorization:"Bearer "+(session?.access_token||SB_KEY)}});
+  const pr=(async()=>{
+    const r=await fetch(`${SB_URL}/functions/v1/kino-tmdb?${key}`,{headers:{apikey:SB_KEY}});
     if(!r.ok)throw new Error("tmdb "+r.status);return r.json()})();
   TC.set(key,pr);pr.catch(()=>TC.delete(key));return pr;
 }
@@ -520,7 +520,7 @@ function openLogin(mode){
     $("#af").onsubmit=async e=>{e.preventDefault();const b=$("#ab");b.disabled=true;say("");const login=$("#lg").value.trim(),password=$("#pw").value;ls.set("lastLogin",login);
       try{let r;
         if(login.includes("@")){const {error}=await sb.auth.signInWithPassword({email:login,password});if(error)throw error}
-        else{r=await fetch(`${SB_URL}/functions/v1/km-login`,{method:"POST",headers:{"content-type":"application/json",apikey:SB_KEY,Authorization:"Bearer "+SB_KEY},body:JSON.stringify({login,password})});
+        else{r=await fetch(`${SB_URL}/functions/v1/km-login`,{method:"POST",headers:{"content-type":"application/json",apikey:SB_KEY},body:JSON.stringify({login,password})});
           if(!r.ok)throw new Error("invalid");const t=await r.json();const {error}=await sb.auth.setSession(t);if(error)throw error}
       }catch(err){say(/invalid|credentials/i.test(err.message)?"Неверный логин или пароль":/confirm/i.test(err.message)?"Подтвердите почту — ссылка в письме":"Ошибка: "+esc(err.message))}
       b.disabled=false};
@@ -761,23 +761,24 @@ const PC=ls.get("pc",{});
 const thumb=d=>{const p=d?.poster||PC[d?.k];return p?`<img src="${IMG}w185${p}" alt="" loading="lazy">`:`<img alt="">`};
 const metaOf=d=>[TYPES[d?.ty]||"",d?.y,d?.r?"★ "+d.r:""].filter(Boolean).join(" · ");
 function rowHTML(r,opt){const d=r.data||{},on=mine.shelf.has(r.tmdb),m=partner&&theirs.swipes.get(r.tmdb)?.v==="like";
-  return `<div class="lrow" data-k="${esc(r.tmdb)}">${thumb({...d,k:r.tmdb})}<div class="lt"><b>${esc(d.t||r.tmdb)}</b><span>${esc(metaOf(d))}${m&&opt.mark?' · <em>мэтч</em>':""}</span>
+  return `<div class="lrow" data-k="${esc(r.tmdb)}" ${d.poster?"":`data-fix="${esc(r.tmdb)}"`}>${thumb({...d,k:r.tmdb})}<div class="lt"><b>${esc(d.t||d.title||"Загружаю…")}</b><span>${esc(metaOf(d))}${m&&opt.mark?' · <em>мэтч</em>':""}</span>
     <span class="clamp">${esc((d.g||[]).map(cap1).join(", "))}</span>
     <div class="la">${on?`<span class="onsh">На полке ✓</span>`:`<button class="btn red sm" data-a="add">На полку</button>`}<button class="btn sm" data-a="tr">▶ Трейлер</button>${opt.rm?`<button class="btn ghost sm" data-a="rm">Убрать</button>`:""}</div></div></div>`}
 function wireList(lookup){$("#main").onclick=async e=>{if(e.target.closest("#meBtn,#pairBanner"))return;const b=e.target.closest("[data-a]"),row=e.target.closest(".lrow");if(!row)return;const k=row.dataset.k,d=lookup(k)?.data;
-  if(!b){if(d)openDetail(d);return}e.stopPropagation();
-  if(b.dataset.a==="tr"){playTrailer(d,trailerOf(await details(d)));return}b.disabled=true;
-  if(b.dataset.a==="add"){await addToShelf(d);b.outerHTML='<span class="onsh">На полке ✓</span>';toast("На полке")}
+  const it=d?.kind?d:(/^(movie|tv)-\d+$/.test(k)?{...(d||{}),k,kind:k.split("-")[0],id:+k.split("-")[1],t:d?.t||d?.title||"",poster:d?.poster||PC[k]}:null);
+  if(!b){if(it)openDetail(it);return}e.stopPropagation();
+  if(b.dataset.a==="tr"){playTrailer(it,trailerOf(await details(it)));return}b.disabled=true;
+  if(b.dataset.a==="add"){await addToShelf(it);b.outerHTML='<span class="onsh">На полке ✓</span>';toast("На полке")}
   else if(b.dataset.a==="rm"){const nr={...mine.swipes.get(k),v:"nope",at:new Date().toISOString()};mine.swipes.set(k,nr);await sb.from("km_swipes").upsert(nr);row.remove();counts()}}}
 function renderLikes(){const l=likes(mine);
   $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Лайки","Всё, что вы свайпнули вправо")}
     ${l.length?`<div class="list">${l.map(r=>rowHTML(r,{rm:true,mark:true})).join("")}</div>`:`<div class="empty"><strong>Пока пусто</strong>Свайпайте вправо — фильмы появятся здесь, и отсюда можно положить их на полку.</div>`}</div></div>`;
-  wireList(k=>mine.swipes.get(k))}
+  wireList(k=>mine.swipes.get(k));fixRows()}
 function renderMatches(){const l=matchesList();
   $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Мэтчи",partner?`Что понравилось вам с ${esc(ptName())}`:"")}
     ${!partner?`<div class="empty"><strong>Нужна пара</strong>Мэтчи появятся, когда вы позовёте партнёра.<button class="btn red" id="inv">Позвать пару</button></div>`
       :l.length?`<div class="list">${l.map(r=>rowHTML(r,{})).join("")}</div>`:`<div class="empty"><strong>Пока нет мэтчей</strong>Свайпайте оба — когда фильм понравится вам двоим, он появится тут.</div>`}</div></div>`;
-  const inv=$("#inv");if(inv)inv.onclick=openProfile;wireList(k=>mine.swipes.get(k))}
+  const inv=$("#inv");if(inv)inv.onclick=openProfile;wireList(k=>mine.swipes.get(k));fixRows()}
 let shelfType="",shelfWho="me";
 function renderShelf(){
   const side=shelfWho==="me"?mine:theirs;
@@ -787,18 +788,29 @@ function renderShelf(){
     <div class="row" id="stt">${[{k:"",t:"Всё"},...KINDS].map(x=>`<button class="pill ${x.k===shelfType?"act":""}" data-k="${x.k}">${x.t}</button>`).join("")}</div>
     ${all.length?ST.map(s=>{const l=all.filter(r=>(r.status||"want")===s.k).sort((a,b)=>(b.updated_at||"").localeCompare(a.updated_at||""));if(!l.length)return"";
       return `<div class="sh"><span class="stdot" style="background:${s.c}"></span><h2>${s.t}</h2><span class="sub">${l.length}</span></div><div class="list">${l.map(r=>{const d=r.data||{};
-        return `<button class="lrow" data-open="${esc(r.tmdb)}">${thumb({...d,k:r.tmdb})}<div class="lt"><b>${esc(d.t||d.title||r.tmdb)}</b><span>${esc(metaOf(d.ty?d:{ty:d.type==="film"?"film":d.type,y:d.year,r:d.tmdbRating}))}</span>
+        return `<button class="lrow" data-open="${esc(r.tmdb)}" ${d.poster?"":`data-fix="${esc(r.tmdb)}"`}>${thumb({...d,k:r.tmdb})}<div class="lt"><b>${esc(d.t||d.title||r.tmdb)}</b><span>${esc(metaOf(d.ty?d:{ty:d.type==="film"?"film":d.type,y:d.year,r:d.tmdbRating}))}</span>
           ${r.rating?`<span class="rt">★ ${r.rating}/10</span>`:""}<span class="clamp">${esc(d.d||d.description||"")}</span></div></button>`}).join("")}</div>`}).join("")
       :`<div class="empty"><strong>${shelfWho==="me"?"Полка пустая":"У партнёра пока пусто"}</strong>${shelfWho==="me"?"Мега-лайк в свайпе или «На полку» в лайках — и фильм окажется тут.":""}</div>`}</div></div>`;
   $("#main").onclick=e=>{const w=e.target.closest("[data-w]");if(w){shelfWho=w.dataset.w;return renderShelf()}
     const t=e.target.closest("#stt [data-k]");if(t){shelfType=t.dataset.k;return renderShelf()}
     const b=e.target.closest("[data-open]");if(b)openShelfItem(b.dataset.open,side)};
-  fixPosters(side);
+  fixRows();
 }
-async function fixPosters(side){const miss=[...side.shelf.values()].filter(r=>!r.data?.poster&&!r.data?.kind&&/^(movie|tv)-\d+$/.test(r.tmdb)&&!PC[r.tmdb]);if(!miss.length)return;
-  for(const r of miss){const [kind,id]=r.tmdb.split("-");try{const d=await tmdb(`/${kind}/${id}`);const it=itemFrom(d,kind);PC[r.tmdb]=it.poster;
-    if(r.user_id===me.user_id){const nd={...it,t:r.data?.title||it.t,d:r.data?.description||it.d};r.data=nd;await sb.from("km_shelf").update({data:nd}).match({user_id:me.user_id,tmdb:r.tmdb})}}catch(e){}}
-  ls.set("pc",PC);if(view==="shelf"&&!$("#layer").innerHTML)renderShelf()}
+/* rows saved by older versions have only a TMDB key: fetch poster/title once, show them and store them */
+const FIXING=new Set();
+async function fixRows(){
+  const els=[...document.querySelectorAll("#main [data-fix]")];const keys=[...new Set(els.map(e=>e.dataset.fix))].filter(k=>/^(movie|tv)-\d+$/.test(k)&&!FIXING.has(k));
+  let i=0;const work=async()=>{while(i<keys.length){const k=keys[i++];FIXING.add(k);const [kind,id]=k.split("-");
+    try{const d=await tmdb(`/${kind}/${id}`);const it=itemFrom(d,kind);PC[k]=it.poster;
+      document.querySelectorAll(`#main [data-fix="${k}"]`).forEach(el=>{const im=el.querySelector("img");if(im&&it.poster)im.src=IMG+"w185"+it.poster;
+        const b=el.querySelector(".lt b");if(b&&/^(movie|tv)-\d+$|Загружаю/.test(b.textContent))b.textContent=it.t;
+        const sp=el.querySelector(".lt span");if(sp&&!sp.textContent.trim())sp.textContent=metaOf(it);el.removeAttribute("data-fix")});
+      const sh=mine.shelf.get(k);if(sh&&!sh.data?.poster){sh.data={...it,...(sh.data||{}),poster:it.poster,kind:it.kind,id:it.id,k,t:sh.data?.title||sh.data?.t||it.t,ty:it.ty,g:it.g,y:it.y,r:it.r,d:sh.data?.description||sh.data?.d||it.d};
+        sb.from("km_shelf").update({data:sh.data}).match({user_id:me.user_id,tmdb:k}).then(()=>{})}
+      const sw=mine.swipes.get(k);if(sw&&!sw.data?.poster){sw.data=slim(it);sb.from("km_swipes").update({data:sw.data}).match({user_id:me.user_id,tmdb:k}).then(()=>{})}
+    }catch(e){}finally{FIXING.delete(k)}}};
+  await Promise.all([work(),work(),work(),work(),work()]);ls.set("pc",PC);
+}
 function openShelfItem(k,side){const r=side.shelf.get(k);if(!r)return;const d=r.data||{};
   const it=d.kind?d:(/^(movie|tv)-\d+$/.test(k)?{...d,k,kind:k.split("-")[0],id:+k.split("-")[1],t:d.title||d.t,y:d.year,d:d.description,poster:PC[k]}:null);
   if(it)openDetail(it)}
