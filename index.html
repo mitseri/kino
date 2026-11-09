@@ -439,7 +439,7 @@ async function initLanding(){
 }
 /* Scroll-driven 3D world: the camera flies down a spiral tunnel of floating posters as you scroll. */
 function world(posters){
-  if(!window.THREE||matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  if(!window.THREE)return;const calm=matchMedia("(prefers-reduced-motion: reduce)").matches;
   const cv=$("#world");let r;try{r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true,powerPreference:"high-performance"})}catch(e){return}
   const mobile=innerWidth<760;r.setPixelRatio(Math.min(devicePixelRatio,mobile?1.5:2));
   const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x0b0b0d,mobile?.018:.014);
@@ -479,10 +479,10 @@ function world(posters){
     prog+=(target-prog)*.06;mx+=(tx-mx)*.05;my+=(ty-my)*.05;
     const z=6-prog*(DEPTH-20);
     cam.position.set(Math.sin(prog*Math.PI*2)*1.6+mx*2.2,Math.cos(prog*Math.PI*3)*.8-my*1.4,z);
-    cam.rotation.set(-my*.12,-mx*.18,prog*Math.PI*.6+Math.sin(t*.2)*.02);
-    for(const m of cards){const u=m.userData;m.rotation.z+=u.spin;m.position.y+=Math.sin(t+u.bob)*.0025;
+    cam.rotation.set(-my*.12,-mx*.18,prog*Math.PI*.6+(calm?0:Math.sin(t*.2)*.02));
+    for(const m of cards){const u=m.userData;if(!calm){m.rotation.z+=u.spin;m.position.y+=Math.sin(t+u.bob)*.0025}
       const d=m.position.z-z;m.material.opacity=d>1?0:Math.min(1,Math.max(0,(-d-.5)/5))}
-    dust.rotation.z=t*.02;sun.material.opacity=.35+prog*.5;
+    if(!calm)dust.rotation.z=t*.02;sun.material.opacity=.35+prog*.5;
     r.render(scene,cam);
   })();
 }
