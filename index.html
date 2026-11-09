@@ -27,7 +27,7 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink)}
+html,body{margin:0;background:var(--bg);color:var(--ink);overflow-x:hidden;overflow-x:clip}
 body{font-family:var(--font);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
 body.inapp{overflow:hidden;height:100%}
 button{font:inherit;color:inherit}
@@ -45,7 +45,7 @@ a{color:inherit}
 .label{font:800 .66rem var(--font);text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
 .sub{color:var(--muted);font-size:.82rem;font-weight:600}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:12px;font-weight:700;z-index:99;max-width:calc(100% - 32px);text-align:center}
-input[type=email],input[type=text],input[type=search]{width:100%;font:500 1rem var(--font);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+input[type=email],input[type=text],input[type=search],input[type=tel],input[type=password]{width:100%;font:500 1rem var(--font);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
 input:focus{outline:2px solid var(--red);border-color:transparent}
 .spin{width:28px;height:28px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--red);animation:sp 1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
