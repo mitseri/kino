@@ -452,7 +452,7 @@ function framesOf(it,d){const out=[];if(it.poster)out.push({u:IMG+"w500"+it.post
   // the "main" backdrop is usually the same key art as the poster — skip it and show real stills from the film
   const main=d?.backdrop_path||it.backdrop,all=(d?.images?.backdrops||[]).filter(b=>b.file_path!==main),seen=new Set();
   const pick=all.filter(b=>!b.iso_639_1).sort((a,b)=>b.vote_average-a.vote_average||b.vote_count-a.vote_count)
-    .filter(b=>{const k=Math.round(b.vote_average*10)+":"+b.width;if(seen.has(b.file_path))return false;seen.add(b.file_path);return true}).slice(0,4);
+    .filter(b=>{if(seen.has(b.file_path))return false;seen.add(b.file_path);return true}).slice(0,8);
   pick.forEach(b=>out.push({u:IMG+"w780"+b.file_path,still:true}));
   if(out.length<2&&main)out.push({u:IMG+"w780"+main,still:true});return out}
 const slim=it=>({k:it.k,kind:it.kind,id:it.id,t:it.t,o:it.o,y:it.y,r:it.r,d:it.d,poster:it.poster,backdrop:it.backdrop,ty:it.ty,g:it.g});
