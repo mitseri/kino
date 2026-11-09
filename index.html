@@ -355,6 +355,11 @@ select{background:var(--surface);color:var(--ink);border:1px solid var(--line);b
 .rail3d .pcard:hover{transform:none}
 .nightbar{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:linear-gradient(135deg,rgb(255 201 60/.18),rgb(255 45 63/.16));border:1px solid rgb(255 201 60/.35);margin-bottom:10px;font-size:.85rem}
 .nightbar b{display:block}.nightbar .grow{flex:1}
+.tour{position:fixed;inset:0;z-index:130}
+.tour .hole{position:fixed;border-radius:16px;box-shadow:0 0 0 9999px rgb(0 0 0/.74),0 0 0 3px var(--gold),0 0 30px rgb(255 201 60/.6);transition:all .35s cubic-bezier(.2,.9,.3,1);pointer-events:none}
+.tour .tip{position:fixed;left:16px;right:16px;max-width:380px;margin:0 auto;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:0 20px 50px rgb(0 0 0/.6);display:grid;gap:10px;transition:top .35s cubic-bezier(.2,.9,.3,1)}
+.tour .tip b{font:800 1rem var(--font)}.tour .tip p{margin:0;font-size:.9rem;line-height:1.45;color:var(--muted)}
+.tour .tip .r{display:flex;align-items:center;gap:8px}.tour .tip .r span{flex:1;font:700 .75rem var(--font);color:var(--muted)}
 </style>
 </head>
 <body>
@@ -817,6 +822,7 @@ function openProfile(){
     ${(()=>{const st=stats(),lv=levelOf(xpOf(st)),got=new Set(ACH.filter(a=>a[3](st)).map(a=>a[0]));const pct=lv.to?Math.round((lv.xp-lv.from)/(lv.to-lv.from)*100):100;
       return `<div class="sect lvl"><span class="label">Уровень ${lv.i} · ${esc(lv.name)}</span><div class="bar"><i style="width:${pct}%"></i></div><span class="sub" style="font-size:.76rem">${lv.xp} XP${lv.to?` · до следующего уровня ${lv.to-lv.xp}`:" · максимум!"}</span></div>
         <div class="sect"><span class="label">Ачивки · ${got.size} из ${ACH.length}</span><div class="ach">${ACH.map(a=>`<div class="${got.has(a[0])?"":"off"}"><b>${a[1]}</b>${esc(a[2])}</div>`).join("")}</div></div>`})()}
+    <button class="btn" id="tourAgain">🎓 Пройти обучение заново</button>
     <div class="sect"><span class="label">Язык</span><div class="seg" id="lngT">${[["ru","Русский"],["uk","Українська"],["en","English"]].map(([k,t])=>`<button data-l="${k}" aria-pressed="${window.LANG===k}">${t}</button>`).join("")}</div></div>
     <div class="sect"><span class="label">Оформление</span><div class="seg" id="thm">${[["dark","🌙 Тёмная"],["light","☀️ Светлая"],["auto","Как в системе"]].map(([k,t])=>`<button data-t="${k}" aria-pressed="${ls.get("theme","dark")===k}">${t}</button>`).join("")}</div>
       <div class="seg" id="sndT"><button data-s="1" aria-pressed="${SND_ON}">🔊 Звуки вкл</button><button data-s="0" aria-pressed="${!SND_ON}">🔇 Без звука</button></div></div>
@@ -827,6 +833,7 @@ function openProfile(){
   $("#nmB").onclick=async()=>{const n=$("#nm").value.trim().slice(0,30);await sb.from("km_profiles").update({name:n}).eq("user_id",me.user_id);me.name=n;toast("Сохранено");closeSheet();go(view)};
   const tgOn=$("#tgOn");if(tgOn)tgOn.onclick=async()=>{const w=window.open("","_blank");const r=await tgCall({action:"link"});if(r?.url){if(w)w.location=r.url;else location.href=r.url;toast("Нажмите «Start» в Telegram — и готово")}else{w&&w.close();toast("Не получилось, попробуйте ещё раз")}};
   const tgOff=$("#tgOff");if(tgOff)tgOff.onclick=async()=>{await tgCall({action:"unlink"});me.tg_chat_id=null;closeSheet();toast("Уведомления отключены")};
+  $("#tourAgain").onclick=()=>{closeSheet();startTour(true)};
   $("#lngT").onclick=e=>{const b=e.target.closest("[data-l]");if(b&&b.dataset.l!==window.LANG){ls.set("lang",b.dataset.l);location.reload()}};
   $("#thm").onclick=e=>{const b=e.target.closest("[data-t]");if(!b)return;ls.set("theme",b.dataset.t);let t=b.dataset.t;if(t==="auto")t=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";document.documentElement.dataset.theme=t;
     document.querySelector('meta[name=theme-color]').content=t==="light"?"#f5f3ef":"#0b0b0d";$("#thm").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b))};
@@ -886,6 +893,36 @@ function nightSummary(){if(!night)return;const n=night,ms=n.deck.filter(x=>(mine
   document.querySelectorAll("[data-nk]").forEach(b=>b.onclick=()=>{closeSheet();openDetail(ms.find(x=>x.k===b.dataset.nk))});
   const rl=$("#nRoll");if(rl)rl.onclick=()=>{const w=ms[Math.floor(Math.random()*ms.length)];closeSheet();confetti();snd("match");toast("🎲 Сегодня смотрим: «"+w.t+"»");openDetail(w)};
   $("#nCont").onclick=closeSheet;$("#nStop").onclick=()=>{nightSend("end",{});night=null;closeSheet();resetDeck();go("swipe")}}
+
+/* ---------- onboarding tour: spotlight a control, explain it, "Ясно" moves on ---------- */
+const TOUR=[
+  ["#stack .sc.front","Карточка фильма","Свайп вправо — нравится, влево — мимо, вверх по постеру — мега-лайк. Тап по постеру слева или справа листает кадры из фильма."],
+  ["#bN","Мимо","Фильм больше не покажется."],
+  ["#bY","Нравится","Фильм попадёт во вкладку «Лайки». Если партнёру он тоже понравится — будет мэтч 💞"],
+  ["#bM","Мега-лайк","Точно хочу посмотреть — фильм сразу ложится на полку."],
+  ["#bS","Уже смотрел","Фильм уйдёт в «Посмотрено» на полке, и его можно оценить. Больше в свайпе не появится."],
+  ["#bU","Вернуть","Свайпнули случайно? Эта кнопка возвращает последнюю карточку."],
+  ["#bI","Подробнее","Описание, актёры, все трейлеры, рейтинг IMDb, возраст и где смотреть в Украине. Ещё можно просто пролистать карточку вниз."],
+  ["#kinds","Что показывать","Фильмы, сериалы, аниме или дорамы. «🆕 Новинки» — то, что недавно вышло в хорошем качестве."],
+  ["#flt","Фильтры","Настроение, жанры, годы, страна, рейтинг и сколько у вас времени."],
+  ["#nightGo,#pairBanner","Вдвоём веселее","Позовите пару по ссылке — и ловите общие мэтчи. А «Вечер кино» — свайпаете одни и те же фильмы одновременно."],
+  ['#nav [data-v="likes"]',"Лайки","Всё, что вы свайпнули вправо. Отсюда удобно класть фильмы на полку."],
+  ['#nav [data-v="matches"]',"Мэтчи","Фильмы, которые понравились вам обоим. Здесь выбираете, что смотреть сегодня."],
+  ['#nav [data-v="shelf"]',"Полка","Хочу, смотрю, посмотрено. Оценки, свои списки, прогресс сериалов, 3D-вид, импорт и экспорт."],
+  ['#nav [data-v="search"]',"Поиск и подборки","Найдите любой фильм по названию или откройте готовые подборки: «Для свидания», «Хоррор-вечер» и другие."],
+  ["#meBtn","Профиль","Фото, код пары, ачивки и уровень, Telegram-уведомления, язык, тема и звуки. Обучение можно пройти здесь заново."]];
+async function startTour(force){if(!force&&ls.get("tourDone",false))return;if(view!=="swipe")go("swipe");
+  for(let i=0;i<50&&!$("#stack .sc.front");i++)await new Promise(r=>setTimeout(r,150));
+  const steps=TOUR.filter(t=>document.querySelector(t[0]));let i=0;
+  const el=document.createElement("div");el.className="tour";el.innerHTML=`<div class="hole"></div><div class="tip" role="dialog" aria-live="polite"><b></b><p></p><div class="r"><span></span><button class="btn ghost sm" data-skip>Пропустить</button><button class="btn red" data-ok>Ясно</button></div></div>`;document.body.appendChild(el);
+  const end=()=>{el.remove();ls.set("tourDone",true);removeEventListener("resize",place)};
+  function place(){const t=steps[i];const tgt=document.querySelector(t[0]);if(!tgt){return next()}const r=tgt.getBoundingClientRect(),pad=6,h=el.querySelector(".hole"),tip=el.querySelector(".tip");
+    h.style.left=r.left-pad+"px";h.style.top=r.top-pad+"px";h.style.width=r.width+pad*2+"px";h.style.height=r.height+pad*2+"px";h.style.borderRadius=getComputedStyle(tgt).borderRadius==="50%"?"50%":"16px";
+    tip.querySelector("b").textContent=t[1];tip.querySelector("p").textContent=t[2];tip.querySelector(".r span").textContent=`${i+1} из ${steps.length}`;tip.querySelector("[data-ok]").textContent=i===steps.length-1?"Ясно, начинаем!":"Ясно";
+    const th=tip.offsetHeight||150,below=r.bottom+14+th<innerHeight,above=r.top-14-th>0;
+    tip.style.top=(r.height>innerHeight*.5?Math.max(12,innerHeight-th-110):below?r.bottom+14:above?r.top-14-th:Math.max(12,innerHeight-th-12))+"px";snd("tap")}
+  function next(){i++;if(i>=steps.length)return end();place()}
+  el.querySelector("[data-ok]").onclick=next;el.querySelector("[data-skip]").onclick=end;addEventListener("resize",place);place()}
 
 /* ---------- eye candy ---------- */
 let ambI=0,ambSrc="";
@@ -1284,7 +1321,7 @@ async function start(session){
   await Promise.all([loadAll(),loadGenres()]);await importFirstVersion();
   const pair=new URLSearchParams(location.search).get("pair");
   if(pair){history.replaceState(null,"",location.pathname);if(!partner&&pair.toUpperCase()!==me.pair_code)await pairWith(pair)}
-  buildSources();go("swipe");nightListen();openFromLink();showWatchNews();
+  buildSources();go("swipe");nightListen();openFromLink();showWatchNews();if(!new URLSearchParams(location.search).get("m"))setTimeout(()=>startTour(false),900);
   const nr=[...recsIn.values()].filter(r=>!r.seen&&!mine.swipes.has(r.tmdb)).length;if(nr)setTimeout(()=>toast(`💌 ${ptName()} посоветовал(а) ${RN(nr,"фильм","фильма","фильмов")} — они первые в свайпе`),900);
   sb.channel("km").on("postgres_changes",{event:"*",schema:"public",table:"km_swipes"},pl=>{const r=pl.new?.user_id?pl.new:pl.old;if(!r?.user_id||r.user_id===me.user_id)return;
       if(pl.eventType==="DELETE")theirs.swipes.delete(r.tmdb);else{theirs.swipes.set(r.tmdb,pl.new);const my=mine.swipes.get(pl.new.tmdb);if(pl.new.v==="like"&&my?.v==="like"&&pl.new.data)showMatch(pl.new.data,pl.new.mega&&my.mega)}counts()})
