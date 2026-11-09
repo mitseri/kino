@@ -326,13 +326,13 @@ body.inapp #world{display:none}
       <details><summary>Можно ли смотреть фильмы прямо тут?</summary><p>Нет. Kinomatch помогает выбрать, а смотреть — в легальных сервисах: мы показываем, где фильм доступен в Украине, и ведём туда по кнопке.</p></details>
       <details><summary>Нужен ли партнёр?</summary><p>Нет — можно свайпать одному и собирать свою полку. С партнёром появятся мэтчи.</p></details>
       <details><summary>Как связать аккаунты?</summary><p>В профиле есть ваш код и ссылка-приглашение. Партнёр открывает ссылку (или вводит код) — и всё.</p></details>
-      <details><summary>Какие данные вы храните?</summary><p>Только почту для входа, имя, ваши свайпы, полку и фильтры. Никаких паролей. Подробнее — в <a href="#privacy" data-privacy>политике конфиденциальности</a>.</p></details>
+      <details><summary>Какие данные вы храните?</summary><p>Логин, почту, имя, телефон (если укажете), ваши свайпы, полку и фильтры. Пароль хранится только в зашифрованном виде. Подробнее — в <a href="#privacy" data-privacy>политике конфиденциальности</a>.</p></details>
     </div>
   </section>
 
   <section class="sec pad final">
     <h2>Хватит выбирать дольше, чем смотреть</h2>
-    <p class="intro" style="margin-inline:auto">Вход по ссылке из письма — без пароля, за 20 секунд.</p>
+    <p class="intro" style="margin-inline:auto">Регистрация за 20 секунд — по логину и паролю.</p>
     <button class="btn red big" data-login>Начать бесплатно</button>
   </section>
 
@@ -361,8 +361,8 @@ body.inapp #world{display:none}
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
 const BRAND="Kinomatch";
-const SB_URL="https://atajfbfpzzrwdwtrsydw.supabase.co";
-const SB_KEY="sb_publishable_7ZTtX4mqNcA-BQs5EoKXyQ_YZ5rfvx5";
+const SB_URL="https://ebswykhozbzobrypderu.supabase.co";
+const SB_KEY="sb_publishable_gUTbeq9JD9WOfaVDL5oPIA_8tt__0Us";
 const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,detectSessionInUrl:true,flowType:"implicit"}});
 const IMG="https://image.tmdb.org/t/p/";
 const $=s=>document.querySelector(s);
@@ -490,24 +490,64 @@ function world(posters){
 function modal(html){$("#modalRoot").innerHTML=`<div class="modal" id="md"><div class="mbox" role="dialog" aria-modal="true"><button class="x" id="mx" aria-label="Закрыть">✕</button>${html}</div></div>`;
   $("#mx").onclick=closeModal;$("#md").onclick=e=>{if(e.target.id==="md")closeModal()}}
 function closeModal(){$("#modalRoot").innerHTML=""}
-function openLogin(){
-  const pair=new URLSearchParams(location.search).get("pair");
-  modal(`<h2>Вход в ${BRAND}</h2>${pair?`<p class="sub" style="margin:0;color:#ffb1b8">Вас пригласили в пару — после входа аккаунты свяжутся сами.</p>`:""}
-    <p class="sub" style="margin:0;font-size:.92rem">Введите почту — пришлём ссылку для входа. Без пароля.</p>
-    <form id="lf" style="display:grid;gap:12px"><input type="email" id="em" required autocomplete="email" placeholder="you@gmail.com" value="${esc(ls.get("lastEmail",""))}">
-    <button class="btn red big" type="submit" id="lb">Прислать ссылку</button></form><p class="sub" id="lmsg" style="margin:0"></p>
-    <p class="sub" style="margin:0;font-size:.75rem">Входя, вы соглашаетесь с <a href="#privacy" data-privacy>политикой конфиденциальности</a>.</p>`);
+function openLogin(mode){
+  const pair=new URLSearchParams(location.search).get("pair");mode=mode||(pair?"up":"in");
+  const tabs=`<div class="seg" style="margin-top:-4px"><button type="button" data-m="in" aria-pressed="${mode==="in"}">Вход</button><button type="button" data-m="up" aria-pressed="${mode==="up"}">Регистрация</button></div>`;
+  const note=pair?`<p class="sub" style="margin:0;color:#ffb1b8">Вас пригласили в пару — после входа аккаунты свяжутся сами.</p>`:"";
+  if(mode==="in")modal(`<h2>Вход в ${BRAND}</h2>${tabs}${note}
+    <form id="af" style="display:grid;gap:10px" autocomplete="on">
+      <input type="text" id="lg" required autocomplete="username" placeholder="Логин или почта" value="${esc(ls.get("lastLogin",""))}">
+      <input type="password" id="pw" required autocomplete="current-password" placeholder="Пароль" minlength="6">
+      <button class="btn red big" type="submit" id="ab">Войти</button></form>
+    <p class="sub" id="am" style="margin:0"></p><button class="btn ghost sm" id="fg" type="button" style="justify-self:start">Забыли пароль?</button>`);
+  else modal(`<h2>Регистрация</h2>${tabs}${note}
+    <form id="af" style="display:grid;gap:10px" autocomplete="on">
+      <input type="text" id="rn" required maxlength="30" autocomplete="given-name" placeholder="Имя">
+      <input type="text" id="ru" required maxlength="20" autocomplete="username" placeholder="Логин (латиница, цифры, _ .)" pattern="[A-Za-z0-9_.]{3,20}">
+      <input type="email" id="re" required autocomplete="email" placeholder="Почта">
+      <input type="tel" id="rp" autocomplete="tel" placeholder="Телефон (необязательно), +380…">
+      <input type="password" id="r1" required minlength="6" autocomplete="new-password" placeholder="Пароль (от 6 символов)">
+      <input type="password" id="r2" required minlength="6" autocomplete="new-password" placeholder="Повторите пароль">
+      <button class="btn red big" type="submit" id="ab">Создать аккаунт</button></form>
+    <p class="sub" id="am" style="margin:0"></p>
+    <p class="sub" style="margin:0;font-size:.75rem">Регистрируясь, вы соглашаетесь с <a href="#privacy" data-privacy>политикой конфиденциальности</a>.</p>`);
+  document.querySelectorAll("#modalRoot [data-m]").forEach(b=>b.onclick=()=>openLogin(b.dataset.m));
   document.querySelectorAll("#modalRoot [data-privacy]").forEach(b=>b.onclick=e=>{e.preventDefault();openPrivacy()});
-  $("#lf").onsubmit=async e=>{e.preventDefault();const b=$("#lb");b.disabled=true;const email=$("#em").value.trim();ls.set("lastEmail",email);
-    const redirect=location.origin+location.pathname+(pair?"?pair="+encodeURIComponent(pair):"");
-    const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:redirect,shouldCreateUser:true}});
-    $("#lmsg").innerHTML=error?(/rate|limit|seconds/i.test(error.message)?"Слишком много писем подряд — подождите минуту и попробуйте снова.":"Ошибка: "+esc(error.message))
-      :`Письмо отправлено на <b>${esc(email)}</b>. Откройте ссылку из него на этом же устройстве. Не пришло — проверьте «Спам».`;b.disabled=false};
+  const say=t=>$("#am").innerHTML=t;
+  if(mode==="in"){
+    $("#fg").onclick=async()=>{const v=$("#lg").value.trim();if(!v.includes("@"))return say("Введите в поле выше <b>почту</b> — пришлём ссылку для смены пароля.");
+      const {error}=await sb.auth.resetPasswordForEmail(v,{redirectTo:location.origin+location.pathname});say(error?"Ошибка: "+esc(error.message):"Письмо со ссылкой для смены пароля отправлено на "+esc(v))};
+    $("#af").onsubmit=async e=>{e.preventDefault();const b=$("#ab");b.disabled=true;say("");const login=$("#lg").value.trim(),password=$("#pw").value;ls.set("lastLogin",login);
+      try{let r;
+        if(login.includes("@")){const {error}=await sb.auth.signInWithPassword({email:login,password});if(error)throw error}
+        else{r=await fetch(`${SB_URL}/functions/v1/km-login`,{method:"POST",headers:{"content-type":"application/json",apikey:SB_KEY,Authorization:"Bearer "+SB_KEY},body:JSON.stringify({login,password})});
+          if(!r.ok)throw new Error("invalid");const t=await r.json();const {error}=await sb.auth.setSession(t);if(error)throw error}
+      }catch(err){say(/invalid|credentials/i.test(err.message)?"Неверный логин или пароль":/confirm/i.test(err.message)?"Подтвердите почту — ссылка в письме":"Ошибка: "+esc(err.message))}
+      b.disabled=false};
+  }else{
+    $("#af").onsubmit=async e=>{e.preventDefault();const b=$("#ab");say("");
+      const name=$("#rn").value.trim(),username=$("#ru").value.trim().toLowerCase(),email=$("#re").value.trim(),phone=$("#rp").value.replace(/[^\d+]/g,""),p1=$("#r1").value,p2=$("#r2").value;
+      if(!/^[a-z0-9_.]{3,20}$/.test(username))return say("Логин: 3–20 символов, латиница, цифры, «_» и «.»");
+      if(p1!==p2)return say("Пароли не совпадают");
+      if(phone&&!/^\+?\d{9,15}$/.test(phone))return say("Телефон выглядит неправильно");
+      b.disabled=true;
+      const {data:free}=await sb.rpc("km_username_free",{u:username});if(free===false){b.disabled=false;return say("Логин <b>"+esc(username)+"</b> уже занят")}
+      const {data,error}=await sb.auth.signUp({email,password:p1,options:{data:{name,username,phone},emailRedirectTo:location.origin+location.pathname+(pair?"?pair="+encodeURIComponent(pair):"")}});
+      b.disabled=false;
+      if(error)return say(/registered|exists/i.test(error.message)?"Эта почта уже зарегистрирована — войдите":/password/i.test(error.message)?"Слишком простой пароль":"Ошибка: "+esc(error.message));
+      ls.set("lastLogin",username);
+      if(!data.session)say("Почти готово! Подтвердите почту — ссылка отправлена на "+esc(email)+".")};
+  }
+}
+function openNewPassword(){
+  modal(`<h2>Новый пароль</h2><form id="np" style="display:grid;gap:10px"><input type="password" id="n1" required minlength="6" autocomplete="new-password" placeholder="Новый пароль"><input type="password" id="n2" required minlength="6" autocomplete="new-password" placeholder="Повторите"><button class="btn red big" type="submit">Сохранить</button></form><p class="sub" id="nm2" style="margin:0"></p>`);
+  $("#np").onsubmit=async e=>{e.preventDefault();if($("#n1").value!==$("#n2").value)return $("#nm2").textContent="Пароли не совпадают";
+    const {error}=await sb.auth.updateUser({password:$("#n1").value});if(error)return $("#nm2").textContent="Ошибка: "+error.message;closeModal();toast("Пароль обновлён")};
 }
 function openPrivacy(){
   modal(`<div class="legal"><h2>Конфиденциальность</h2>
     <p>${BRAND} хранит только то, что нужно для работы:</p>
-    <ul><li>почту — чтобы присылать ссылку для входа;</li><li>имя, которое вы укажете в профиле;</li><li>ваши свайпы, полку, оценки и фильтры;</li><li>связь с партнёром, если вы её создали.</li></ul>
+    <ul><li>логин, почту и пароль (в зашифрованном виде) — для входа и восстановления доступа;</li><li>имя и телефон, если вы их укажете;</li><li>ваши свайпы, полку, оценки и фильтры;</li><li>связь с партнёром, если вы её создали.</li></ul>
     <p>Мы не продаём и не передаём данные третьим лицам и не показываем рекламу. Данные хранятся в Supabase (ЕС, Франкфурт). Ваш партнёр видит ваши лайки и полку — больше никто.</p>
     <p>Удалить аккаунт и все данные можно в профиле: «Удалить аккаунт».</p>
     <p>Информация о фильмах предоставлена TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.</p></div>`);
@@ -587,7 +627,7 @@ function openProfile(){
     :`<div class="sect"><span class="label">Позовите пару</span><p class="sub" style="margin:0">Отправьте ссылку партнёру — после входа ваши аккаунты свяжутся, и появятся мэтчи.</p>
       <div class="code">${esc(me.pair_code)}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn red" id="shr" style="flex:1">Отправить ссылку</button><button class="btn" id="cpy">Скопировать</button></div></div>
       <div class="sect"><span class="label">Есть код партнёра?</span><div style="display:flex;gap:8px"><input type="text" id="pc" maxlength="6" placeholder="Например, 7F3A9C" style="text-transform:uppercase"><button class="btn" id="pcB">Связать</button></div></div>`}
-    <div class="sect"><span class="label">Аккаунт</span><span class="sub">${esc(me.email)}</span><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="out">Выйти</button><button class="btn ghost" id="del">Удалить аккаунт</button></div></div>
+    <div class="sect"><span class="label">Аккаунт</span><span class="sub">${me.username?"@"+esc(me.username)+" · ":""}${esc(me.email)}${me.phone?" · "+esc(me.phone):""}</span><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="out">Выйти</button><button class="btn ghost" id="del">Удалить аккаунт</button></div></div>
     <p class="sub" style="margin:0;font-size:.72rem">Данные о фильмах — TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>`);
   $("#nmB").onclick=async()=>{const n=$("#nm").value.trim().slice(0,30);await sb.from("km_profiles").update({name:n}).eq("user_id",me.user_id);me.name=n;toast("Сохранено");closeSheet();go(view)};
   const shr=$("#shr");if(shr)shr.onclick=async()=>{const url=inviteLink(),text=`Давай выбирать кино вместе в ${BRAND}! Свайпаем, и что понравится обоим — смотрим 🍿`;
@@ -598,8 +638,7 @@ function openProfile(){
     await sb.rpc("km_unpair");partner=null;me.partner=null;theirs={shelf:new Map(),swipes:new Map()};closeSheet();toast("Пара отвязана");go(view)};
   $("#out").onclick=async()=>{await sb.auth.signOut();location.href=location.pathname};
   $("#del").onclick=async()=>{const d=$("#del");if(!d.dataset.c){d.dataset.c=1;d.textContent="Удалить всё безвозвратно? Нажмите ещё раз";return}
-    await sb.rpc("km_unpair");await Promise.all([sb.from("km_swipes").delete().eq("user_id",me.user_id),sb.from("km_shelf").delete().eq("user_id",me.user_id),sb.from("km_prefs").delete().eq("user_id",me.user_id)]);
-    await sb.auth.signOut();alert?.call;location.href=location.pathname};
+    const {error}=await sb.rpc("km_delete_me");if(error)return toast("Не получилось: "+error.message);await sb.auth.signOut();location.href=location.pathname};
 }
 function copy(t){(navigator.clipboard?.writeText(t)||Promise.reject()).then(()=>toast("Ссылка скопирована")).catch(()=>prompt("Скопируйте ссылку:",t))}
 async function pairWith(code){code=(code||"").trim().toUpperCase();if(code.length<4)return toast("Введите код");
@@ -800,11 +839,8 @@ function renderSearch(){
 }
 /* ---------- boot ---------- */
 async function ensureProfile(user){
-  let {data}=await sb.from("km_profiles").select("*").eq("user_id",user.id).maybeSingle();
-  if(!data){const name=(user.email||"").split("@")[0].replace(/[._\d]+/g," ").trim().slice(0,20);
-    const r=await sb.from("km_profiles").insert({user_id:user.id,name:cap1(name)}).select().single();data=r.data;
-    try{await sb.rpc("km_import_legacy")}catch(e){}}
-  return data;
+  for(let i=0;i<5;i++){const {data}=await sb.from("km_profiles").select("*").eq("user_id",user.id).maybeSingle();if(data)return data;await new Promise(r=>setTimeout(r,600))}
+  return {user_id:user.id,name:"",pair_code:"——"};
 }
 async function importFirstVersion(){
   // the first private version lived elsewhere; bring its shelf over once for its owner
@@ -832,7 +868,7 @@ async function start(session){
 (async()=>{
   const {data:{session}}=await sb.auth.getSession();
   if(session)start(session);else initLanding();
-  sb.auth.onAuthStateChange((ev,s)=>{if(ev==="SIGNED_IN"&&s)start(s)});
+  sb.auth.onAuthStateChange((ev,s)=>{if(ev==="PASSWORD_RECOVERY"){openNewPassword();return}if(ev==="SIGNED_IN"&&s)start(s)});
 })();
 </script>
 </body>
