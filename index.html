@@ -4,6 +4,7 @@
 <script>if(location.hostname==="mitseri.github.io")location.replace("https://kinomatch-ua.netlify.app/"+location.pathname.replace(/^\/kino\/?/,"")+location.search+location.hash)</script>
 <meta charset="utf-8">
 <script>try{var t=JSON.parse(localStorage.getItem("theme")||'"dark"');if(t==="auto")t=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";document.documentElement.dataset.theme=t}catch(e){}</script>
+<script src="i18n.js"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0b0d">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -363,6 +364,7 @@ select{background:var(--surface);color:var(--ink);border:1px solid var(--line);b
 <div class="land" id="land" hidden>
   <header class="lnav"><div class="in pad">
     <a class="logo" href="#top"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#ff2d3f"/><rect x="14" y="16" width="22" height="32" rx="5" fill="#fff" opacity=".55" transform="rotate(-10 25 32)"/><rect x="28" y="16" width="22" height="32" rx="5" fill="#fff" transform="rotate(10 39 32)"/><path d="M39 39s-6-3.6-7.5-7c-1-2.4.6-5 3-5 1.5 0 2.5.8 4.5 2.5 2-1.7 3-2.5 4.5-2.5 2.4 0 4 2.6 3 5-1.5 3.4-7.5 7-7.5 7z" fill="#ff2d3f"/></svg>Kinomatch</a>
+    <select id="langSel" aria-label="Язык" style="background:transparent;color:inherit;border:1px solid rgb(255 255 255/.2);border-radius:10px;padding:6px 8px;font:700 .8rem var(--font)"><option value="ru">RU</option><option value="uk">UA</option><option value="en">EN</option></select>
     <nav class="links"><a href="#how">Как это работает</a><a href="#feat">Возможности</a><a href="#faq">Вопросы</a></nav>
     <button class="btn red sm" data-login>Войти</button>
   </div></header>
@@ -474,7 +476,7 @@ const ST=[{k:"want",t:"Хочу",c:"var(--want)"},{k:"watching",t:"Смотрю"
 function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2600)}
 const cap1=s=>s?s[0].toUpperCase()+s.slice(1):s;
 const RN=(n,a,b,c)=>{const m=n%10,h=n%100;return n+" "+(m===1&&h!==11?a:m>=2&&m<=4&&(h<10||h>=20)?b:c)};
-let DN=null;try{DN=new Intl.DisplayNames(["ru"],{type:"region"})}catch(e){}
+let DN=null;try{DN=new Intl.DisplayNames([window.LANG||"ru"],{type:"region"})}catch(e){}
 const country=cc=>(cc||[]).map(x=>{try{return DN?DN.of(x):x}catch(e){return x}}).join(", ");
 const dur=m=>m>=60?`${Math.floor(m/60)} ч ${m%60?m%60+" мин":""}`.trim():m+" мин";
 const ls={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
@@ -482,7 +484,7 @@ const ls={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.pa
 /* ---------- TMDB through our server-side proxy (the key never reaches the browser) ---------- */
 const TC=new Map();
 async function tmdb(path,params={}){
-  const q=new URLSearchParams({p:path,language:"ru-RU",...params});const key=q.toString();
+  const q=new URLSearchParams({p:path,language:window.TMDB_LANG||"ru-RU",...params});const key=q.toString();
   if(TC.has(key))return TC.get(key);
   const pr=(async()=>{
     const r=await fetch(`${SB_URL}/functions/v1/kino-tmdb?${key}`,{headers:{apikey:SB_KEY}});
@@ -490,7 +492,7 @@ async function tmdb(path,params={}){
   TC.set(key,pr);pr.catch(()=>TC.delete(key));return pr;
 }
 let GM={},GT={};
-async function loadGenres(){const [m,t]=await Promise.all([tmdb("/genre/movie/list"),tmdb("/genre/tv/list")]);
+async function loadGenres(){const [m,t]=await Promise.all([tmdb("/genre/movie/list",{language:"ru-RU"}),tmdb("/genre/tv/list",{language:"ru-RU"})]);
   m.genres.forEach(g=>GM[g.id]=g.name.toLowerCase());t.genres.forEach(g=>GT[g.id]=g.name.toLowerCase())}
 const TVSPLIT={"боевик и приключения":["боевик","приключения"],"нф и фэнтези":["фантастика","фэнтези"],"война и политика":["военный"],"мыльная опера":["мелодрама"],"детский":["семейный"]};
 const FILTER_GENRES=["драма","комедия","боевик","триллер","криминал","фантастика","фэнтези","ужасы","детектив","приключения","мелодрама","семейный","мультфильм","военный","история","документальный","музыка","вестерн"];
@@ -536,7 +538,7 @@ const US_AGE={G:"0+",PG:"6+","PG-13":"13+",R:"17+","NC-17":"18+","TV-Y":"0+","TV
 function ageOf(it,d){if(!d)return"";const pick=list=>{for(const cc of["UA","RU","US","GB","DE"]){const r=list.find(x=>x.iso_3166_1===cc);if(r&&r.v)return cc==="US"?(US_AGE[r.v]||""):/^\d+\+?$/.test(r.v)?r.v.replace(/^(\d+)$/,"$1+"):""}return""};
   if(it.kind==="movie")return pick((d.release_dates?.results||[]).map(r=>({iso_3166_1:r.iso_3166_1,v:(r.release_dates||[]).map(x=>x.certification).find(Boolean)})));
   return pick((d.content_ratings?.results||[]).map(r=>({iso_3166_1:r.iso_3166_1,v:r.rating})))}
-const fdate=s=>{try{return new Date(s).toLocaleDateString("ru-RU",{day:"numeric",month:"long",year:new Date(s).getFullYear()===new Date().getFullYear()?undefined:"numeric"})}catch(e){return s}};
+const fdate=s=>{try{return new Date(s).toLocaleDateString(window.LANG==="en"?"en-GB":window.LANG==="uk"?"uk-UA":"ru-RU",{day:"numeric",month:"long",year:new Date(s).getFullYear()===new Date().getFullYear()?undefined:"numeric"})}catch(e){return s}};
 function qualOf(it,d){if(!d)return null;const now=Date.now();
   if(it.kind==="movie"){const all=(d.release_dates?.results||[]).flatMap(r=>r.release_dates||[]);
     const first=types=>all.filter(x=>types.includes(x.type)).map(x=>x.release_date).sort()[0];
@@ -552,6 +554,7 @@ const slim=it=>({k:it.k,kind:it.kind,id:it.id,t:it.t,o:it.o,y:it.y,r:it.r,d:it.d
 
 /* ================= LANDING ================= */
 async function initLanding(){
+  const lsel=$("#langSel");if(lsel){lsel.value=window.LANG||"ru";lsel.onchange=()=>{ls.set("lang",lsel.value);location.reload()}}
   $("#land").hidden=false;document.body.classList.remove("inapp");setTimeout(()=>loadGenres().then(openFromLink).catch(()=>{}),300);
   document.querySelectorAll("[data-login]").forEach(b=>b.onclick=openLogin);
   document.querySelectorAll("[data-privacy]").forEach(b=>b.onclick=e=>{e.preventDefault();openPrivacy()});
@@ -811,6 +814,7 @@ function openProfile(){
     ${(()=>{const st=stats(),lv=levelOf(xpOf(st)),got=new Set(ACH.filter(a=>a[3](st)).map(a=>a[0]));const pct=lv.to?Math.round((lv.xp-lv.from)/(lv.to-lv.from)*100):100;
       return `<div class="sect lvl"><span class="label">Уровень ${lv.i} · ${esc(lv.name)}</span><div class="bar"><i style="width:${pct}%"></i></div><span class="sub" style="font-size:.76rem">${lv.xp} XP${lv.to?` · до следующего уровня ${lv.to-lv.xp}`:" · максимум!"}</span></div>
         <div class="sect"><span class="label">Ачивки · ${got.size} из ${ACH.length}</span><div class="ach">${ACH.map(a=>`<div class="${got.has(a[0])?"":"off"}"><b>${a[1]}</b>${esc(a[2])}</div>`).join("")}</div></div>`})()}
+    <div class="sect"><span class="label">Язык</span><div class="seg" id="lngT">${[["ru","Русский"],["uk","Українська"],["en","English"]].map(([k,t])=>`<button data-l="${k}" aria-pressed="${window.LANG===k}">${t}</button>`).join("")}</div></div>
     <div class="sect"><span class="label">Оформление</span><div class="seg" id="thm">${[["dark","🌙 Тёмная"],["light","☀️ Светлая"],["auto","Как в системе"]].map(([k,t])=>`<button data-t="${k}" aria-pressed="${ls.get("theme","dark")===k}">${t}</button>`).join("")}</div>
       <div class="seg" id="sndT"><button data-s="1" aria-pressed="${SND_ON}">🔊 Звуки вкл</button><button data-s="0" aria-pressed="${!SND_ON}">🔇 Без звука</button></div></div>
     <div class="sect"><span class="label">Уведомления в Telegram</span><p class="sub" style="margin:0">Бот напишет, когда у вас мэтч или ${partner?esc(ptName()):"пара"} советует фильм.</p>
@@ -820,6 +824,7 @@ function openProfile(){
   $("#nmB").onclick=async()=>{const n=$("#nm").value.trim().slice(0,30);await sb.from("km_profiles").update({name:n}).eq("user_id",me.user_id);me.name=n;toast("Сохранено");closeSheet();go(view)};
   const tgOn=$("#tgOn");if(tgOn)tgOn.onclick=async()=>{const w=window.open("","_blank");const r=await tgCall({action:"link"});if(r?.url){if(w)w.location=r.url;else location.href=r.url;toast("Нажмите «Start» в Telegram — и готово")}else{w&&w.close();toast("Не получилось, попробуйте ещё раз")}};
   const tgOff=$("#tgOff");if(tgOff)tgOff.onclick=async()=>{await tgCall({action:"unlink"});me.tg_chat_id=null;closeSheet();toast("Уведомления отключены")};
+  $("#lngT").onclick=e=>{const b=e.target.closest("[data-l]");if(b&&b.dataset.l!==window.LANG){ls.set("lang",b.dataset.l);location.reload()}};
   $("#thm").onclick=e=>{const b=e.target.closest("[data-t]");if(!b)return;ls.set("theme",b.dataset.t);let t=b.dataset.t;if(t==="auto")t=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";document.documentElement.dataset.theme=t;
     document.querySelector('meta[name=theme-color]').content=t==="light"?"#f5f3ef":"#0b0b0d";$("#thm").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b))};
   $("#sndT").onclick=e=>{const b=e.target.closest("[data-s]");if(!b)return;SND_ON=b.dataset.s==="1";ls.set("snd",SND_ON);snd("tap");$("#sndT").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b))};
