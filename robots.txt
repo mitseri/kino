@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://kinomatch-ua.netlify.app/sitemap.xml

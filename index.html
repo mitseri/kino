@@ -3,6 +3,7 @@
 <head>
 <script>if(location.hostname==="mitseri.github.io")location.replace("https://kinomatch-ua.netlify.app/"+location.pathname.replace(/^\/kino\/?/,"")+location.search+location.hash)</script>
 <meta charset="utf-8">
+<script>try{var t=JSON.parse(localStorage.getItem("theme")||'"dark"');if(t==="auto")t=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";document.documentElement.dataset.theme=t}catch(e){}</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0b0d">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,6 +14,15 @@
 <meta property="og:title" content="Kinomatch — что смотрим сегодня?">
 <meta property="og:description" content="Тиндер для фильмов для пар: свайпайте вдвоём и находите кино, которое понравится обоим.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://kinomatch-ua.netlify.app/">
+<meta property="og:image" content="https://kinomatch-ua.netlify.app/og.jpg">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:locale" content="ru_RU"><meta property="og:locale:alternate" content="uk_UA"><meta property="og:site_name" content="Kinomatch">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://kinomatch-ua.netlify.app/og.jpg">
+<meta name="keywords" content="что посмотреть, что посмотреть вдвоём, фильм на вечер, тиндер для фильмов, подбор фильмов, сериалы, аниме, дорамы, де дивитися в Україні, що подивитися, Kinomatch">
+<link rel="canonical" href="https://kinomatch-ua.netlify.app/">
+<link rel="manifest" href="manifest.webmanifest">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Kinomatch","url":"https://kinomatch-ua.netlify.app/","applicationCategory":"EntertainmentApplication","operatingSystem":"Web","inLanguage":["ru","uk","en"],"description":"Тиндер для фильмов для пар: свайпайте фильмы, сериалы, аниме и дорамы вдвоём. Когда понравится обоим — мэтч. Трейлеры, рейтинги IMDb и где смотреть в Украине.","offers":{"@type":"Offer","price":"0","priceCurrency":"UAH"}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://image.tmdb.org">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@600;800;900&display=swap">
@@ -315,6 +325,35 @@ select{background:var(--surface);color:var(--ink);border:1px solid var(--line);b
 .pcard .pp{position:absolute;top:6px;left:6px;z-index:2;font:800 .62rem var(--font);padding:3px 7px;border-radius:999px;background:rgb(90 169 255/.9)}
 .lists{display:grid;gap:8px}.lists label{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--surface2);font-weight:700;cursor:pointer}
 .lists input{width:20px;height:20px;accent-color:var(--red)}
+:root[data-theme=light]{--bg:#f5f3ef;--bg2:#ebe8e2;--surface:#ffffff;--surface2:#f0ede8;--ink:#17171c;--muted:#686874;--line:#dfdbd4;color-scheme:light}
+:root[data-theme=light] .nav{background:rgb(255 255 255/.82);border-top-color:rgb(0 0 0/.08)}
+:root[data-theme=light] .nav button[aria-current="true"]{color:var(--ink)}
+:root[data-theme=light] .amb img{filter:blur(60px) saturate(1.4) brightness(1.15)}
+:root[data-theme=light] .amb img.on{opacity:.45}
+:root[data-theme=light] .amb::after{background:linear-gradient(to bottom,rgb(245 243 239/.55),rgb(245 243 239/.88))}
+:root[data-theme=light] .pill,:root[data-theme=light] .cb{background:rgb(255 255 255/.8);border-color:var(--line)}
+:root[data-theme=light] .sc{border-color:var(--line);box-shadow:0 18px 40px rgb(0 0 0/.16)}
+:root[data-theme=light] .sheet{box-shadow:0 -10px 40px rgb(0 0 0/.15)}
+:root[data-theme=light] .scrim,:root[data-theme=light] .modal{background:rgb(20 20 25/.45)}
+:root[data-theme=light] .pcard .pt,:root[data-theme=light] .pcard .ps{color:#fff}
+.view{animation:vin .3s cubic-bezier(.2,.8,.3,1)}@keyframes vin{from{opacity:0;transform:translateY(12px)}}
+.detail{animation:din .34s cubic-bezier(.2,.9,.3,1)}@keyframes din{from{opacity:0;transform:translateY(40px) scale(.98)}}
+.detail .dhero img{animation:hz 1.2s ease-out}@keyframes hz{from{transform:scale(1.08)}}
+.sheet{animation:sin .3s cubic-bezier(.2,.9,.3,1)}@keyframes sin{from{transform:translateY(60px);opacity:.4}}
+.gen .why{font:800 .72rem var(--font);padding:6px 10px;border-radius:999px;background:rgb(90 169 255/.9);color:#fff}
+.lvl{display:grid;gap:6px}.lvl .bar{height:10px;border-radius:99px;background:var(--surface2);overflow:hidden}.lvl .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--gold));border-radius:99px}
+.ach{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.ach div{background:var(--surface2);border-radius:12px;padding:10px 6px;text-align:center;font:700 .68rem/1.25 var(--font)}
+.ach div b{display:block;font-size:1.6rem;line-height:1.2;margin-bottom:3px}.ach div.off{opacity:.38;filter:grayscale(1)}
+.colls{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:14px}
+.colls button{border:1px solid var(--line);background:linear-gradient(135deg,var(--surface),var(--surface2));color:var(--ink);border-radius:14px;padding:16px 12px;text-align:left;font:800 .9rem/1.25 var(--font);cursor:pointer;min-height:74px}
+.rail3d{display:flex;gap:2px;overflow-x:auto;scroll-snap-type:x mandatory;perspective:900px;padding:22px calc(50% - 66px) 40px;scrollbar-width:none;
+  background:linear-gradient(to bottom,transparent calc(100% - 30px),#7a4e2b calc(100% - 30px),#4a2c15 calc(100% - 16px),rgb(0 0 0/.35) calc(100% - 16px),transparent calc(100% - 4px))}
+.rail3d::-webkit-scrollbar{display:none}
+.rail3d .pcard{flex:none;width:132px;scroll-snap-align:center;transform-origin:50% 100%;box-shadow:0 14px 26px rgb(0 0 0/.55)}
+.rail3d .pcard:hover{transform:none}
+.nightbar{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:linear-gradient(135deg,rgb(255 201 60/.18),rgb(255 45 63/.16));border:1px solid rgb(255 201 60/.35);margin-bottom:10px;font-size:.85rem}
+.nightbar b{display:block}.nightbar .grow{flex:1}
 </style>
 </head>
 <body>
@@ -422,6 +461,12 @@ const SB_URL="https://ebswykhozbzobrypderu.supabase.co";
 const SB_KEY="sb_publishable_gUTbeq9JD9WOfaVDL5oPIA_8tt__0Us";
 const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,detectSessionInUrl:true,flowType:"implicit"}});
 const IMG="https://image.tmdb.org/t/p/";
+const SITE="https://kinomatch-ua.netlify.app/";
+let SND_ON=true,SNDC=null;try{SND_ON=JSON.parse(localStorage.getItem("snd")??"true")}catch(e){}
+function snd(kind){if(!SND_ON)return;try{const c=SNDC||(SNDC=new (window.AudioContext||window.webkitAudioContext)());if(c.state==="suspended")c.resume();
+  const N={like:[660,880],nope:[330,247],mega:[659,880,1319],match:[523,659,784,1047],seen:[494,494],tap:[880]}[kind]||[600];
+  N.forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain(),t=c.currentTime+i*.085;o.type=kind==="nope"?"triangle":"sine";o.frequency.value=f;
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(kind==="match"?.11:.07,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+(kind==="match"?.35:.2));o.connect(g).connect(c.destination);o.start(t);o.stop(t+.4)})}catch(e){}}
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const TYPES={film:"Фильм",series:"Сериал",anime:"Аниме",kr:"Дорама"};
@@ -507,7 +552,7 @@ const slim=it=>({k:it.k,kind:it.kind,id:it.id,t:it.t,o:it.o,y:it.y,r:it.r,d:it.d
 
 /* ================= LANDING ================= */
 async function initLanding(){
-  $("#land").hidden=false;document.body.classList.remove("inapp");
+  $("#land").hidden=false;document.body.classList.remove("inapp");setTimeout(()=>loadGenres().then(openFromLink).catch(()=>{}),300);
   document.querySelectorAll("[data-login]").forEach(b=>b.onclick=openLogin);
   document.querySelectorAll("[data-privacy]").forEach(b=>b.onclick=e=>{e.preventDefault();openPrivacy()});
   if(location.hash==="#privacy")openPrivacy();
@@ -641,12 +686,13 @@ function openPrivacy(){
 }
 
 /* ================= APP STATE ================= */
-let me=null,partner=null,mine={shelf:new Map(),swipes:new Map(),rx:new Map()},theirs={shelf:new Map(),swipes:new Map(),rx:new Map()},prefs=null,view="swipe",recsIn=new Map(),recsOut=new Map(),lists=[],listItems=new Map();
+let me=null,partner=null,mine={shelf:new Map(),swipes:new Map(),rx:new Map()},theirs={shelf:new Map(),swipes:new Map(),rx:new Map()},prefs=null,view="swipe",recsIn=new Map(),recsOut=new Map(),lists=[],listItems=new Map(),watchSet=new Map(),night=null;
 const DEF_PREFS=()=>({kinds:[],yes:[],no:[],eras:[],minR:0,mood:"",len:"",cc:[],person:null,fresh:false});
 const myName=()=>me?.name||"Я",ptName=()=>partner?.name||"Партнёр";
 async function loadAll(){
-  const [s,w,p,pr,rc,rx,li,lit]=await Promise.all([sb.from("km_shelf").select("*"),sb.from("km_swipes").select("user_id,tmdb,v,mega,data,at"),sb.from("km_prefs").select("prefs").eq("user_id",me.user_id).maybeSingle(),sb.from("km_profiles").select("*"),
-    sb.from("km_recs").select("*"),sb.from("km_reactions").select("*"),sb.from("km_lists").select("*").order("created_at"),sb.from("km_list_items").select("*")]);
+  const [s,w,p,pr,rc,rx,li,lit,wt]=await Promise.all([sb.from("km_shelf").select("*"),sb.from("km_swipes").select("user_id,tmdb,v,mega,data,at"),sb.from("km_prefs").select("prefs").eq("user_id",me.user_id).maybeSingle(),sb.from("km_profiles").select("*"),
+    sb.from("km_recs").select("*"),sb.from("km_reactions").select("*"),sb.from("km_lists").select("*").order("created_at"),sb.from("km_list_items").select("*"),sb.from("km_watch").select("*")]);
+  watchSet=new Map((wt.data||[]).map(r=>[r.tmdb,r]));
   recsIn=new Map();recsOut=new Map();(rc.data||[]).forEach(r=>(r.to_user===me.user_id?recsIn:recsOut).set(r.tmdb,r));
   lists=li.data||[];listItems=new Map();lists.forEach(l=>listItems.set(l.id,new Map()));(lit.data||[]).forEach(r=>listItems.get(r.list_id)?.set(r.tmdb,r));
   (pr.data||[]).forEach(r=>{if(r.user_id===me.user_id)me={...me,...r};else partner=r});
@@ -659,7 +705,25 @@ async function loadAll(){
 }
 const likes=side=>[...side.swipes.values()].filter(r=>r.v==="like").sort((a,b)=>(b.at||"").localeCompare(a.at||""));
 const matchesList=()=>partner?likes(mine).filter(r=>theirs.swipes.get(r.tmdb)?.v==="like"):[];
-function counts(){const l=likes(mine).length,m=matchesList().length;$("#nL").hidden=!l;$("#nL").textContent=l;$("#nM").hidden=!m;$("#nM").textContent=m}
+function counts(){const l=likes(mine).length,m=matchesList().length;$("#nL").hidden=!l;$("#nL").textContent=l;$("#nM").hidden=!m;$("#nM").textContent=m;clearTimeout(counts.t);counts.t=setTimeout(checkAch,800)}
+/* ---------- levels & achievements ---------- */
+const LV=[[0,"Новичок"],[50,"Зритель"],[150,"Киноман"],[300,"Синефил"],[500,"Критик"],[800,"Знаток"],[1200,"Режиссёр"],[1700,"Продюсер"],[2300,"Легенда"],[3000,"Оскароносец"],[4000,"Бог кино"]];
+function stats(){const sw=[...mine.swipes.values()],sh=[...mine.shelf.values()],done=sh.filter(r=>r.status==="done");
+  return{sw:sw.length,likes:sw.filter(r=>r.v==="like").length,mega:sw.filter(r=>r.mega).length,match:matchesList().length,done:done.length,
+    anime:done.filter(r=>r.data?.ty==="anime").length,kr:done.filter(r=>r.data?.ty==="kr").length,horror:done.filter(r=>(r.data?.g||[]).includes("ужасы")).length,
+    rated:sh.filter(r=>r.rating).length,recs:recsOut.size,rx:mine.rx.size,lists:lists.length,nights:+(ls.get("nights",0)),
+    sup:matchesList().filter(r=>r.mega&&theirs.swipes.get(r.tmdb)?.mega).length,pair:partner?1:0,watch:watchSet.size}}
+const ACH=[["first","👆","Первый свайп",s=>s.sw>=1],["s100","🔥","100 свайпов",s=>s.sw>=100],["s1000","🚀","1000 свайпов",s=>s.sw>=1000],["pair","💞","Нашёл пару",s=>s.pair],
+  ["m1","🎯","Первый мэтч",s=>s.match>=1],["m10","💘","10 мэтчей",s=>s.match>=10],["m50","👑","50 мэтчей",s=>s.match>=50],["sup","🌟","Супер-мэтч",s=>s.sup>=1],
+  ["d1","🍿","Первый просмотр",s=>s.done>=1],["d10","🎬","10 просмотрено",s=>s.done>=10],["d50","📽","50 просмотрено",s=>s.done>=50],["d100","🏛","100 просмотрено",s=>s.done>=100],
+  ["anime","🍣","Анимешник",s=>s.anime>=10],["kr","🇰🇷","Дорамщик",s=>s.kr>=10],["horror","😱","Не из пугливых",s=>s.horror>=5],["critic","⭐","Критик: 20 оценок",s=>s.rated>=20],
+  ["rec","💌","Первый совет",s=>s.recs>=1],["rx","😂","10 реакций",s=>s.rx>=10],["lists","📁","3 своих списка",s=>s.lists>=3],["night","🌙","Вечер кино",s=>s.nights>=1],["watch","🔔","Ждун",s=>s.watch>=1]];
+function xpOf(s){return s.sw+s.likes+s.done*10+s.match*15+s.recs*5+s.rx*2+s.rated*3+s.nights*20}
+function levelOf(xp){let i=0;while(i<LV.length-1&&xp>=LV[i+1][0])i++;const nx=LV[i+1];return{i:i+1,name:LV[i][1],xp,from:LV[i][0],to:nx?nx[0]:null}}
+function checkAch(){if(!me)return;const s=stats(),got=new Set(ls.get("ach",[])),first=!ls.get("achInit",false);const fresh=ACH.filter(a=>a[3](s)&&!got.has(a[0]));
+  if(!fresh.length){if(first)ls.set("achInit",true);return}fresh.forEach(a=>got.add(a[0]));ls.set("ach",[...got]);
+  const lv=levelOf(xpOf(s)),old=ls.get("lvl",0);ls.set("lvl",lv.i);if(first){ls.set("achInit",true);return}
+  toast(`🏆 Ачивка: ${fresh[0][1]} ${fresh[0][2]}${fresh.length>1?` и ещё ${fresh.length-1}`:""}${lv.i>old&&old?` · Новый уровень: ${lv.name}!`:""}`);snd("match")}
 
 /* ---------- endless deck straight from TMDB ---------- */
 let deck=[],src=[],loading=false,hist=[],busy=false,deckErr=false;
@@ -692,8 +756,16 @@ function buildSources(){
   }
 }
 function seenK(k){return mine.swipes.has(k)||mine.shelf.has(k)||deck.some(x=>x.k===k)}
+function taste(){const w={};for(const r of mine.swipes.values()){const s=r.v==="like"?(r.mega?3:1.5):r.v==="nope"?-1:.6;(r.data?.g||[]).forEach(g=>w[g]=(w[g]||0)+s)}return w}
+function smartSort(items){if(mine.swipes.size<12)return items;const w=taste(),sc=it=>{const g=it.g||[];return g.reduce((a,x)=>a+(w[x]||0),0)/Math.max(1,g.length)/Math.max(1,mine.swipes.size/40)+(it.r||0)/4+Math.random()*1.6};
+  return items.map(it=>[sc(it),it]).sort((a,b)=>b[0]-a[0]).map(x=>x[1])}
+async function becauseYouLiked(){const p=prefs||{};if(p.person?.id||p.fresh||night)return;const l=likes(mine).filter(r=>r.data?.kind).slice(0,25);if(l.length<3)return;
+  const base=(l.find(r=>r.mega&&Math.random()<.5)||l[Math.floor(Math.random()*l.length)]).data;
+  try{const r=await tmdb(`/${base.kind}/${base.id}/recommendations`);const kinds=p.kinds?.length?p.kinds:null;
+    const rec=(r.results||[]).filter(x=>x.poster_path&&x.overview).map(x=>itemFrom(x,x.media_type||base.kind)).filter(x=>!seenK(x.k)&&(!kinds||kinds.includes(x.ty))).slice(0,3);
+    rec.forEach((x,i)=>{x.why=base.t;deck.splice(Math.min(deck.length,2+i*3),0,x)})}catch(e){}}
 async function fill(min=8){
-  if(loading)return;loading=true;
+  if(loading||night)return;loading=true;
   try{let guard=0;
     while(deck.length<min&&src.some(s=>!s.done)&&guard++<12){
       const live=src.filter(s=>!s.done),s=live[guard%live.length];s.page++;
@@ -704,13 +776,13 @@ async function fill(min=8){
       if(!r.results?.length||s.page>=r.total_pages)s.done=true;
       const items=(r.results||[]).filter(x=>x.poster_path&&x.overview).map(x=>itemFrom(x,s.kind)).filter(x=>!seenK(x.k));
       for(let i=items.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[items[i],items[j]]=[items[j],items[i]]}
-      deck.push(...items);
+      deck.push(...smartSort(items));
     }
     // what the partner already liked goes near the top — quick matches
     const pl=likes(theirs).filter(r=>r.data?.kind&&!seenK(r.tmdb)).map(r=>r.data);if(pl.length)deck.splice(Math.min(1,deck.length),0,...pl.slice(0,3));
     // what the partner recommended goes first
     const rs=[...recsIn.values()].filter(r=>!r.seen&&r.data?.kind&&!mine.swipes.has(r.tmdb)&&!deck.some(x=>x.k===r.tmdb)).map(r=>r.data);if(rs.length)deck.unshift(...rs);
-    deckErr=false;
+    deckErr=false;if(Math.random()<.6)await becauseYouLiked();
   }catch(e){deckErr=true}finally{loading=false}
 }
 function resetDeck(){deck=[];hist=[];buildSources();renderSwipe(true);fill().then(()=>renderSwipe())}
@@ -736,6 +808,11 @@ function openProfile(){
     :`<div class="sect"><span class="label">Позовите пару</span><p class="sub" style="margin:0">Отправьте ссылку партнёру — после входа ваши аккаунты свяжутся, и появятся мэтчи.</p>
       <div class="code">${esc(me.pair_code)}</div><div class="qr" id="qr" aria-label="QR-код приглашения"></div><p class="sub" style="margin:0;text-align:center;font-size:.76rem">Партнёр может навести камеру телефона на QR</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn red" id="shr" style="flex:1">Отправить ссылку</button><button class="btn" id="cpy">Скопировать</button></div></div>
       <div class="sect"><span class="label">Есть код партнёра?</span><div style="display:flex;gap:8px"><input type="text" id="pc" maxlength="6" placeholder="Например, 7F3A9C" style="text-transform:uppercase"><button class="btn" id="pcB">Связать</button></div></div>`}
+    ${(()=>{const st=stats(),lv=levelOf(xpOf(st)),got=new Set(ACH.filter(a=>a[3](st)).map(a=>a[0]));const pct=lv.to?Math.round((lv.xp-lv.from)/(lv.to-lv.from)*100):100;
+      return `<div class="sect lvl"><span class="label">Уровень ${lv.i} · ${esc(lv.name)}</span><div class="bar"><i style="width:${pct}%"></i></div><span class="sub" style="font-size:.76rem">${lv.xp} XP${lv.to?` · до следующего уровня ${lv.to-lv.xp}`:" · максимум!"}</span></div>
+        <div class="sect"><span class="label">Ачивки · ${got.size} из ${ACH.length}</span><div class="ach">${ACH.map(a=>`<div class="${got.has(a[0])?"":"off"}"><b>${a[1]}</b>${esc(a[2])}</div>`).join("")}</div></div>`})()}
+    <div class="sect"><span class="label">Оформление</span><div class="seg" id="thm">${[["dark","🌙 Тёмная"],["light","☀️ Светлая"],["auto","Как в системе"]].map(([k,t])=>`<button data-t="${k}" aria-pressed="${ls.get("theme","dark")===k}">${t}</button>`).join("")}</div>
+      <div class="seg" id="sndT"><button data-s="1" aria-pressed="${SND_ON}">🔊 Звуки вкл</button><button data-s="0" aria-pressed="${!SND_ON}">🔇 Без звука</button></div></div>
     <div class="sect"><span class="label">Уведомления в Telegram</span><p class="sub" style="margin:0">Бот напишет, когда у вас мэтч или ${partner?esc(ptName()):"пара"} советует фильм.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap">${me.tg_chat_id?`<span class="onsh" style="align-self:center">Подключено ✓</span><button class="btn ghost sm" id="tgOff">Отключить</button>`:`<button class="btn red" id="tgOn">✈️ Подключить Telegram</button>`}</div></div>
     <div class="sect"><span class="label">Аккаунт</span><span class="sub">${me.username?"@"+esc(me.username)+" · ":""}${esc(me.email)}${me.phone?" · "+esc(me.phone):""}</span><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="out">Выйти</button><button class="btn ghost" id="del">Удалить аккаунт</button></div></div>
@@ -743,6 +820,9 @@ function openProfile(){
   $("#nmB").onclick=async()=>{const n=$("#nm").value.trim().slice(0,30);await sb.from("km_profiles").update({name:n}).eq("user_id",me.user_id);me.name=n;toast("Сохранено");closeSheet();go(view)};
   const tgOn=$("#tgOn");if(tgOn)tgOn.onclick=async()=>{const w=window.open("","_blank");const r=await tgCall({action:"link"});if(r?.url){if(w)w.location=r.url;else location.href=r.url;toast("Нажмите «Start» в Telegram — и готово")}else{w&&w.close();toast("Не получилось, попробуйте ещё раз")}};
   const tgOff=$("#tgOff");if(tgOff)tgOff.onclick=async()=>{await tgCall({action:"unlink"});me.tg_chat_id=null;closeSheet();toast("Уведомления отключены")};
+  $("#thm").onclick=e=>{const b=e.target.closest("[data-t]");if(!b)return;ls.set("theme",b.dataset.t);let t=b.dataset.t;if(t==="auto")t=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";document.documentElement.dataset.theme=t;
+    document.querySelector('meta[name=theme-color]').content=t==="light"?"#f5f3ef":"#0b0b0d";$("#thm").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b))};
+  $("#sndT").onclick=e=>{const b=e.target.closest("[data-s]");if(!b)return;SND_ON=b.dataset.s==="1";ls.set("snd",SND_ON);snd("tap");$("#sndT").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b))};
   $("#avF").onchange=e=>uploadAvatar(e.target.files[0]);if($("#qr"))drawQR($("#qr"),inviteLink());
   const shr=$("#shr");if(shr)shr.onclick=async()=>{const url=inviteLink(),text=`Давай выбирать кино вместе в ${BRAND}! Свайпаем, и что понравится обоим — смотрим 🍿`;
     if(navigator.share){try{await navigator.share({title:BRAND,text,url})}catch(e){}}else copy(url)};
@@ -772,6 +852,33 @@ async function pairWith(code){code=(code||"").trim().toUpperCase();if(code.lengt
   const msg={ok:"Готово! Вы теперь пара 💞",not_found:"Код не найден",self:"Это ваш собственный код",taken:"У этого человека уже есть пара",auth:"Сначала войдите"}[data]||("Ошибка: "+(error?.message||data));
   toast(msg);if(data==="ok"){await loadAll();closeSheet();resetDeck();go(view)}}
 
+/* ---------- movie night: both swipe the same deck live (Supabase realtime broadcast) ---------- */
+let nightCh=null;
+function nightInfo(){if(!night)return"";const t=night.deck.length,their=night.their.size,mineN=night.mine.size;
+  return `${night.joined?`${esc(ptName())}: ${their}/${t}`:`ждём ${esc(ptName())}…`} · вы: ${mineN}/${t} · мэтчей: ${night.matches.length}`}
+function nightUpd(){const el=$("#nightInfo");if(el)el.textContent=nightInfo().replace(/&[^;]+;/g,"")}
+function nightListen(){if(!partner||nightCh)return;const key=[me.user_id,partner.user_id].sort().join("_");
+  nightCh=sb.channel("night:"+key,{config:{broadcast:{self:false}}});
+  nightCh.on("broadcast",{event:"invite"},({payload})=>{if(night)return;sheet(`<h2>🍿 ${esc(ptName())} зовёт на вечер кино</h2><p class="sub" style="margin:-6px 0 0">Свайпаете одни и те же ${payload.deck.length} фильмов одновременно. Что понравится обоим — сразу мэтч.</p>
+      <div class="sticky"><button class="btn red" id="njY" style="flex:1">Присоединиться</button><button class="btn" id="njN">Позже</button></div>`);snd("tap");
+      $("#njY").onclick=()=>{closeSheet();night={deck:payload.deck,their:new Map(),mine:new Map(),matches:[],joined:true};deck=payload.deck.filter(x=>!mine.swipes.has(x.k));nightSend("join",{});ls.set("nights",(+ls.get("nights",0))+1);go("swipe")};$("#njN").onclick=closeSheet})
+    .on("broadcast",{event:"join"},()=>{if(!night)return;night.joined=true;toast(`🍿 ${ptName()} с вами!`);snd("tap");nightUpd()})
+    .on("broadcast",{event:"swipe"},({payload})=>{if(!night)return;night.their.set(payload.k,payload.v);nightUpd()})
+    .on("broadcast",{event:"end"},()=>{if(night){toast(`${ptName()} завершил(а) вечер кино`);nightSummary()}})
+    .subscribe()}
+function nightSend(event,payload){try{nightCh?.send({type:"broadcast",event,payload})}catch(e){}}
+async function startNight(){if(!partner)return;toast("Собираю колоду на вечер…");const keep=night;night=null;await fill(36);
+  const d=deck.filter(x=>!mine.swipes.has(x.k)).slice(0,36).map(x=>({...slim(x),why:x.why}));if(d.length<5){toast("Мало фильмов по фильтру — ослабьте фильтры");night=keep;return}
+  night={deck:d,their:new Map(),mine:new Map(),matches:[],joined:false};deck=d.slice();nightSend("invite",{deck:d});ls.set("nights",(+ls.get("nights",0))+1);
+  tgCall({action:"notify",kind:"night"});go("swipe");toast(`Приглашение отправлено ${ptName()}`)}
+function nightSummary(){if(!night)return;const n=night,ms=n.deck.filter(x=>(mine.swipes.get(x.k)?.v==="like")&&(theirs.swipes.get(x.k)?.v==="like"||n.their.get(x.k)==="like"));
+  sheet(`<h2>🍿 Итоги вечера</h2><p class="sub" style="margin:-6px 0 0">${ms.length?`Вам обоим понравилось ${RN(ms.length,"фильм","фильма","фильмов")}:`:"Совпадений пока нет — досвайпайте колоду."}</p>
+    ${ms.length?`<div class="pgrid">${ms.map(x=>`<button class="pcard gold" data-nk="${esc(x.k)}"><img src="${IMG}w342${x.poster}" alt=""><span class="pt">${esc(x.t)}</span></button>`).join("")}</div>`:""}
+    <div class="sticky">${ms.length?`<button class="btn red" id="nRoll" style="flex:1">🎲 Выбрать за нас</button>`:""}<button class="btn" id="nCont">Свайпать дальше</button><button class="btn ghost" id="nStop">Завершить</button></div>`);
+  document.querySelectorAll("[data-nk]").forEach(b=>b.onclick=()=>{closeSheet();openDetail(ms.find(x=>x.k===b.dataset.nk))});
+  const rl=$("#nRoll");if(rl)rl.onclick=()=>{const w=ms[Math.floor(Math.random()*ms.length)];closeSheet();confetti();snd("match");toast("🎲 Сегодня смотрим: «"+w.t+"»");openDetail(w)};
+  $("#nCont").onclick=closeSheet;$("#nStop").onclick=()=>{nightSend("end",{});night=null;closeSheet();resetDeck();go("swipe")}}
+
 /* ---------- eye candy ---------- */
 let ambI=0,ambSrc="";
 function ambient(path){if(!path)return;const u=IMG+"w300"+path;if(u===ambSrc)return;ambSrc=u;const ims=document.querySelectorAll("#amb img"),nx=ims[ambI^1];
@@ -796,8 +903,10 @@ function renderSwipeView(){
   const p=prefs||DEF_PREFS(),nf=(p.yes?.length||0)+(p.no?.length||0)+(p.eras?.length||0)+(p.minR?1:0)+(p.mood?1:0)+(p.len?1:0)+(p.cc?.length||0),kk=p.fresh?"fresh":p.kinds?.length===1?p.kinds[0]:"";
   $("#main").innerHTML=`<div class="view swv" style="overflow:hidden"><div class="wrap pad" style="width:100%">${topBar("Свайп",partner?`Вы с ${esc(ptName())} в паре`:"")}
     ${partner?"":`<button class="banner" id="pairBanner"><span class="duo">${myAv()}<span class="av pt">+</span></span><span><b>Позовите пару</b><span>Чтобы ловить общие мэтчи</span></span></button>`}
-    ${p.person?`<div class="row"><button class="pill act" id="noPerson">🎭 ${esc(p.person.name)} <b>✕</b></button></div>`:""}
-    <div class="row" id="kinds">${[{k:"",t:"Всё"},{k:"fresh",t:"🆕 Новинки"},...KINDS].map(x=>`<button class="pill ${x.k===kk&&!p.person?"act":""}" data-k="${x.k}">${x.t}</button>`).join("")}
+    ${night?`<div class="nightbar"><span style="font-size:1.5rem">🍿</span><span class="grow"><b>Вечер кино с ${esc(ptName())}</b><span id="nightInfo">${nightInfo()}</span></span><button class="btn sm" id="nightEnd">Итоги</button></div>`
+      :partner?`<div class="row"><button class="pill" id="nightGo">🍿 Вечер кино вдвоём</button></div>`:""}
+    ${night?"":p.person?`<div class="row"><button class="pill act" id="noPerson">🎭 ${esc(p.person.name)} <b>✕</b></button></div>`:""}
+    <div class="row" id="kinds" ${night?"hidden":""}>${[{k:"",t:"Всё"},{k:"fresh",t:"🆕 Новинки"},...KINDS].map(x=>`<button class="pill ${x.k===kk&&!p.person?"act":""}" data-k="${x.k}">${x.t}</button>`).join("")}
       <button class="pill ${nf?"act":""}" id="flt"><svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Фильтры${nf?` <b>${nf}</b>`:""}</button></div></div>
     <div class="stage"><div class="stack" id="stack"></div></div>
     <div class="ctrl pad">
@@ -809,6 +918,7 @@ function renderSwipeView(){
       <button class="cb info" id="bI" aria-label="Подробнее"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v5.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="12" cy="7.6" r="1.5" fill="currentColor"/></svg></button>
     </div></div>`;
   $("#kinds").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;const p={...DEF_PREFS(),...(prefs||{})};p.person=null;p.fresh=b.dataset.k==="fresh";p.kinds=b.dataset.k&&!p.fresh?[b.dataset.k]:[];savePrefs(p)};
+  const ng=$("#nightGo");if(ng)ng.onclick=startNight;const ne=$("#nightEnd");if(ne)ne.onclick=nightSummary;
   const np=$("#noPerson");if(np)np.onclick=()=>savePrefs({...DEF_PREFS(),...prefs,person:null});$("#bS").onclick=()=>decide("seen");
   $("#flt").onclick=openPrefs;$("#bN").onclick=()=>decide("nope");$("#bY").onclick=()=>decide("like");$("#bM").onclick=()=>decide("mega");$("#bU").onclick=undo;
   $("#bI").onclick=()=>{const t=$("#stack .sc.front");if(t)t.scrollTo({top:t.scrollTop>40?0:t.querySelector(".info").offsetTop-50,behavior:"smooth"})};
@@ -820,7 +930,7 @@ function cardHTML(it,front){const pl=partner&&theirs.swipes.get(it.k)?.v==="like
   return `<div class="sc ${front?"front":"under"}" data-k="${esc(it.k)}">
     <div class="pic"><img class="bg" alt=""><img class="fg" alt="" ${it.poster?`src="${IMG}w500${it.poster}"`:""}>
       <div class="bars"></div><div class="glare"></div>
-      <div class="gen">${rc?`<span class="rc">💌 ${esc(ptName())} советует</span>`:""}${pl?`<span class="liked">♥ ${esc(ptName())} уже лайкнул(а)</span>`:""}<span class="ty">${TYPES[it.ty]||""}</span>${(it.g||[]).map(x=>`<span class="gn">${esc(cap1(x))}</span>`).join("")}</div>
+      <div class="gen">${it.why?`<span class="why">✨ Похоже на «${esc(it.why)}»</span>`:""}${rc?`<span class="rc">💌 ${esc(ptName())} советует</span>`:""}${pl?`<span class="liked">♥ ${esc(ptName())} уже лайкнул(а)</span>`:""}<span class="ty">${TYPES[it.ty]||""}</span>${(it.g||[]).map(x=>`<span class="gn">${esc(cap1(x))}</span>`).join("")}</div>
       <span class="stamp yes">Нравится</span><span class="stamp no">Мимо</span><span class="stamp mega">Мега-лайк</span>
       <button class="trb" data-tr type="button"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>Трейлер</button>
       <div class="cap"><b>${esc(it.t)}</b><div class="m">${it.y?`<span>${esc(it.y)}</span>`:""}${it.r?`<span class="rt">★ ${it.r}</span>`:""}</div></div></div>
@@ -864,6 +974,7 @@ function showFrame(el,i){const a=el._frames||[];if(!a.length)return;i=(i+a.lengt
 function renderSwipe(loadingNow){
   const S=$("#stack");if(!S)return;$("#bU").disabled=!hist.length;
   const off=!deck.length;["#bN","#bY","#bM"].forEach(s=>$(s).disabled=off);
+  if(!deck.length&&night){S.innerHTML=`<div class="swempty"><strong>Колода вечера закончилась 🍿</strong>Посмотрим, что совпало.<button class="btn red" id="rt">Итоги</button></div>`;$("#rt").onclick=nightSummary;return}
   if(!deck.length){S.innerHTML=deckErr?`<div class="swempty"><strong>Не загрузилось</strong>Проверьте интернет.<button class="btn red" id="rt">Ещё раз</button></div>`
     :(loading||loadingNow)?`<div class="swempty"><div class="spin"></div>Подбираю фильмы…</div>`
     :`<div class="swempty"><strong>По этому фильтру всё</strong>Ослабьте «Жанры и годы».<button class="btn red" id="rt">Изменить</button></div>`;
@@ -897,9 +1008,9 @@ async function decide(v,dragged){
   if(busy||!deck.length)return;busy=true;const it=deck[0],el=$("#stack .sc.front"),like=v==="like"||v==="mega";
   if(el){const dir=like?1:-1;el.style.transition="transform .3s ease-out,opacity .3s";const sp=el.querySelector(".stamp."+(v==="mega"?"mega":like?"yes":"no"));if(v!=="seen")sp.style.opacity=1;
     el.style.transform=v==="mega"?`translateY(${-Math.max(innerHeight,700)}px)`:v==="seen"?`translateY(${Math.max(innerHeight,700)}px) scale(.9)`:`translate(${dir*Math.max(innerWidth,500)}px,${dragged?0:-30}px) rotate(${dir*24}deg)`;el.style.opacity=.6}
-  if(v!=="seen")burst(v,$(v==="mega"?"#bM":like?"#bY":"#bN"));if(navigator.vibrate)try{navigator.vibrate(v==="mega"?[10,40,10]:8)}catch(e){}
+  if(v!=="seen")burst(v,$(v==="mega"?"#bM":like?"#bY":"#bN"));snd(v);if(night)nightSend("swipe",{k:it.k,v:v==="seen"?"seen":like?"like":"nope"});if(navigator.vibrate)try{navigator.vibrate(v==="mega"?[10,40,10]:8)}catch(e){}
   const row={user_id:me.user_id,tmdb:it.k,v:v==="seen"?"seen":like?"like":"nope",mega:v==="mega",data:slim(it),at:new Date().toISOString()};
-  mine.swipes.set(it.k,row);deck.shift();hist.push({it,mega:v==="mega",seen:v==="seen"});
+  mine.swipes.set(it.k,row);deck.shift();if(night){night.mine.set(it.k,row.v);setTimeout(nightUpd,0)}hist.push({it,mega:v==="mega",seen:v==="seen"});
   const rc=recsIn.get(it.k);if(rc&&!rc.seen){rc.seen=true;sb.from("km_recs").update({seen:true}).eq("id",rc.id).then(()=>{})}if(hist.length>30)hist.shift();
   setTimeout(()=>{busy=false;renderSwipe();counts();if(deck.length<6)fill().then(()=>{if(view==="swipe")renderSwipe()})},230);
   const {error}=await sb.from("km_swipes").upsert(row);if(error)return toast("Не сохранилось: "+error.message);
@@ -912,7 +1023,7 @@ async function undo(){const h=hist.pop();if(!h)return;mine.swipes.delete(h.it.k)
   deck=deck.filter(x=>x.k!==h.it.k);deck.unshift(h.it);renderSwipe();counts()}
 async function addToShelf(it,status){const row={user_id:me.user_id,tmdb:it.k,data:slim(it),status:status||"want",rating:0,note:"",updated_at:new Date().toISOString()};
   mine.shelf.set(it.k,{...row,added_at:row.updated_at});const {error}=await sb.from("km_shelf").upsert(row);if(error)toast("Не сохранилось: "+error.message)}
-function showMatch(it,sup){confetti();if(sup)setTimeout(confetti,500);try{navigator.vibrate&&navigator.vibrate(sup?[30,50,30,50,30,50,80]:[20,60,20,60,40])}catch(e){}const L=$("#layer");L.innerHTML=`<div class="match ${sup?"super":""}" id="mt"><div class="mcard"><h3>${sup?"Супер-мэтч!":"Мэтч!"}</h3>${it.poster?`<img src="${IMG}w342${it.poster}" alt="">`:""}<p>${sup?`Вы с ${esc(ptName())} <b>оба поставили мега-лайк</b> — смотрите сегодня!<br>`:`Вы с ${esc(ptName())} оба хотите посмотреть<br>`}<b>${esc(it.t)}</b></p><div style="display:flex;gap:10px"><button class="btn red" id="mtS">На полку</button><button class="btn" id="mtOk">Дальше</button></div></div></div>`;
+function showMatch(it,sup){confetti();snd("match");if(night&&!night.matches.some(x=>x.k===it.k))night.matches.push(it);if(sup)setTimeout(confetti,500);try{navigator.vibrate&&navigator.vibrate(sup?[30,50,30,50,30,50,80]:[20,60,20,60,40])}catch(e){}const L=$("#layer");L.innerHTML=`<div class="match ${sup?"super":""}" id="mt"><div class="mcard"><h3>${sup?"Супер-мэтч!":"Мэтч!"}</h3>${it.poster?`<img src="${IMG}w342${it.poster}" alt="">`:""}<p>${sup?`Вы с ${esc(ptName())} <b>оба поставили мега-лайк</b> — смотрите сегодня!<br>`:`Вы с ${esc(ptName())} оба хотите посмотреть<br>`}<b>${esc(it.t)}</b></p><div style="display:flex;gap:10px"><button class="btn red" id="mtS">На полку</button><button class="btn" id="mtOk">Дальше</button></div></div></div>`;
   $("#mtOk").onclick=()=>L.innerHTML="";$("#mtS").onclick=async()=>{await addToShelf(it);L.innerHTML="";toast("На полке")};$("#mt").onclick=e=>{if(e.target.id==="mt")L.innerHTML=""}}
 function playTrailer(it,tr){
   if(!tr){if(it)window.open("https://www.youtube.com/results?search_query="+encodeURIComponent((it.o||it.t)+" трейлер"),"_blank");return}
@@ -964,7 +1075,7 @@ function renderMatches(){const l=matchesList();
     ${!partner?`<div class="empty"><strong>Нужна пара</strong>Мэтчи появятся, когда вы позовёте партнёра.<button class="btn red" id="inv">Позвать пару</button></div>`
       :l.length?`<div class="pgrid">${l.map(r=>{const d=r.data||{},pp=d.poster||PC[r.tmdb];return `<button class="pcard gold lrow" style="display:block;padding:0" data-k="${esc(r.tmdb)}" ${d.poster?"":`data-fix="${esc(r.tmdb)}"`}>${pp?`<img src="${IMG}w342${pp}" alt="" loading="lazy">`:`<img alt="">`}<span class="ps">💞 мэтч</span><span class="pt">${esc(d.t||"")}</span></button>`}).join("")}</div>`:`<div class="empty"><strong>Пока нет мэтчей</strong>Свайпайте оба — когда фильм понравится вам двоим, он появится тут.</div>`}</div></div>`;
   const inv=$("#inv");if(inv)inv.onclick=openProfile;wireList(k=>mine.swipes.get(k));fixRows()}
-let shelfType="",shelfWho="me",shelfQ="",shelfSort=ls.get("shsort","upd");
+let sh3d=ls.get("sh3d",false);let shelfType="",shelfWho="me",shelfQ="",shelfSort=ls.get("shsort","upd");
 const SORTS={upd:["Недавние",(a,b)=>(b.updated_at||"").localeCompare(a.updated_at||"")],my:["Моя оценка",(a,b)=>(b.rating||0)-(a.rating||0)],tmdb:["Рейтинг TMDB",(a,b)=>(b.data?.r||0)-(a.data?.r||0)],
   year:["Год",(a,b)=>String(b.data?.y||"").localeCompare(String(a.data?.y||""))],abc:["Название",(a,b)=>(a.data?.t||"").localeCompare(b.data?.t||"","ru")]};
 const pcardHTML=(r,attr)=>{const d=r.data||{},pp=d.poster||PC[r.tmdb],pg=r.progress?.s?`S${r.progress.s} · E${r.progress.e||0}`:"";
@@ -973,7 +1084,7 @@ const pcardHTML=(r,attr)=>{const d=r.data||{},pp=d.poster||PC[r.tmdb],pg=r.progr
 function renderShelf(){
   const side=shelfWho==="me"?mine:theirs;
   const head=`<div class="view"><div class="wrap pad">${topBar("Полка","")}
-    <div class="row"><button class="pill ${shelfWho==="me"?"act":""}" data-w="me">Моя</button>${partner?`<button class="pill ${shelfWho==="pt"?"act":""}" data-w="pt">${esc(ptName())}</button>`:""}<button class="pill ${shelfWho==="lists"?"act":""}" data-w="lists">📁 Мои списки${lists.length?` <b>${lists.length}</b>`:""}</button><button class="pill" id="exp">⬇ Экспорт</button></div>`;
+    <div class="row"><button class="pill ${shelfWho==="me"?"act":""}" data-w="me">Моя</button>${partner?`<button class="pill ${shelfWho==="pt"?"act":""}" data-w="pt">${esc(ptName())}</button>`:""}<button class="pill ${shelfWho==="lists"?"act":""}" data-w="lists">📁 Мои списки${lists.length?` <b>${lists.length}</b>`:""}</button><button class="pill ${sh3d?"act":""}" id="d3">🧊 3D</button><button class="pill" id="imp">⬆ Импорт</button><button class="pill" id="exp">⬇ Экспорт</button></div>`;
   if(shelfWho==="lists"){
     $("#main").innerHTML=head+`<div class="shtools"><input type="text" id="nl" maxlength="40" placeholder="Новый список, например «На Новый год»"><button class="btn red" id="nlB">Создать</button></div>
       ${lists.length?lists.map(l=>{const its=[...(listItems.get(l.id)||new Map()).values()];return `<div class="sh"><h2>${esc(l.name)}</h2><span class="sub">${its.length}</span><button class="btn ghost sm" data-dl="${l.id}" style="margin-left:auto">Удалить</button></div>
@@ -986,18 +1097,46 @@ function renderShelf(){
       <div id="shb"></div></div></div>`;
     const body=()=>{const q=shelfQ.toLowerCase(),l0=all.filter(r=>!q||((r.data?.t||r.data?.title||"")+" "+(r.data?.o||"")).toLowerCase().includes(q));
       $("#shb").innerHTML=all.length?(ST.map(s=>{const l=l0.filter(r=>(r.status||"want")===s.k).sort(SORTS[shelfSort][1]);if(!l.length)return"";
-        return `<div class="sh"><span class="stdot" style="background:${s.c};box-shadow:0 0 10px ${s.c}"></span><h2>${s.t}</h2><span class="sub">${l.length}</span></div><div class="pgrid">${l.map(r=>pcardHTML(r,`data-open="${esc(r.tmdb)}"`)).join("")}</div>`}).join("")||`<div class="empty">Ничего не нашлось</div>`)
-        :`<div class="empty"><strong>${shelfWho==="me"?"Полка пустая":"У партнёра пока пусто"}</strong>${shelfWho==="me"?"Мега-лайк в свайпе или «На полку» в лайках — и фильм окажется тут.":""}</div>`;fixRows()};
+        return `<div class="sh"><span class="stdot" style="background:${s.c};box-shadow:0 0 10px ${s.c}"></span><h2>${s.t}</h2><span class="sub">${l.length}</span></div><div class="${sh3d?"rail3d":"pgrid"}">${l.map(r=>pcardHTML(r,`data-open="${esc(r.tmdb)}"`)).join("")}</div>`}).join("")||`<div class="empty">Ничего не нашлось</div>`)
+        :`<div class="empty"><strong>${shelfWho==="me"?"Полка пустая":"У партнёра пока пусто"}</strong>${shelfWho==="me"?"Мега-лайк в свайпе или «На полку» в лайках — и фильм окажется тут.":""}</div>`;fixRows();if(sh3d)cover3d()};
     body();const q=$("#shq");if(q)q.oninput=()=>{shelfQ=q.value.trim();body()};const so=$("#sso");if(so)so.onchange=()=>{shelfSort=so.value;ls.set("shsort",shelfSort);body()};
   }
   const nlB=$("#nlB");if(nlB)nlB.onclick=async()=>{const n=$("#nl").value.trim();if(!n)return;const {data,error}=await sb.from("km_lists").insert({user_id:me.user_id,name:n}).select().single();if(error)return toast("Не получилось");lists.push(data);listItems.set(data.id,new Map());renderShelf()};
   $("#main").onclick=async e=>{const w=e.target.closest("[data-w]");if(w){shelfWho=w.dataset.w;return renderShelf()}
-    if(e.target.closest("#exp"))return exportShelf();
+    if(e.target.closest("#exp"))return exportShelf();if(e.target.closest("#imp"))return openImport();if(e.target.closest("#d3")){sh3d=!sh3d;ls.set("sh3d",sh3d);return renderShelf()}
     const dl=e.target.closest("[data-dl]");if(dl){if(!dl.dataset.c){dl.dataset.c=1;dl.textContent="Точно?";return}await sb.from("km_lists").delete().eq("id",dl.dataset.dl);lists=lists.filter(l=>l.id!==dl.dataset.dl);listItems.delete(dl.dataset.dl);return renderShelf()}
     const t=e.target.closest("#stt [data-k]");if(t){shelfType=t.dataset.k;return renderShelf()}
     const li=e.target.closest("[data-li]");if(li){const d=listItems.get(li.dataset.l)?.get(li.dataset.li)?.data;if(d?.kind)openDetail(d);return}
     const b=e.target.closest("[data-open]");if(b)openShelfItem(b.dataset.open,side)};
 }
+function cover3d(){document.querySelectorAll(".rail3d").forEach(rail=>{const upd=()=>{const c=rail.scrollLeft+rail.clientWidth/2;
+    rail.querySelectorAll(".pcard").forEach(card=>{const d=(card.offsetLeft+card.offsetWidth/2-c)/(rail.clientWidth/2),a=Math.max(-1.4,Math.min(1.4,d));
+      card.style.transform=`rotateY(${-a*48}deg) translateZ(${-Math.abs(a)*110}px) scale(${1-Math.min(.22,Math.abs(a)*.18)})`;card.style.zIndex=String(100-Math.round(Math.abs(a)*50));card.style.filter=`brightness(${1-Math.min(.45,Math.abs(a)*.35)})`})};
+    rail.addEventListener("scroll",()=>requestAnimationFrame(upd),{passive:true});upd()})}
+function parseCSV(t){const rows=[];let row=[],f="",q=false;for(let i=0;i<t.length;i++){const c=t[i];
+    if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c==='"')q=true;else if(c===","||c===";"||c==="\t"){row.push(f);f=""}else if(c==="\n"||c==="\r"){if(c==="\r"&&t[i+1]==="\n")i++;row.push(f);f="";if(row.some(x=>x.trim()))rows.push(row);row=[]}else f+=c}
+  row.push(f);if(row.some(x=>x.trim()))rows.push(row);return rows}
+function openImport(){sheet(`<h2>Импорт с других сайтов</h2><p class="sub" style="margin:-6px 0 0">Загрузите файл CSV — фильмы попадут на полку в «Посмотрено» с вашими оценками.</p>
+  <div class="sect"><span class="label">Откуда взять файл</span><p class="desc" style="margin:0"><b>IMDb</b>: Your Ratings → ⋯ → Export.<br><b>Letterboxd</b>: Settings → Data → Export your data (файл <i>ratings.csv</i> или <i>watched.csv</i>).<br><b>Кинопоиск</b>: подойдёт любая таблица с колонками «Название» и «Год» (например, из расширения для экспорта оценок).</p></div>
+  <label class="btn red big" style="cursor:pointer">Выбрать файл CSV<input type="file" id="impF" accept=".csv,text/csv,.tsv,text/plain" hidden></label><p class="sub" id="impS" style="margin:0"></p>`);
+  $("#impF").onchange=e=>runImport(e.target.files[0])}
+async function runImport(file){if(!file)return;const st=$("#impS"),rows=parseCSV(await file.text());if(rows.length<2){st.textContent="Не нашёл строк в файле";return}
+  const h=rows[0].map(x=>x.trim().toLowerCase().replace(/^\ufeff/,"")),col=(...n)=>h.findIndex(x=>n.some(k=>x===k||x.includes(k)));
+  const ci=col("const","imdb id","imdbid"),ct=col("title","name","название","фильм"),cy=col("year","год","release year"),cr=col("your rating","rating","оценка","моя оценка");
+  if(ct<0&&ci<0){st.textContent="Нужна колонка Title / Name / Название";return}
+  const lb=/letterboxd/i.test(rows[0].join(","))||h.includes("letterboxd uri");const list=rows.slice(1,1001);let done=0,ok=0,miss=[];const out=[];
+  st.textContent=`Ищу ${list.length} фильмов…`;
+  const one=async r=>{const tt=ci>=0?(r[ci]||"").trim():"",title=ct>=0?(r[ct]||"").trim():"",year=cy>=0?(r[cy]||"").trim().slice(0,4):"";let raw=cr>=0?parseFloat((r[cr]||"").replace(",",".")):0;
+    let it=null;try{if(/^tt\d+$/.test(tt)){const f=await tmdb("/find/"+tt,{external_source:"imdb_id"});const m=f.movie_results?.[0],v=f.tv_results?.[0];it=m?itemFrom(m,"movie"):v?itemFrom(v,"tv"):null}
+      if(!it&&title){const s=await tmdb("/search/multi",{query:title});const c=(s.results||[]).filter(x=>x.media_type==="movie"||x.media_type==="tv");
+        const best=c.find(x=>year&&(x.release_date||x.first_air_date||"").startsWith(year))||c[0];if(best)it=itemFrom(best)}}catch(e){}
+    done++;if(it&&!mine.shelf.has(it.k)){ok++;const rating=raw?Math.max(0,Math.min(10,Math.round(lb||raw<=5&&h.some(x=>x.includes("letterboxd"))?raw*2:raw))):0;
+      out.push({user_id:me.user_id,tmdb:it.k,data:slim(it),status:"done",rating,note:"",updated_at:new Date().toISOString()});mine.shelf.set(it.k,{...out[out.length-1],added_at:out[out.length-1].updated_at})}else if(!it)miss.push(title||tt);
+    if(done%5===0)st.textContent=`Обработано ${done} из ${list.length} · найдено ${ok}`};
+  let i=0;await Promise.all([0,1,2,3].map(async()=>{while(i<list.length)await one(list[i++])}));
+  for(let j=0;j<out.length;j+=100){const {error}=await sb.from("km_shelf").upsert(out.slice(j,j+100),{ignoreDuplicates:true});if(error){st.textContent="Сохранено не всё: "+error.message;break}}
+  st.innerHTML=`Готово ✅ Добавлено ${ok}${miss.length?`. Не нашёл: ${esc(miss.slice(0,8).join(", "))}${miss.length>8?" и ещё "+(miss.length-8):""}`:""}`;toast(`Импортировано ${ok} фильмов`);if(view==="shelf")renderShelf()}
 function exportShelf(){const rows=[["Название","Оригинал","Год","Тип","Статус","Моя оценка","Рейтинг TMDB","Заметка","Ссылка"]];
   const stn=Object.fromEntries(ST.map(s=>[s.k,s.t]));
   [...mine.shelf.values()].forEach(r=>{const d=r.data||{},[kind,id]=r.tmdb.split("-");rows.push([d.t||d.title||"",d.o||"",d.y||"",TYPES[d.ty]||"",stn[r.status]||"",r.rating||"",d.r||"",r.note||"",/^\d+$/.test(id||"")?`https://www.themoviedb.org/${kind}/${id}`:""])});
@@ -1028,8 +1167,9 @@ async function openDetail(it){
     <div class="dbody pad"><div><div class="sub">${esc(TYPES[it.ty]||"")}${it.y?" · "+esc(it.y):""}${it.g?.length?" · "+esc(it.g.join(", ")):""}</div><h2 class="dtitle">${esc(it.t)}</h2></div>
     <div id="dAct"></div><div id="dSoc"></div><div class="gal" id="dGal"></div>
     <div class="sect"><span class="label">О чём</span><p class="desc">${esc(it.d||"")}</p></div><div id="dX"><div class="spin"></div></div></div></div>`;
-  $("#dBack").onclick=()=>{L.innerHTML="";go(view)};
-  const act=()=>{const r=mine.shelf.get(it.k);$("#dAct").innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn red" id="dTr">▶ Трейлер</button>${r?"":`<button class="btn" id="dAdd">На мою полку</button>`}</div>
+  $("#dBack").onclick=()=>{L.innerHTML="";if(me)go(view);if(/[?&]m=/.test(location.search))history.replaceState(null,"",location.pathname)};
+  const act=()=>{const r=me&&mine.shelf.get(it.k);if(!me){$("#dAct").innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn red" id="dTr">▶ Трейлер</button><button class="btn" id="dLog">Войти и сохранить на полку</button></div>`;
+      $("#dTr").onclick=async()=>playTrailer(it,trailerOf(await details(it)));$("#dLog").onclick=()=>openLogin("up");return}$("#dAct").innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn red" id="dTr">▶ Трейлер</button>${r?"":`<button class="btn" id="dAdd">На мою полку</button>`}</div>
       ${r?`<div class="sect" style="margin-top:12px"><span class="label">Статус</span><div class="acts">${ST.map(s=>`<button class="act" data-st="${s.k}" style="--c:${s.c}" aria-pressed="${r.status===s.k}">${s.t}</button>`).join("")}</div></div>
       <div class="sect" style="margin-top:12px"><span class="label">Моя оценка</span><div class="stars">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button data-r="${n}" class="${r.rating>=n?"on":""}" aria-label="${n} из 10">★</button>`).join("")}</div></div>
       ${it.kind==="tv"?`<div class="sect" style="margin-top:12px"><span class="label">Где я остановился</span><div class="prog"><button data-pg="-" aria-label="Минус серия">−</button><b>${r.progress?.s?`${r.progress.s} сезон · ${r.progress.e||0} серия`:"не начат"}</b><button data-pg="+" aria-label="Плюс серия">+</button><button class="btn ghost sm" data-pg="s+" style="width:auto;border-radius:999px">След. сезон</button></div></div>`:""}
@@ -1046,15 +1186,18 @@ async function openDetail(it){
       r.progress={s,e:ep};const patch={progress:r.progress,updated_at:new Date().toISOString()};if(r.status==="want"&&ep>0){r.status="watching";patch.status="watching"}
       await sb.from("km_shelf").update(patch).match({user_id:me.user_id,tmdb:it.k});act()};
   };act();
-  const soc=()=>{const my=mine.rx.get(it.k),their=partner&&theirs.rx.get(it.k),rcIn=recsIn.get(it.k),rcOut=recsOut.get(it.k),inL=lists.filter(l=>listItems.get(l.id)?.has(it.k)).map(l=>l.name);
+  const soc=()=>{if(!me)return;const my=mine.rx.get(it.k),their=partner&&theirs.rx.get(it.k),rcIn=recsIn.get(it.k),rcOut=recsOut.get(it.k),inL=lists.filter(l=>listItems.get(l.id)?.has(it.k)).map(l=>l.name);
     $("#dSoc").innerHTML=`<div class="sect" style="margin-top:12px">${rcIn?`<span class="recn">💌 <b>${esc(ptName())}</b> советует${rcIn.note?`: «${esc(rcIn.note)}»`:""}</span>`:""}
       <span class="label">Реакция</span><div class="rx">${RX.map(x=>`<button data-rx="${x}" aria-pressed="${my===x}">${x}</button>`).join("")}${their?`<span class="ptx">${esc(ptName())}: ${their}</span>`:""}</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">${partner?`<button class="btn sm" id="dRec">${rcOut?"💌 Уже посоветовано":"💌 Посоветовать "+esc(ptName())}</button>`:""}<button class="btn sm" id="dList">📁 В список${inL.length?" · "+esc(inL.join(", ")):""}</button><button class="btn sm" id="dShare">🔗 Поделиться</button></div></div>`;
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">${partner?`<button class="btn sm" id="dRec">${rcOut?"💌 Уже посоветовано":"💌 Посоветовать "+esc(ptName())}</button>`:""}<button class="btn sm" id="dList">📁 В список${inL.length?" · "+esc(inL.join(", ")):""}</button><button class="btn sm" id="dShare">🔗 Поделиться</button><button class="btn sm" id="dWatch">${watchSet.has(it.k)?"🔔 Напомню, когда выйдет ✓":"🔔 Сказать, когда выйдет"}</button></div></div>`;
+    $("#dWatch").onclick=async()=>{if(watchSet.has(it.k)){watchSet.delete(it.k);await sb.from("km_watch").delete().match({user_id:me.user_id,tmdb:it.k});toast("Напоминание убрано")}
+      else{const row={user_id:me.user_id,tmdb:it.k,data:slim(it),notified:false};watchSet.set(it.k,row);const {error}=await sb.from("km_watch").upsert(row);if(error)return toast("Не получилось");
+        toast(me.tg_chat_id?"🔔 Напишу в Telegram, когда появится в хорошем качестве или в Украине":"🔔 Скажу на сайте. Подключите Telegram в профиле — напишу и туда")}soc()};
     $("#dSoc").querySelectorAll("[data-rx]").forEach(b=>b.onclick=async()=>{const x=b.dataset.rx;if(mine.rx.get(it.k)===x){mine.rx.delete(it.k);await sb.from("km_reactions").delete().match({user_id:me.user_id,tmdb:it.k})}
       else{mine.rx.set(it.k,x);await sb.from("km_reactions").upsert({user_id:me.user_id,tmdb:it.k,emoji:x,at:new Date().toISOString()})}soc()});
     const rb=$("#dRec");if(rb)rb.onclick=()=>recommend(it,soc);
     $("#dList").onclick=()=>pickLists(it,soc);
-    $("#dShare").onclick=async()=>{const url=`https://www.themoviedb.org/${it.kind}/${it.id}?language=ru`,text=`Глянь «${it.t}»${it.y?" ("+it.y+")":""} — нашёл в ${BRAND}`;if(navigator.share){try{await navigator.share({title:it.t,text,url})}catch(e){}}else copy(text+" "+url)}};
+    $("#dShare").onclick=async()=>{const url=SITE+"?m="+it.k,text=`Глянь «${it.t}»${it.y?" ("+it.y+")":""} — нашёл в ${BRAND}`;if(navigator.share){try{await navigator.share({title:it.t,text,url})}catch(e){}}else copy(text+" "+url)}};
   soc();
   if(!it.kind){$("#dX").innerHTML="";return}
   const d=await details(it);if(!$("#det"))return;if(d?.seasons)DET_SEASONS.set(it.k,d.seasons.filter(x=>x.season_number>0));
@@ -1074,16 +1217,41 @@ function pickLists(it,done){const draw=()=>{sheet(`<h2>В список</h2><div 
     if(c.checked){const row={list_id:c.dataset.l,tmdb:it.k,data:slim(it)};m.set(it.k,row);await sb.from("km_list_items").upsert(row)}else{m.delete(it.k);await sb.from("km_list_items").delete().match({list_id:c.dataset.l,tmdb:it.k})}};
   $("#nl2B").onclick=async()=>{const n=$("#nl2").value.trim();if(!n)return;const {data}=await sb.from("km_lists").insert({user_id:me.user_id,name:n}).select().single();if(data){lists.push(data);const row={list_id:data.id,tmdb:it.k,data:slim(it)};listItems.set(data.id,new Map([[it.k,row]]));await sb.from("km_list_items").insert(row)}draw()};
   $("#lDone").onclick=()=>{closeSheet();done&&done()}};draw()}
-/* ---------- search ---------- */
+/* ---------- shared film links (?m=movie-603) and "it's out" news ---------- */
+async function openFromLink(){const m=new URLSearchParams(location.search).get("m");if(!m||!/^(movie|tv)-\d+$/.test(m))return;
+  try{const [kind,id]=m.split("-");const d=await tmdb(`/${kind}/${id}`);const it=itemFrom(d,kind);document.title=`${it.t}${it.y?" ("+it.y+")":""} — Kinomatch`;openDetail(it)}catch(e){}}
+async function showWatchNews(){const seen=new Set(ls.get("watchSeen",[]));const fresh=[...watchSet.values()].filter(r=>r.notified&&!seen.has(r.tmdb));
+  if(!fresh.length)return;fresh.forEach(r=>seen.add(r.tmdb));ls.set("watchSeen",[...seen]);setTimeout(()=>toast(`🔔 Уже можно смотреть: ${fresh.slice(0,3).map(r=>"«"+(r.data?.t||"")+"»").join(", ")}`),1600)}
+
+/* ---------- search & collections ---------- */
+const COLLS=[{t:"🔥 Тренды недели",p:"/trending/all/week"},{t:"🏆 Лучшие фильмы всех времён",p:"/movie/top_rated"},{t:"📺 Лучшие сериалы",p:"/tv/top_rated"},
+  {t:"💘 Для свидания",p:"/discover/movie",q:{with_genres:"10749","vote_count.gte":"1500",sort_by:"vote_average.desc"}},{t:"😱 Хоррор-вечер",p:"/discover/movie",q:{with_genres:"27","vote_count.gte":"1500",sort_by:"vote_average.desc"}},
+  {t:"🍣 Аниме для новичков",p:"/discover/tv",q:{with_genres:"16",with_original_language:"ja","vote_count.gte":"500",sort_by:"vote_average.desc"}},{t:"🇰🇷 Топ дорам",p:"/discover/tv",q:{with_original_language:"ko","vote_count.gte":"200",sort_by:"vote_average.desc",without_genres:"16,10764,10767"}},
+  {t:"🧠 Взорвёт мозг",p:"/discover/movie",q:{with_genres:"878|9648","vote_count.gte":"3000",sort_by:"vote_average.desc"}},{t:"😂 Лёгкие комедии",p:"/discover/movie",q:{with_genres:"35",without_genres:"18,27,53","vote_count.gte":"1500",sort_by:"popularity.desc"}},
+  {t:"👨‍👩‍👧 С семьёй",p:"/discover/movie",q:{with_genres:"10751","vote_count.gte":"1000",sort_by:"vote_average.desc"}},{t:"🇺🇦 Украинское кино",p:"/discover/movie",q:{with_origin_country:"UA","vote_count.gte":"10",sort_by:"popularity.desc"}},
+  {t:"⏱ До полутора часов",p:"/discover/movie",q:{"with_runtime.lte":"95","vote_count.gte":"2000",sort_by:"vote_average.desc"}},{t:"🕵️ Детективы",p:"/discover/tv",q:{with_genres:"9648|80","vote_count.gte":"500",sort_by:"vote_average.desc",without_genres:"16"}},
+  {t:"🎄 Уютное на вечер",p:"/discover/movie",q:{with_genres:"10751|35|10749",without_genres:"27,53,80","vote_count.gte":"800",sort_by:"popularity.desc"}}];
+let collOpen=null;
+async function openColl(i){const c=COLLS[i];collOpen=i;sq="";
+  $("#sr").innerHTML=`<div class="swempty"><div class="spin"></div></div>`;const kind=c.p.includes("/tv")?"tv":c.p.includes("/movie")?"movie":null;
+  try{const pages=await Promise.all([1,2].map(pg=>tmdb(c.p,{...(c.q||{}),page:String(pg)})));
+    sres=pages.flatMap(r=>r.results||[]).filter(x=>x.poster_path&&(kind||x.media_type==="movie"||x.media_type==="tv")).map(x=>itemFrom(x,kind||x.media_type)).filter((x,j,a)=>a.findIndex(y=>y.k===x.k)===j)}catch(e){sres=[]}
+  renderSearch()}
 let sq="",sres=[];
 function renderSearch(){
-  $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Поиск","Любой фильм, сериал или аниме")}
-    <input type="search" id="sq" placeholder="Название…" value="${esc(sq)}" autocomplete="off"><div class="list" id="sr" style="margin-top:12px"></div></div></div>`;
+  const c=collOpen!=null?COLLS[collOpen]:null;
+  $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Поиск","Любой фильм, сериал или аниме — или готовые подборки")}
+    <input type="search" id="sq" placeholder="Название…" value="${esc(sq)}" autocomplete="off">
+    ${c?`<div class="row" style="margin-top:12px"><button class="pill" id="cBack">← Подборки</button><button class="pill act" id="cSwipe">🃏 Свайпать эту подборку</button></div><h2 style="margin:6px 0 0;font:800 1.1rem var(--font)">${esc(c.t)}</h2>`:""}
+    <div class="list" id="sr" style="margin-top:12px"></div></div></div>`;
   const draw=()=>{$("#sr").innerHTML=sres.length?sres.map(it=>`<div class="lrow" data-s="${esc(it.k)}">${thumb(it)}<div class="lt"><b>${esc(it.t)}</b><span>${esc(metaOf(it))}</span><span class="clamp">${esc(it.d)}</span>
-      <div class="la">${mine.shelf.has(it.k)?`<span class="onsh">На полке ✓</span>`:`<button class="btn red sm" data-add="${esc(it.k)}">На полку</button>`}</div></div></div>`).join(""):sq?`<div class="empty">Ничего не нашлось</div>`:""};
-  draw();let t;$("#sq").oninput=e=>{clearTimeout(t);t=setTimeout(async()=>{sq=e.target.value.trim();if(!sq){sres=[];return draw()}
+      <div class="la">${mine.shelf.has(it.k)?`<span class="onsh">На полке ✓</span>`:`<button class="btn red sm" data-add="${esc(it.k)}">На полку</button>`}</div></div></div>`).join(""):sq?`<div class="empty">Ничего не нашлось</div>`
+      :`<span class="label">Подборки</span><div class="colls">${COLLS.map((x,i)=>`<button data-coll-i="${i}">${esc(x.t)}</button>`).join("")}</div>`};
+  draw();let t;$("#sq").oninput=e=>{clearTimeout(t);t=setTimeout(async()=>{sq=e.target.value.trim();if(collOpen!=null&&sq){collOpen=null;$("#cBack")?.parentElement.nextElementSibling?.remove();$("#cBack")?.parentElement.remove()}if(!sq){sres=[];return draw()}
     try{const r=await tmdb("/search/multi",{query:sq,include_adult:"false"});sres=(r.results||[]).filter(x=>(x.media_type==="movie"||x.media_type==="tv")&&x.poster_path).map(x=>itemFrom(x)).slice(0,20)}catch(err){sres=[]}draw()},300)};
-  $("#main").onclick=async e=>{const a=e.target.closest("[data-add]");if(a){await addToShelf(sres.find(x=>x.k===a.dataset.add));a.outerHTML='<span class="onsh">На полке ✓</span>';toast("На полке");return}
+  const cb=$("#cBack");if(cb)cb.onclick=()=>{collOpen=null;sres=[];renderSearch()};
+  const cs=$("#cSwipe");if(cs)cs.onclick=()=>{const l=sres.filter(x=>!mine.swipes.has(x.k)&&!mine.shelf.has(x.k));if(!l.length)return toast("Всё из подборки вы уже видели");deck=l;hist=[];go("swipe");toast("Свайпаете подборку «"+c.t.replace(/^\S+\s/,"")+"»")};
+  $("#main").onclick=async e=>{const ci=e.target.closest("[data-coll-i]");if(ci)return openColl(+ci.dataset.collI);const a=e.target.closest("[data-add]");if(a){await addToShelf(sres.find(x=>x.k===a.dataset.add));a.outerHTML='<span class="onsh">На полке ✓</span>';toast("На полке");return}
     const row=e.target.closest("[data-s]");if(row)openDetail(sres.find(x=>x.k===row.dataset.s))};
 }
 /* ---------- boot ---------- */
@@ -1108,7 +1276,7 @@ async function start(session){
   await Promise.all([loadAll(),loadGenres()]);await importFirstVersion();
   const pair=new URLSearchParams(location.search).get("pair");
   if(pair){history.replaceState(null,"",location.pathname);if(!partner&&pair.toUpperCase()!==me.pair_code)await pairWith(pair)}
-  buildSources();go("swipe");
+  buildSources();go("swipe");nightListen();openFromLink();showWatchNews();
   const nr=[...recsIn.values()].filter(r=>!r.seen&&!mine.swipes.has(r.tmdb)).length;if(nr)setTimeout(()=>toast(`💌 ${ptName()} посоветовал(а) ${RN(nr,"фильм","фильма","фильмов")} — они первые в свайпе`),900);
   sb.channel("km").on("postgres_changes",{event:"*",schema:"public",table:"km_swipes"},pl=>{const r=pl.new?.user_id?pl.new:pl.old;if(!r?.user_id||r.user_id===me.user_id)return;
       if(pl.eventType==="DELETE")theirs.swipes.delete(r.tmdb);else{theirs.swipes.set(r.tmdb,pl.new);const my=mine.swipes.get(pl.new.tmdb);if(pl.new.v==="like"&&my?.v==="like"&&pl.new.data)showMatch(pl.new.data,pl.new.mega&&my.mega)}counts()})
