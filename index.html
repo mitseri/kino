@@ -454,7 +454,7 @@ function kindOf(r,kind){const g=r.genre_ids||r.genres?.map(x=>x.id)||[];if(g.inc
 function itemFrom(r,kind){kind=kind||r.media_type;return{k:kind+"-"+r.id,kind,id:r.id,t:r.title||r.name,o:r.original_title||r.original_name||"",y:(r.release_date||r.first_air_date||"").slice(0,4),
   r:Math.round((r.vote_average||0)*10)/10,d:(r.overview||"").trim(),poster:r.poster_path,backdrop:r.backdrop_path,ty:kindOf(r,kind),g:genresOf(r,kind)}}
 const DET=new Map();
-function details(it){if(!it?.kind)return Promise.resolve(null);if(!DET.has(it.k))DET.set(it.k,tmdb(`/${it.kind}/${it.id}`,{append_to_response:it.kind==="movie"?"videos,credits,watch/providers,images,release_dates":"videos,credits,watch/providers,images,content_ratings",include_image_language:"ru,null,en",include_video_language:"ru,uk,en"}).catch(()=>null));return DET.get(it.k)}
+function details(it){if(!it?.kind)return Promise.resolve(null);if(!DET.has(it.k))DET.set(it.k,tmdb(`/${it.kind}/${it.id}`,{append_to_response:it.kind==="movie"?"videos,credits,watch/providers,images,release_dates":"videos,credits,watch/providers,images,content_ratings,external_ids",include_image_language:"ru,null,en",include_video_language:"ru,uk,en"}).catch(()=>null));return DET.get(it.k)}
 function trailerOf(d){const vs=(d?.videos?.results||[]).filter(v=>v.site==="YouTube");const order=["ru","uk","en"];
   const pick=t=>vs.filter(v=>v.type===t).sort((a,b)=>order.indexOf(a.iso_639_1)-order.indexOf(b.iso_639_1)||(b.official-a.official))[0];
   return pick("Trailer")||pick("Teaser")||vs[0]||null}
@@ -827,7 +827,8 @@ function cardHTML(it,front){const pl=partner&&theirs.swipes.get(it.k)?.v==="like
 function detailsHTML(it,d){const x=d||{},w=whereOf(it,d),q=qualOf(it,d),vids=videosOf(d);
   const dirs=it.kind==="tv"?(x.created_by||[]).map(c=>({id:c.id,name:c.name,profile_path:c.profile_path,character:"создатель"})):(x.credits?.crew||[]).filter(c=>c.job==="Director").map(c=>({...c,character:"режиссёр"}));
   const ppl=[...dirs.slice(0,2),...(x.credits?.cast||[]).slice(0,12)];
-  return `${q?`<div class="qual ${q.c}">${esc(q.t)}</div>`:""}${x.tagline?`<p class="tagl">«${esc(x.tagline.replace(/^[«"“]|[»"”]$/g,""))}»</p>`:""}
+  const imdbId=x.imdb_id||x.external_ids?.imdb_id;
+  return `${q?`<div class="qual ${q.c}">${esc(q.t)}</div>`:""}${imdbId?`<div class="chips" data-imdb="${esc(imdbId)}"></div>`:""}${x.tagline?`<p class="tagl">«${esc(x.tagline.replace(/^[«"“]|[»"”]$/g,""))}»</p>`:""}
     <dl class="facts">${factsOf(it,d).map(([a,b])=>`<div><dt>${esc(a)}</dt><dd>${esc(b)}</dd></div>`).join("")}</dl>
     ${ppl.length?`<div class="sect"><span class="label">Актёры и создатели · тап — все их фильмы</span><div class="cast">${ppl.map(c=>`<button type="button" data-person="${c.id}" data-pname="${esc(c.name)}">${c.profile_path?`<img src="${IMG}w185${c.profile_path}" alt="" loading="lazy">`:"<i>👤</i>"}${esc(c.name)}<small>${esc(c.character||"")}</small></button>`).join("")}</div></div>`:""}
     ${vids.length>1?`<div class="sect"><span class="label">Видео</span><div class="chips">${vids.map(v=>`<button class="chip" type="button" data-yt="${esc(v.key)}">▶ ${esc(v.label)}</button>`).join("")}</div></div>`:""}
@@ -837,11 +838,17 @@ async function hydrateCard(el,it){
   const d=await details(it);if(!el.isConnected)return;
   el._frames=framesOf(it,d);el._i=0;
   el.querySelector(".bars").innerHTML=el._frames.length>1?el._frames.map((_,j)=>`<span class="${j?"":"on"}"></span>`).join(""):"";
-  const dx=el.querySelector(".dx");if(dx){dx.outerHTML=detailsHTML(it,d);loadColl(el)}
+  const dx=el.querySelector(".dx");if(dx){dx.outerHTML=detailsHTML(it,d);loadColl(el);loadImdb(el)}
   const tr=trailerOf(d),b=el.querySelector("[data-tr]");b.onclick=e=>{e.stopPropagation();playTrailer(it,tr)};
   el._frames.slice(1).forEach(f=>{const im=new Image();im.src=f.u});showFrame(el,0);
 }
 const COLLI=new Map();
+async function loadImdb(root){const s=root.querySelector("[data-imdb]");if(!s)return;
+  try{const j=await tmdb("/omdb",{i:s.dataset.imdb});const nm={"Rotten Tomatoes":"🍅 Rotten Tomatoes","Metacritic":"Metacritic"};
+    const out=[];if(j.imdb)out.push(`<a class="chip" style="background:#f5c518;color:#000;border-color:transparent;font-weight:800" href="https://www.imdb.com/title/${esc(s.dataset.imdb)}/" target="_blank" rel="noopener">IMDb ★ ${esc(j.imdb)}${j.votes?` <span style="opacity:.6">· ${esc(j.votes)}</span>`:""}</a>`);
+    (j.ratings||[]).filter(r=>nm[r.s]).forEach(r=>out.push(`<span class="chip">${nm[r.s]} ${esc(r.v)}</span>`));
+    if(j.awards&&/Won|Oscar/.test(j.awards))out.push(`<span class="chip">🏆 ${esc(j.awards.replace(/Won (\d+) Oscars?/,"Оскар: $1").replace(/(\d+) wins?/,"$1 наград").replace(/(\d+) nominations?/,"$1 номинаций").replace(/Nominated for (\d+) Oscars?/,"номинации на Оскар: $1"))}</span>`);
+    if(out.length)s.innerHTML=out.join("");else s.remove()}catch(e){s.remove()}}
 async function loadColl(root){const s=root.querySelector("[data-coll]");if(!s)return;
   try{const c=await tmdb("/collection/"+s.dataset.coll);const parts=(c.parts||[]).filter(p=>p.poster_path).sort((a,b)=>(a.release_date||"9").localeCompare(b.release_date||"9"));
     parts.forEach(p=>COLLI.set("movie-"+p.id,itemFrom(p,"movie")));
@@ -1051,7 +1058,7 @@ async function openDetail(it){
   if(!it.kind){$("#dX").innerHTML="";return}
   const d=await details(it);if(!$("#det"))return;if(d?.seasons)DET_SEASONS.set(it.k,d.seasons.filter(x=>x.season_number>0));
   $("#dGal").innerHTML=framesOf(it,d).slice(1).map(f=>`<img src="${f.u}" alt="" loading="lazy">`).join("");
-  $("#dX").innerHTML=detailsHTML(it,d);loadColl($("#dX"));
+  $("#dX").innerHTML=detailsHTML(it,d);loadColl($("#dX"));loadImdb($("#dX"));
 }
 const RX=["🔥","😂","😱","❤️","🤔","👎"],DET_SEASONS=new Map();
 function recommend(it,done){sheet(`<h2>Посоветовать ${esc(ptName())}</h2><p class="sub" style="margin:-6px 0 0">«${esc(it.t)}» появится у ${esc(ptName())} первым в свайпе с подписью «💌 ${esc(myName())} советует».</p>
