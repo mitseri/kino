@@ -467,8 +467,10 @@ async function initLanding(){
   try{const [a,b]=await Promise.all([tmdb("/trending/all/week"),tmdb("/movie/top_rated")]);
     const ps=[...(a.results||[]),...(b.results||[])].filter(x=>x.poster_path).map(x=>x.poster_path);
     ["#hp1","#hp2","#hp3"].forEach((s,i)=>{if(ps[i])$(s).src=IMG+"w500"+ps[i]});
-    const row=arr=>arr.concat(arr).map(p=>`<img src="${IMG}w185${p}" alt="" loading="lazy">`).join("");
-    $("#mq1").innerHTML=row(ps.slice(3,21));$("#mq2").innerHTML=row(ps.slice(21,40));
+    // each row must be at least twice the screen wide, or the loop shows an empty gap
+    const row=arr=>{if(!arr.length)arr=ps;let a=[...arr];while(a.length<24)a=a.concat(arr);return a.concat(a).map(p=>`<img src="${IMG}w185${p}" alt="">`).join("")};
+    const half=Math.max(8,Math.floor((ps.length-3)/2));
+    $("#mq1").innerHTML=row(ps.slice(3,3+half));$("#mq2").innerHTML=row(ps.slice(3+half));
     world(ps);
   }catch(e){}
 }
