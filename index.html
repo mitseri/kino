@@ -732,9 +732,13 @@ function openProfile(){
     :`<div class="sect"><span class="label">Позовите пару</span><p class="sub" style="margin:0">Отправьте ссылку партнёру — после входа ваши аккаунты свяжутся, и появятся мэтчи.</p>
       <div class="code">${esc(me.pair_code)}</div><div class="qr" id="qr" aria-label="QR-код приглашения"></div><p class="sub" style="margin:0;text-align:center;font-size:.76rem">Партнёр может навести камеру телефона на QR</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn red" id="shr" style="flex:1">Отправить ссылку</button><button class="btn" id="cpy">Скопировать</button></div></div>
       <div class="sect"><span class="label">Есть код партнёра?</span><div style="display:flex;gap:8px"><input type="text" id="pc" maxlength="6" placeholder="Например, 7F3A9C" style="text-transform:uppercase"><button class="btn" id="pcB">Связать</button></div></div>`}
+    <div class="sect"><span class="label">Уведомления в Telegram</span><p class="sub" style="margin:0">Бот напишет, когда у вас мэтч или ${partner?esc(ptName()):"пара"} советует фильм.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${me.tg_chat_id?`<span class="onsh" style="align-self:center">Подключено ✓</span><button class="btn ghost sm" id="tgOff">Отключить</button>`:`<button class="btn red" id="tgOn">✈️ Подключить Telegram</button>`}</div></div>
     <div class="sect"><span class="label">Аккаунт</span><span class="sub">${me.username?"@"+esc(me.username)+" · ":""}${esc(me.email)}${me.phone?" · "+esc(me.phone):""}</span><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="out">Выйти</button><button class="btn ghost" id="del">Удалить аккаунт</button></div></div>
     <p class="sub" style="margin:0;font-size:.72rem">Данные о фильмах — TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>`);
   $("#nmB").onclick=async()=>{const n=$("#nm").value.trim().slice(0,30);await sb.from("km_profiles").update({name:n}).eq("user_id",me.user_id);me.name=n;toast("Сохранено");closeSheet();go(view)};
+  const tgOn=$("#tgOn");if(tgOn)tgOn.onclick=async()=>{const w=window.open("","_blank");const r=await tgCall({action:"link"});if(r?.url){if(w)w.location=r.url;else location.href=r.url;toast("Нажмите «Start» в Telegram — и готово")}else{w&&w.close();toast("Не получилось, попробуйте ещё раз")}};
+  const tgOff=$("#tgOff");if(tgOff)tgOff.onclick=async()=>{await tgCall({action:"unlink"});me.tg_chat_id=null;closeSheet();toast("Уведомления отключены")};
   $("#avF").onchange=e=>uploadAvatar(e.target.files[0]);if($("#qr"))drawQR($("#qr"),inviteLink());
   const shr=$("#shr");if(shr)shr.onclick=async()=>{const url=inviteLink(),text=`Давай выбирать кино вместе в ${BRAND}! Свайпаем, и что понравится обоим — смотрим 🍿`;
     if(navigator.share){try{await navigator.share({title:BRAND,text,url})}catch(e){}}else copy(url)};
@@ -756,6 +760,8 @@ async function uploadAvatar(file){if(!file)return;toast("Загружаю фот
     const {error}=await sb.storage.from("avatars").upload(path,blob,{contentType:"image/jpeg"});if(error)throw error;
     const url=sb.storage.from("avatars").getPublicUrl(path).data.publicUrl;await sb.from("km_profiles").update({avatar_url:url}).eq("user_id",me.user_id);
     me.avatar_url=url;toast("Фото обновлено");closeSheet();go(view)}catch(e){toast("Не получилось загрузить фото")}}
+async function tgCall(body){try{const {data:{session}}=await sb.auth.getSession();
+  const r=await fetch(SB_URL+"/functions/v1/km-tg",{method:"POST",headers:{"content-type":"application/json",apikey:SB_KEY,authorization:"Bearer "+session.access_token},body:JSON.stringify(body)});return r.ok?r.json():null}catch(e){return null}}
 function copy(t){(navigator.clipboard?.writeText(t)||Promise.reject()).then(()=>toast("Ссылка скопирована")).catch(()=>prompt("Скопируйте ссылку:",t))}
 async function pairWith(code){code=(code||"").trim().toUpperCase();if(code.length<4)return toast("Введите код");
   const {data,error}=await sb.rpc("km_pair",{code});
@@ -888,7 +894,7 @@ async function decide(v,dragged){
   const {error}=await sb.from("km_swipes").upsert(row);if(error)return toast("Не сохранилось: "+error.message);
   if(v==="mega"){await addToShelf(it);toast("Мега-лайк! «"+it.t+"» уже на полке")}
   if(v==="seen"){await addToShelf(it,"done");toast("«"+it.t+"» — в «Посмотрено». Оценить можно на полке")}
-  const ps=theirs.swipes.get(it.k);if(like&&partner&&ps?.v==="like")showMatch(it,v==="mega"&&ps.mega);
+  const ps=theirs.swipes.get(it.k);if(like&&partner&&ps?.v==="like"){showMatch(it,v==="mega"&&ps.mega);tgCall({action:"notify",kind:"match",tmdb:it.k})}
 }
 async function undo(){const h=hist.pop();if(!h)return;mine.swipes.delete(h.it.k);await sb.from("km_swipes").delete().match({user_id:me.user_id,tmdb:h.it.k});
   if(h.mega||h.seen){mine.shelf.delete(h.it.k);await sb.from("km_shelf").delete().match({user_id:me.user_id,tmdb:h.it.k})}
@@ -1050,7 +1056,7 @@ function recommend(it,done){sheet(`<h2>Посоветовать ${esc(ptName())}
     <div class="sticky"><button class="btn red" id="rcGo" style="flex:1">Отправить</button></div>`);
   $("#rcGo").onclick=async()=>{const row={from_user:me.user_id,to_user:partner.user_id,tmdb:it.k,data:slim(it),note:$("#rcN").value.trim(),seen:false};
     const {data,error}=await sb.from("km_recs").upsert(row,{onConflict:"from_user,to_user,tmdb"}).select().single();if(error)return toast("Не отправилось: "+error.message);
-    recsOut.set(it.k,data);closeSheet();toast("💌 Отправлено "+ptName());done&&done()}}
+    recsOut.set(it.k,data);tgCall({action:"notify",kind:"rec",tmdb:it.k});closeSheet();toast("💌 Отправлено "+ptName());done&&done()}}
 function pickLists(it,done){const draw=()=>{sheet(`<h2>В список</h2><div class="lists">${lists.map(l=>`<label><input type="checkbox" data-l="${l.id}" ${listItems.get(l.id)?.has(it.k)?"checked":""}>${esc(l.name)}</label>`).join("")||`<p class="sub">Списков пока нет — создайте первый.</p>`}</div>
     <div class="shtools"><input type="text" id="nl2" maxlength="40" placeholder="Новый список"><button class="btn" id="nl2B">Создать</button></div><div class="sticky"><button class="btn red" id="lDone" style="flex:1">Готово</button></div>`);
   $(".lists").onchange=async e=>{const c=e.target.closest("[data-l]");if(!c)return;const m=listItems.get(c.dataset.l);
