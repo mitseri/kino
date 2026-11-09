@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e0e10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Наша полка</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23ed1c24'/%3E%3Cpath d='M32 50s-15-9-19-18c-3-6 1-14 8-14 4 0 7 2 11 6 4-4 7-6 11-6 7 0 11 8 8 14-4 9-19 18-19 18z' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#0e0e10;--surface:#1a1a1e;--surface2:#242429;--ink:#f4f4f6;--muted:#8e8e98;--line:#2c2c33;
+  --red:#ed1c24;--want:#4aa3ff;--watching:#f5a524;--done:#2fbf71;--dropped:#8e8e98;
+  --like:#2fbf71;--nope:#ff4d5a;--gold:#ffc93c;--mega:#5aa9ff;
+  --font:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--ink)}
+body{font-family:var(--font);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;color:inherit}
+[hidden]{display:none!important}
+.app{position:fixed;inset:0;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.pad{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.main{flex:1;min-height:0;position:relative}
+.view{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain}
+.wrap{max-width:560px;margin:0 auto}
+/* bottom nav */
+.nav{flex:none;display:grid;grid-template-columns:repeat(5,1fr);background:#111114;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav button{border:0;background:none;color:var(--muted);display:grid;justify-items:center;gap:2px;padding:8px 2px 7px;font:700 .68rem var(--font);cursor:pointer;position:relative}
+.nav svg{width:24px;height:24px}
+.nav button[aria-current="true"]{color:#fff}
+.nav button[aria-current="true"] svg{color:var(--red)}
+.nav i{position:absolute;top:4px;left:calc(50% + 6px);font-style:normal;background:var(--red);color:#fff;font-size:.62rem;min-width:17px;height:17px;border-radius:9px;display:grid;place-items:center;padding:0 4px}
+.nav i.gold{background:var(--gold);color:#1a1300}
+/* generic */
+h1{font-size:1.5rem;font-weight:800;margin:0;letter-spacing:-.02em}
+.top{display:flex;align-items:center;gap:10px;padding-block:14px 10px}
+.top .grow{flex:1;min-width:0}
+.sub{color:var(--muted);font-size:.8rem;font-weight:600}
+.who{border:0;background:var(--surface);border-radius:999px;padding:6px 12px 6px 6px;display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:800;font-size:.85rem}
+.av{width:28px;height:28px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font-weight:800;font-size:.8rem}
+.row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:10px}
+.row::-webkit-scrollbar{display:none}
+.pill{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:800 .82rem var(--font);padding:8px 13px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.pill.act{background:var(--red);border-color:var(--red);color:#fff}
+.pill svg{width:16px;height:16px}
+.pill b{background:rgb(255 255 255/.22);border-radius:999px;padding:0 6px;font-size:.72rem}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);font:700 .88rem var(--font);padding:11px 14px;border-radius:10px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn.red{background:var(--red);border-color:var(--red);color:#fff}
+.btn.sm{padding:7px 11px;font-size:.8rem}
+.btn.ghost{color:var(--red)}
+.btn:disabled{opacity:.45}
+.label{font:800 .66rem var(--font);text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.empty{margin:60px auto;max-width:34ch;text-align:center;color:var(--muted);display:grid;gap:10px;justify-items:center}
+.empty strong{color:var(--ink);font-size:1.1rem}
+input[type=email],input[type=text],input[type=search]{width:100%;font:500 1rem var(--font);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
+input:focus{outline:2px solid var(--red);border-color:transparent}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:700;z-index:90;max-width:calc(100% - 32px);text-align:center}
+/* login */
+.login{position:fixed;inset:0;display:grid;place-items:center;padding:24px;background:radial-gradient(120% 80% at 50% 0%,#3b1d22,var(--bg) 60%)}
+.login .box{width:100%;max-width:380px;display:grid;gap:14px}
+.login h1{font-size:2rem}
+/* swipe */
+.swv{display:flex;flex-direction:column}
+.stage{flex:1;min-height:0;position:relative;max-width:560px;width:100%;margin-inline:auto}
+.stack{position:absolute;top:0;bottom:0;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px))}
+.sc{position:absolute;inset:0;border-radius:20px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;background:var(--surface);box-shadow:0 18px 40px rgb(0 0 0/.5);touch-action:pan-y;user-select:none;-webkit-user-select:none;will-change:transform;scrollbar-width:none}
+.sc::-webkit-scrollbar{display:none}
+.sc.under{transform:scale(.95) translateY(10px);filter:brightness(.7);pointer-events:none}
+.pic{position:relative;height:calc(100% - 34px);min-height:300px;overflow:hidden;background:linear-gradient(160deg,#2a2a33,#3b1d22 70%,#7a1218)}
+.pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.pic .bg{filter:blur(22px) brightness(.55);transform:scale(1.15)}
+.pic.still .fg{object-fit:contain}
+.pic::after{content:"";position:absolute;inset:auto 0 0;height:50%;background:linear-gradient(to bottom,transparent,rgb(10 10 12/.92));pointer-events:none}
+.bars{position:absolute;top:8px;left:10px;right:10px;z-index:3;display:flex;gap:4px}
+.bars span{flex:1;height:3px;border-radius:2px;background:rgb(255 255 255/.35)}
+.bars span.on{background:#fff}
+.gen{position:absolute;top:20px;left:12px;right:12px;z-index:2;display:flex;flex-wrap:wrap;gap:6px}
+.ty{font:800 .7rem var(--font);text-transform:uppercase;letter-spacing:.08em;padding:6px 9px;border-radius:8px;background:rgb(0 0 0/.7);color:#fff}
+.gn{font:800 .9rem var(--font);padding:5px 11px;border-radius:999px;background:var(--red);color:#fff;box-shadow:0 4px 12px rgb(0 0 0/.4)}
+.cap{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:16px 130px 14px 16px;display:grid;gap:4px}
+.cap b{font-size:1.55rem;font-weight:800;line-height:1.12;color:#fff;text-wrap:balance;text-shadow:0 2px 12px rgb(0 0 0/.6)}
+.cap .m{display:flex;gap:8px;flex-wrap:wrap;font-size:.84rem;font-weight:700;color:#e2e2e8}
+.rt{color:var(--gold)}
+.trb{position:absolute;right:12px;bottom:14px;z-index:4;display:flex;align-items:center;gap:6px;background:#fff;color:#111;border:0;font:800 .88rem var(--font);padding:9px 14px 9px 11px;border-radius:999px;box-shadow:0 6px 18px rgb(0 0 0/.45);cursor:pointer}
+.trb svg{width:16px;height:16px;color:var(--red)}
+.stamp{position:absolute;top:26px;z-index:3;font:800 1.7rem var(--font);letter-spacing:.06em;padding:4px 12px;border:4px solid;border-radius:10px;opacity:0;text-transform:uppercase;pointer-events:none}
+.stamp.yes{left:20px;color:var(--like);transform:rotate(-14deg)}
+.stamp.no{right:20px;color:var(--nope);transform:rotate(14deg)}
+.stamp.mega{left:50%;top:40%;transform:translate(-50%,0) rotate(-8deg);color:var(--mega);white-space:nowrap}
+.info{padding:12px 16px 22px;display:grid;gap:16px}
+.more{text-align:center;font:700 .78rem var(--font);color:var(--muted)}
+.tagl{margin:0;font-style:italic;color:#d8d8e0}
+.desc{margin:4px 0 0;color:#cfcfd6;font-size:.93rem;line-height:1.5}
+.sect{display:grid;gap:6px}
+.facts{margin:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.facts div{background:var(--surface2);border-radius:10px;padding:9px 11px;min-width:0}
+.facts dt{font:800 .64rem var(--font);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.facts dd{margin:2px 0 0;font-weight:700;font-size:.9rem;overflow-wrap:anywhere}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font:700 .78rem var(--font);padding:6px 11px;border-radius:999px;background:var(--surface2);color:var(--ink);text-decoration:none;border:1px solid var(--line)}
+.chip.free{background:rgb(47 191 113/.18);color:#7be3a8;border-color:transparent}
+.ctrl{display:flex;justify-content:center;align-items:center;gap:12px;padding-block:12px 12px}
+.cb{border:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:var(--surface);box-shadow:0 8px 20px rgb(0 0 0/.4)}
+.cb svg{width:46%;height:46%}
+.cb.no,.cb.yes{width:62px;height:62px}.cb.no{color:var(--nope)}.cb.yes{color:var(--like)}
+.cb.mega{width:52px;height:52px;color:var(--mega)}
+.cb.undo,.cb.info{width:44px;height:44px}.cb.undo{color:var(--gold)}.cb.info{color:var(--want)}
+.cb:disabled{opacity:.35}
+.swempty{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:12px;text-align:center;color:var(--muted);padding:20px}
+.swempty strong{color:var(--ink);font-size:1.15rem}
+/* lists */
+.list{display:grid;gap:10px;padding-bottom:24px}
+.lrow{display:grid;grid-template-columns:78px 1fr;gap:12px;background:var(--surface);border-radius:14px;padding:10px;align-items:start;border:0;text-align:left;width:100%;cursor:pointer}
+.lrow img{width:78px;aspect-ratio:2/3;object-fit:cover;border-radius:9px;max-width:100%;background:var(--surface2)}
+.lt{display:grid;gap:3px;min-width:0}
+.lt b{font-weight:800;font-size:1.02rem}
+.lt span{font-size:.8rem;color:var(--muted)}
+.lt em{font-style:normal;color:var(--gold);font-weight:800}
+.la{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.onsh{font:800 .8rem var(--font);color:var(--done);padding:7px 2px}
+.stdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+.sh{display:flex;align-items:center;gap:8px;margin:18px 0 10px}
+.sh h2{font-size:1.05rem;font-weight:800;margin:0}
+/* sheets & modal */
+.scrim{position:fixed;inset:0;background:rgb(0 0 0/.7);z-index:60;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:600px;max-height:92%;overflow-y:auto;border-radius:18px 18px 0 0;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));padding-block:12px calc(24px + env(safe-area-inset-bottom,0px));display:grid;gap:16px}
+.sheet h2{margin:0;font-size:1.25rem;font-weight:800}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);justify-self:center}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line);background:transparent;color:var(--ink);font:700 .84rem var(--font);padding:8px 12px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"],.seg button.yes{background:var(--red);border-color:var(--red);color:#fff}
+.seg button.no{color:var(--muted);text-decoration:line-through;border-style:dashed}
+.sticky{position:sticky;bottom:calc(-24px - env(safe-area-inset-bottom,0px));background:var(--surface);padding-block:10px 4px;display:flex;gap:10px}
+.vid{position:fixed;inset:0;z-index:80;background:rgb(0 0 0/.92);display:grid;place-items:center;padding:16px}
+.vid .frame{width:100%;max-width:960px;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden}
+.vid iframe{width:100%;height:100%;border:0}
+.vid .x{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:16px;border:0;background:var(--surface);color:#fff;width:44px;height:44px;border-radius:50%;font-size:22px;cursor:pointer}
+.detail{position:fixed;inset:0;z-index:50;background:var(--bg);overflow-y:auto;padding-bottom:40px}
+.dhero{position:relative;height:min(58vh,520px);background:var(--surface)}
+.dhero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.dhero::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgb(14 14 16/.35),transparent 30%,transparent 55%,var(--bg))}
+.dback{position:absolute;z-index:2;top:calc(12px + env(safe-area-inset-top,0px));left:16px;border:0;background:rgb(0 0 0/.6);color:#fff;font:700 .9rem var(--font);padding:8px 14px;border-radius:999px;cursor:pointer}
+.dbody{max-width:640px;margin:-60px auto 0;position:relative;z-index:2;display:grid;gap:16px}
+.dtitle{font-size:1.9rem;font-weight:800;line-height:1.12;margin:0;text-wrap:balance}
+.gal{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory}
+.gal img{flex:none;height:200px;max-width:85%;object-fit:cover;border-radius:12px;scroll-snap-align:start;background:var(--surface2)}
+.acts{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.act{border:0;background:var(--surface);color:var(--muted);font:700 .72rem var(--font);display:grid;justify-items:center;gap:5px;padding:9px 2px;cursor:pointer;border-radius:10px}
+.act svg{width:22px;height:22px}
+.act[aria-pressed="true"]{color:#fff;background:var(--c)}
+.stars{display:flex;flex-wrap:wrap}
+.stars button{border:0;background:none;color:var(--line);font-size:1.55rem;line-height:1;padding:2px;cursor:pointer}
+.stars button.on{color:var(--gold)}
+.match{position:fixed;inset:0;z-index:85;background:rgb(10 10 12/.9);display:grid;place-items:center;padding:24px}
+.mcard{max-width:340px;width:100%;display:grid;gap:14px;justify-items:center;text-align:center}
+.mcard h3{margin:0;font-size:2.2rem;font-weight:800;color:var(--gold)}
+.mcard img{width:150px;aspect-ratio:2/3;object-fit:cover;border-radius:12px}
+.spin{width:28px;height:28px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--red);animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+</style>
+</head>
+<body>
+<div id="login" class="login" hidden>
+  <form class="box" id="lf">
+    <div class="av" style="width:56px;height:56px;font-size:1.6rem">♥</div>
+    <h1>Наша полка</h1>
+    <p class="sub" style="margin:0;font-size:.95rem">Свайпайте фильмы, сериалы и аниме вдвоём. Вход по ссылке из письма — без пароля.</p>
+    <label class="label" for="em">Почта</label>
+    <input type="email" id="em" required autocomplete="email" placeholder="you@gmail.com">
+    <button class="btn red" type="submit" id="lb">Прислать ссылку для входа</button>
+    <p class="sub" id="lmsg" style="margin:0"></p>
+  </form>
+</div>
+<div id="nope" class="login" hidden><div class="box"><h1>Нет доступа</h1><p class="sub" style="font-size:.95rem">Эта почта не добавлена. Попроси Рому добавить её в настройках сайта.</p><button class="btn" id="out2">Выйти</button></div></div>
+
+<div class="app" id="app" hidden>
+  <div class="main" id="main"></div>
+  <nav class="nav" id="nav">
+    <button data-v="swipe"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 15s-3.5-2.1-4.4-4.2C7 9.4 7.9 8 9.4 8c1 0 1.7.5 2.6 1.4.9-.9 1.6-1.4 2.6-1.4 1.5 0 2.4 1.4 1.8 2.8C15.5 12.9 12 15 12 15z" fill="currentColor"/></svg>Свайп</button>
+    <button data-v="likes"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C1 8.7 3 5 6.6 5c2.1 0 3.6 1.2 5.4 3.2C13.8 6.2 15.3 5 17.4 5 21 5 23 8.7 21.6 11.8 19.5 16.4 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="2"/></svg>Лайки<i id="nL" hidden></i></button>
+    <button data-v="matches"><svg viewBox="0 0 24 24"><circle cx="9" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="15" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2"/></svg>Мэтчи<i class="gold" id="nM" hidden></i></button>
+    <button data-v="shelf"><svg viewBox="0 0 24 24"><path d="M4 4h4v16H4zM10 4h4v16h-4zM16.5 5l3.8 1-3.8 14.5-3.6-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Полка</button>
+    <button data-v="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Поиск</button>
+  </nav>
+</div>
+<div id="layer"></div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const SB_URL="https://atajfbfpzzrwdwtrsydw.supabase.co";
+const SB_KEY="sb_publishable_7ZTtX4mqNcA-BQs5EoKXyQ_YZ5rfvx5";
+const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,detectSessionInUrl:true,flowType:"implicit"}});
+const IMG="https://image.tmdb.org/t/p/";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const NOM={roma:"Рома",karina:"Карина"},GEN={roma:"Ромы",karina:"Карины"},DAT={roma:"Роме",karina:"Карине"},OTHER={roma:"karina",karina:"roma"};
+const TYPES={film:"Фильм",series:"Сериал",anime:"Аниме",kr:"Дорама"};
+const ST=[{k:"want",t:"Хочу",c:"var(--want)"},{k:"watching",t:"Смотрю",c:"var(--watching)"},{k:"done",t:"Посмотрено",c:"var(--done)"},{k:"dropped",t:"Брошено",c:"var(--dropped)"}];
+function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2400)}
+const cap1=s=>s?s[0].toUpperCase()+s.slice(1):s;
+const RN=(n,a,b,c)=>{const m=n%10,h=n%100;return n+" "+(m===1&&h!==11?a:m>=2&&m<=4&&(h<10||h>=20)?b:c)};
+let DN=null;try{DN=new Intl.DisplayNames(["ru"],{type:"region"})}catch(e){}
+const country=cc=>(cc||[]).map(x=>{try{return DN?DN.of(x):x}catch(e){return x}}).join(", ");
+const dur=m=>m>=60?`${Math.floor(m/60)} ч ${m%60?m%60+" мин":""}`.trim():m+" мин";
+
+/* ---------- TMDB through our proxy ---------- */
+const TC=new Map();
+async function tmdb(path,params={}){
+  const q=new URLSearchParams({p:path,language:"ru-RU",...params});const key=q.toString();
+  if(TC.has(key))return TC.get(key);
+  const pr=(async()=>{const {data:{session}}=await sb.auth.getSession();
+    const r=await fetch(`${SB_URL}/functions/v1/kino-tmdb?${key}`,{headers:{apikey:SB_KEY,Authorization:"Bearer "+(session?.access_token||SB_KEY)}});
+    if(!r.ok)throw new Error("tmdb "+r.status);return r.json()})();
+  TC.set(key,pr);pr.catch(()=>TC.delete(key));return pr;
+}
+let GM={},GT={};
+async function loadGenres(){const [m,t]=await Promise.all([tmdb("/genre/movie/list"),tmdb("/genre/tv/list")]);
+  m.genres.forEach(g=>GM[g.id]=g.name.toLowerCase());t.genres.forEach(g=>GT[g.id]=g.name.toLowerCase())}
+const TVSPLIT={"боевик и приключения":["боевик","приключения"],"нф и фэнтези":["фантастика","фэнтези"],"война и политика":["военный"],"мыльная опера":["мелодрама"],"детский":["семейный"]};
+const FILTER_GENRES=["драма","комедия","боевик","триллер","криминал","фантастика","фэнтези","ужасы","детектив","приключения","мелодрама","семейный","мультфильм","военный","история","документальный","музыка","вестерн"];
+function genreIds(name,kind){const M=kind==="movie"?GM:GT,ids=[];for(const [id,n] of Object.entries(M)){if(n===name||(TVSPLIT[n]||[]).includes(name))ids.push(+id)}return ids}
+function genresOf(r,kind){const M=kind==="movie"?GM:GT,out=[];(r.genre_ids||r.genres?.map(g=>g.id)||[]).forEach(id=>{const n=M[id];if(!n)return;(TVSPLIT[n]||[n]).forEach(x=>out.push(x))});return [...new Set(out)].filter(x=>x!=="мультфильм"||true).slice(0,3)}
+function kindOf(r,kind){const g=r.genre_ids||r.genres?.map(x=>x.id)||[];if(g.includes(16)&&(r.original_language==="ja"))return"anime";if(kind==="tv"&&r.original_language==="ko")return"kr";return kind==="movie"?"film":"series"}
+function itemFrom(r,kind){kind=kind||r.media_type;return{k:kind+"-"+r.id,kind,id:r.id,t:r.title||r.name,o:r.original_title||r.original_name||"",y:(r.release_date||r.first_air_date||"").slice(0,4),
+  r:Math.round((r.vote_average||0)*10)/10,d:(r.overview||"").trim(),poster:r.poster_path,backdrop:r.backdrop_path,ty:kindOf(r,kind),g:genresOf(r,kind)}}
+const DET=new Map();
+function details(it){if(!DET.has(it.k))DET.set(it.k,tmdb(`/${it.kind}/${it.id}`,{append_to_response:"videos,credits,watch/providers,images",include_image_language:"ru,null,en",include_video_language:"ru,uk,en"}).catch(()=>null));return DET.get(it.k)}
+function trailerOf(d){const vs=(d?.videos?.results||[]).filter(v=>v.site==="YouTube");const order=["ru","uk","en"];
+  const pick=t=>vs.filter(v=>v.type===t).sort((a,b)=>order.indexOf(a.iso_639_1)-order.indexOf(b.iso_639_1)||(b.official-a.official))[0];
+  return pick("Trailer")||pick("Teaser")||vs[0]||null}
+const PROV={"Netflix":"https://www.netflix.com/search?q=","HBO Max":"https://play.hbomax.com/search?q=","Crunchyroll":"https://www.crunchyroll.com/search?q=","Apple TV":"https://tv.apple.com/search?term=","Apple TV Store":"https://tv.apple.com/search?term=","Amazon Prime Video":"https://www.primevideo.com/search?phrase=","MEGOGO":"https://megogo.net/ua/search-extended?q=","Disney Plus":"https://www.disneyplus.com/search?q=","Google Play Movies":"https://play.google.com/store/search?c=movies&q="};
+function whereOf(it,d){const ua=d?.["watch/providers"]?.results?.UA||{},q=encodeURIComponent(it.o||it.t),out=[];
+  (ua.flatrate||[]).slice(0,4).forEach(p=>out.push({name:p.provider_name,sub:true,url:(PROV[p.provider_name]||"https://www.justwatch.com/ua/search?q=")+q}));
+  [...(ua.rent||[]),...(ua.buy||[])].forEach(p=>{if(out.some(x=>x.name===p.provider_name)||out.length>=6)return;out.push({name:p.provider_name.replace(" Store",""),sub:false,url:(PROV[p.provider_name]||"https://www.justwatch.com/ua/search?q=")+q})});
+  return out}
+function factsOf(it,d){if(!d)return[];const tv=it.kind==="tv",f=[];const ly=(d.last_air_date||"").slice(0,4);
+  f.push(["Год",tv&&ly&&ly!==it.y?`${it.y}–${d.status==="Returning Series"?"…":ly}`:it.y]);
+  if(tv&&d.number_of_seasons)f.push(["Сезоны",RN(d.number_of_seasons,"сезон","сезона","сезонов")+(d.number_of_episodes?" · "+RN(d.number_of_episodes,"серия","серии","серий"):"")]);
+  const rt=tv?(d.episode_run_time||[])[0]:d.runtime;if(rt)f.push([tv?"Серия":"Длительность",(tv?"≈ ":"")+dur(rt)]);
+  if(tv&&d.status)f.push(["Статус",{"Returning Series":"Выходит","Ended":"Завершён","Canceled":"Закрыт","In Production":"В производстве"}[d.status]||d.status]);
+  if(it.r)f.push(["Рейтинг TMDB","★ "+it.r+" / 10"]);
+  const cc=tv?d.origin_country:(d.production_countries||[]).map(c=>c.iso_3166_1);if(cc?.length)f.push(["Страна",country(cc.slice(0,3))]);
+  const dir=tv?(d.created_by||[]).map(c=>c.name):(d.credits?.crew||[]).filter(c=>c.job==="Director").map(c=>c.name);if(dir.length)f.push([tv?"Создатели":"Режиссёр",dir.slice(0,2).join(", ")]);
+  if(tv&&d.networks?.length)f.push(["Канал",d.networks.slice(0,2).map(n=>n.name).join(", ")]);
+  return f.filter(x=>x[1])}
+function framesOf(it,d){const out=[];if(it.poster)out.push({u:IMG+"w500"+it.poster,still:false});
+  const bds=(d?.images?.backdrops||[]).filter(b=>!b.iso_639_1).sort((a,b)=>b.vote_average-a.vote_average).slice(0,4);
+  (bds.length?bds:(d?.images?.backdrops||[]).slice(0,3)).forEach(b=>out.push({u:IMG+"w780"+b.file_path,still:true}));
+  if(out.length===1&&it.backdrop)out.push({u:IMG+"w780"+it.backdrop,still:true});return out}
+
+/* ---------- state ---------- */
+let me=null,who="roma",shelf={roma:new Map(),karina:new Map()},swipes={roma:new Map(),karina:new Map()},prefs={roma:null,karina:null},view="swipe";
+const DEF_PREFS=()=>({kinds:[],yes:[],no:[],eras:[],minR:0});
+async function loadAll(){
+  const [s,w,p]=await Promise.all([sb.from("kino_shelf").select("*"),sb.from("kino_swipes").select("person,tmdb,v,data,at"),sb.from("kino_prefs").select("*")]);
+  shelf={roma:new Map(),karina:new Map()};swipes={roma:new Map(),karina:new Map()};
+  (s.data||[]).forEach(r=>shelf[r.person].set(r.tmdb,r));(w.data||[]).forEach(r=>swipes[r.person].set(r.tmdb,r));
+  (p.data||[]).forEach(r=>prefs[r.person]=r.prefs);
+}
+function counts(){const l=likesOf(who).length,m=matchesList().length;$("#nL").hidden=!l;$("#nL").textContent=l;$("#nM").hidden=!m;$("#nM").textContent=m}
+const likesOf=w=>[...swipes[w].values()].filter(r=>r.v==="like").sort((a,b)=>(b.at||"").localeCompare(a.at||""));
+const matchesList=()=>likesOf("roma").filter(r=>swipes.karina.get(r.tmdb)?.v==="like");
+const slim=it=>({k:it.k,kind:it.kind,id:it.id,t:it.t,o:it.o,y:it.y,r:it.r,d:it.d,poster:it.poster,backdrop:it.backdrop,ty:it.ty,g:it.g});
+
+/* ---------- deck from TMDB, endless ---------- */
+let deck=[],src=[],loading=false,hist=[],busy=false,deckErr=false;
+const ERAS=[{k:"new",t:"2020 и новее",a:"2020-01-01"},{k:"10s",t:"2010-е",a:"2010-01-01",b:"2019-12-31"},{k:"00s",t:"2000-е",a:"2000-01-01",b:"2009-12-31"},{k:"old",t:"До 2000",b:"1999-12-31"}];
+const KINDS=[{k:"film",t:"Фильмы"},{k:"series",t:"Сериалы"},{k:"anime",t:"Аниме"},{k:"kr",t:"Дорамы"}];
+function buildSources(){
+  const p=prefs[who]||DEF_PREFS(),kinds=p.kinds?.length?p.kinds:["film","series","anime","kr"];
+  const eras=p.eras?.length?ERAS.filter(e=>p.eras.includes(e.k)):[{}];
+  src=[];let seed=0;
+  for(const k of kinds)for(const e of eras){
+    const kind=k==="film"?"movie":"tv",dk=kind==="movie"?"primary_release_date":"first_air_date",q={sort_by:"popularity.desc","vote_count.gte":k==="kr"?"30":"150"};
+    if(e.a)q[dk+".gte"]=e.a;if(e.b)q[dk+".lte"]=e.b;if(p.minR)q["vote_average.gte"]=String(p.minR);
+    let yes=(p.yes||[]).flatMap(g=>genreIds(g,kind)),no=(p.no||[]).flatMap(g=>genreIds(g,kind));
+    if(k==="anime"){q.with_genres=[16,...yes].join(",");q.with_original_language="ja"}
+    else{if(yes.length)q.with_genres=yes.join("|");no=[...no,16];q.with_original_language=undefined}
+    if(k==="kr")q.with_original_language="ko";
+    if(k==="series")q.without_genres=[...no,10764,10767,10763,10766].join(",");else if(no.length)q.without_genres=no.join(",");
+    Object.keys(q).forEach(x=>q[x]===undefined&&delete q[x]);
+    src.push({kind,q,page:0,done:false,id:seed++});
+  }
+}
+function seenK(k){return swipes[who].has(k)||shelf[who].has(k)||deck.some(x=>x.k===k)}
+async function fill(min=8){
+  if(loading)return;loading=true;
+  try{let guard=0;
+    while(deck.length<min&&src.some(s=>!s.done)&&guard++<12){
+      const live=src.filter(s=>!s.done);const s=live[guard%live.length];s.page++;
+      const r=await tmdb("/discover/"+s.kind,{...s.q,page:String(s.page)});
+      if(!r.results?.length||s.page>=r.total_pages)s.done=true;
+      const items=(r.results||[]).filter(x=>x.poster_path&&x.overview).map(x=>itemFrom(x,s.kind)).filter(x=>!seenK(x.k));
+      // shuffle a little so it doesn't feel like a ranking
+      for(let i=items.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[items[i],items[j]]=[items[j],items[i]]}
+      deck.push(...items);
+    }
+    // the other person's likes come first — easy matches
+    const other=likesOf(OTHER[who]).filter(r=>!seenK(r.tmdb)&&r.data).map(r=>r.data);if(other.length&&deck.length)deck.splice(1,0,...other.slice(0,3));
+    deckErr=false;
+  }catch(e){deckErr=true}finally{loading=false}
+}
+function resetDeck(){deck=[];hist=[];buildSources();renderSwipe(true);fill().then(()=>renderSwipe())}
+
+/* ---------- views ---------- */
+const backSvg='<svg width="16" height="16" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function topBar(title,sub){return `<div class="top"><div class="grow"><h1>${title}</h1>${sub?`<div class="sub">${sub}</div>`:""}</div>
+  <button class="who" id="whoBtn" type="button"><span class="av">${NOM[who][0]}</span>${NOM[who]}</button></div>`}
+function go(v){view=v;document.querySelectorAll("#nav button").forEach(b=>b.setAttribute("aria-current",b.dataset.v===v));
+  ({swipe:renderSwipeView,likes:renderLikes,matches:renderMatches,shelf:renderShelf,search:renderSearch})[v]();counts()}
+$("#nav").onclick=e=>{const b=e.target.closest("button");if(b)go(b.dataset.v)};
+document.addEventListener("click",e=>{if(e.target.closest("#whoBtn"))openWho()});
+function openWho(){
+  sheet(`<h2>Кто сейчас смотрит?</h2>
+    <div class="seg" id="wseg">${["roma","karina"].map(w=>`<button data-w="${w}" aria-pressed="${who===w}">${NOM[w]}</button>`).join("")}</div>
+    <p class="sub" style="margin:0">Свайпы, лайки и полка у каждого свои. Вход: ${esc(me.email)}</p>
+    ${me.person==="roma"?`<div class="sect"><span class="label">Пригласить Карину</span><div style="display:flex;gap:8px"><input type="email" id="inv" placeholder="почта Карины"><button class="btn red" id="invB">Добавить</button></div></div>`:""}
+    <button class="btn" id="logout">Выйти из аккаунта</button>`);
+  $("#wseg").onclick=e=>{const b=e.target.closest("button");if(!b)return;who=b.dataset.w;try{localStorage.setItem("who",who)}catch(err){}closeSheet();resetDeck();go(view)};
+  $("#logout").onclick=async()=>{await sb.auth.signOut();location.reload()};
+  const ib=$("#invB");if(ib)ib.onclick=async()=>{const v=$("#inv").value.trim().toLowerCase();if(!v.includes("@"))return toast("Введите почту");
+    const {error}=await sb.from("kino_allowed").upsert({email:v,person:"karina"});toast(error?"Не получилось: "+error.message:"Готово! Карина может входить с этой почты")};
+}
+/* swipe */
+function renderSwipeView(){
+  const p=prefs[who]||DEF_PREFS(),nf=(p.yes?.length||0)+(p.no?.length||0)+(p.eras?.length||0)+(p.minR?1:0),kk=p.kinds?.length===1?p.kinds[0]:"";
+  $("#main").innerHTML=`<div class="view swv" style="overflow:hidden"><div class="wrap pad" style="width:100%">${topBar("Свайп",`Свайпает ${NOM[who]}`)}
+    <div class="row" id="kinds">${[{k:"",t:"Всё"},...KINDS].map(x=>`<button class="pill ${x.k===kk?"act":""}" data-k="${x.k}">${x.t}</button>`).join("")}
+      <button class="pill ${nf?"act":""}" id="flt"><svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Жанры и годы${nf?` <b>${nf}</b>`:""}</button></div></div>
+    <div class="stage"><div class="stack" id="stack"></div></div>
+    <div class="ctrl pad">
+      <button class="cb undo" id="bU" aria-label="Вернуть"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button>
+      <button class="cb no" id="bN" aria-label="Мимо"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button>
+      <button class="cb mega" id="bM" aria-label="Мега-лайк: сразу на полку"><svg viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z" fill="currentColor"/></svg></button>
+      <button class="cb yes" id="bY" aria-label="Нравится"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C1 8.7 3 5 6.6 5c2.1 0 3.6 1.2 5.4 3.2C13.8 6.2 15.3 5 17.4 5 21 5 23 8.7 21.6 11.8 19.5 16.4 12 21 12 21z" fill="currentColor"/></svg></button>
+      <button class="cb info" id="bI" aria-label="Подробнее"><svg viewBox="0 0 24 24"><path d="M12 11v6M12 7.5v.01" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg></button>
+    </div></div>`;
+  $("#kinds").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;const p=prefs[who]||DEF_PREFS();p.kinds=b.dataset.k?[b.dataset.k]:[];savePrefs(p)};
+  $("#flt").onclick=openPrefs;$("#bN").onclick=()=>decide("nope");$("#bY").onclick=()=>decide("like");$("#bM").onclick=()=>decide("mega");$("#bU").onclick=undo;
+  $("#bI").onclick=()=>{const t=$("#stack .sc.front");if(t)t.scrollTo({top:t.scrollTop>40?0:t.querySelector(".info").offsetTop-50,behavior:"smooth"})};
+  renderSwipe(!deck.length);if(deck.length<6)fill().then(()=>renderSwipe());
+}
+async function savePrefs(p){prefs[who]=p;resetDeck();renderSwipeView();await sb.from("kino_prefs").upsert({person:who,prefs:p})}
+function cardHTML(it,front){
+  return `<div class="sc ${front?"front":"under"}" data-k="${esc(it.k)}">
+    <div class="pic"><img class="bg" alt=""><img class="fg" alt="" ${it.poster?`src="${IMG}w500${it.poster}"`:""}>
+      <div class="bars"></div>
+      <div class="gen"><span class="ty">${TYPES[it.ty]}</span>${(it.g||[]).map(x=>`<span class="gn">${esc(cap1(x))}</span>`).join("")}</div>
+      <span class="stamp yes">Нравится</span><span class="stamp no">Мимо</span><span class="stamp mega">Мега-лайк</span>
+      <button class="trb" data-tr type="button"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>Трейлер</button>
+      <div class="cap"><b>${esc(it.t)}</b><div class="m">${it.y?`<span>${esc(it.y)}</span>`:""}${it.r?`<span class="rt">★ ${it.r}</span>`:""}</div></div></div>
+    <div class="info"><span class="more">↓ Листай вниз — подробнее</span><div class="sect"><span class="label">О чём</span><p class="desc">${esc(it.d)}</p></div><div class="dx"><div class="spin"></div></div></div></div>`}
+function detailsHTML(it,d){const x=d||{},cast=(x.credits?.cast||[]).slice(0,8).map(c=>c.name),w=whereOf(it,d);
+  return `${x.tagline?`<p class="tagl">«${esc(x.tagline.replace(/^[«"“]|[»"”]$/g,""))}»</p>`:""}
+    <dl class="facts">${factsOf(it,d).map(([a,b])=>`<div><dt>${esc(a)}</dt><dd>${esc(b)}</dd></div>`).join("")}</dl>
+    ${cast.length?`<div class="sect"><span class="label">В ролях</span><p class="desc">${esc(cast.join(", "))}</p></div>`:""}
+    <div class="sect"><span class="label">Где смотреть в Украине</span><div class="chips">${w.length?w.map(p=>`<a class="chip ${p.sub?"free":""}" href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)} · ${p.sub?"подписка":"купить"} ›</a>`).join(""):`<a class="chip" href="https://www.justwatch.com/ua/search?q=${encodeURIComponent(it.t)}" target="_blank" rel="noopener">В Украине не найдено · искать ›</a>`}</div></div>`}
+async function hydrateCard(el,it){
+  const d=await details(it);if(!el.isConnected)return;
+  el._frames=framesOf(it,d);el._i=0;
+  el.querySelector(".bars").innerHTML=el._frames.length>1?el._frames.map((_,j)=>`<span class="${j?"":"on"}"></span>`).join(""):"";
+  const dx=el.querySelector(".dx");if(dx)dx.outerHTML=detailsHTML(it,d);
+  const tr=trailerOf(d);const b=el.querySelector("[data-tr]");if(!tr)b.innerHTML="▶ Трейлер (поиск)";b.onclick=e=>{e.stopPropagation();playTrailer(it,tr)};
+  el._frames.slice(1).forEach(f=>{const im=new Image();im.src=f.u});
+  showFrame(el,0);
+}
+function showFrame(el,i){const a=el._frames||[];if(!a.length)return;i=(i+a.length)%a.length;el._i=i;const pic=el.querySelector(".pic");
+  pic.querySelector(".fg").src=a[i].u;pic.querySelector(".bg").src=a[i].u;pic.classList.toggle("still",a[i].still);
+  el.querySelectorAll(".bars span").forEach((b,j)=>b.classList.toggle("on",j===i))}
+function renderSwipe(loadingNow){
+  const S=$("#stack");if(!S)return;$("#bU").disabled=!hist.length;
+  const off=!deck.length;["#bN","#bY","#bM"].forEach(s=>$(s).disabled=off);
+  if(!deck.length){S.innerHTML=deckErr?`<div class="swempty"><strong>Не загрузилось</strong>Проверьте интернет.<button class="btn red" onclick="resetDeck()">Ещё раз</button></div>`
+    :(loading||loadingNow)?`<div class="swempty"><div class="spin"></div>Подбираю фильмы…</div>`
+    :`<div class="swempty"><strong>По этому фильтру всё</strong>Ослабьте «Жанры и годы».<button class="btn red" onclick="openPrefs()">Изменить</button></div>`;return}
+  S.innerHTML=(deck[1]?cardHTML(deck[1],false):"")+cardHTML(deck[0],true);
+  const f=S.querySelector(".sc.front"),u=S.querySelector(".sc.under");hydrateCard(f,deck[0]);if(u)details(deck[1]);if(deck[2])details(deck[2]);
+  attachDrag(f);
+}
+function attachDrag(el){
+  let x0=0,y0=0,dx=0,dy=0,id=null,moved=false,locked=false;const st=s=>el.querySelector(".stamp."+s);
+  el.addEventListener("pointerdown",e=>{if(busy||e.target.closest("a,button"))return;id=e.pointerId;x0=e.clientX;y0=e.clientY;dx=dy=0;moved=false;locked=false;el.style.transition="none"});
+  el.addEventListener("pointermove",e=>{if(e.pointerId!==id)return;dx=e.clientX-x0;dy=e.clientY-y0;
+    if(!locked){if(Math.abs(dy)>8&&Math.abs(dy)>Math.abs(dx)){id=null;return}if(Math.abs(dx)>8){locked=true;try{el.setPointerCapture(e.pointerId)}catch(_){}}}
+    if(!locked)return;moved=true;el.style.transform=`translate(${dx}px,${dy*.2}px) rotate(${dx/18}deg)`;st("yes").style.opacity=Math.max(0,Math.min(1,dx/90));st("no").style.opacity=Math.max(0,Math.min(1,-dx/90))});
+  const end=e=>{if(e.pointerId!==id)return;id=null;
+    if(moved&&Math.abs(dx)>100){decide(dx>0?"like":"nope",true)}
+    else{el.style.transition="transform .25s";el.style.transform="";st("yes").style.opacity=st("no").style.opacity=0;
+      if(!moved&&e.target.closest(".pic")){const r=el.getBoundingClientRect();showFrame(el,(el._i||0)+(e.clientX-r.left<r.width/3?-1:1))}}};
+  el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);
+}
+async function decide(v,dragged){
+  if(busy||!deck.length)return;busy=true;const it=deck[0],el=$("#stack .sc.front"),w=who,like=v!=="nope";
+  if(el){const dir=like?1:-1;el.style.transition="transform .3s ease-out,opacity .3s";el.querySelector(".stamp."+(v==="mega"?"mega":like?"yes":"no")).style.opacity=1;
+    el.style.transform=`translate(${dir*Math.max(innerWidth,500)}px,${dragged?0:-30}px) rotate(${dir*24}deg)`;el.style.opacity=.6}
+  const row={person:w,tmdb:it.k,v:like?"like":"nope",data:slim(it),at:new Date().toISOString()};
+  swipes[w].set(it.k,row);deck.shift();hist.push({it,w,mega:v==="mega"});if(hist.length>30)hist.shift();
+  setTimeout(()=>{busy=false;renderSwipe();counts();if(deck.length<6)fill().then(()=>{if(view==="swipe")renderSwipe()})},230);
+  const {error}=await sb.from("kino_swipes").upsert(row);if(error)return toast("Не сохранилось: "+error.message);
+  if(v==="mega"){await addToShelf(w,it);toast("Мега-лайк! «"+it.t+"» уже на полке "+GEN[w])}
+  if(like&&swipes[OTHER[w]].get(it.k)?.v==="like")showMatch(it);
+}
+async function undo(){const h=hist.pop();if(!h)return;swipes[h.w].delete(h.it.k);await sb.from("kino_swipes").delete().match({person:h.w,tmdb:h.it.k});
+  if(h.mega){shelf[h.w].delete(h.it.k);await sb.from("kino_shelf").delete().match({person:h.w,tmdb:h.it.k})}
+  if(h.w===who){deck=deck.filter(x=>x.k!==h.it.k);deck.unshift(h.it)}renderSwipe();counts()}
+async function addToShelf(w,it){const row={person:w,tmdb:it.k,data:slim(it),status:"want",rating:0,note:"",updated_at:new Date().toISOString()};
+  shelf[w].set(it.k,{...row,added_at:row.updated_at});const {error}=await sb.from("kino_shelf").upsert(row);if(error)toast("Не сохранилось: "+error.message)}
+function showMatch(it){const L=$("#layer");L.innerHTML=`<div class="match" id="mt"><div class="mcard"><h3>Мэтч!</h3>${it.poster?`<img src="${IMG}w342${it.poster}" alt="">`:""}<p>Рома и Карина оба хотят посмотреть<br><b>${esc(it.t)}</b></p><button class="btn red" id="mtOk">Круто!</button></div></div>`;
+  $("#mtOk").onclick=()=>L.innerHTML="";$("#mt").onclick=e=>{if(e.target.id==="mt")L.innerHTML=""}}
+function playTrailer(it,tr){
+  if(!tr){window.open("https://www.youtube.com/results?search_query="+encodeURIComponent((it.o||it.t)+" трейлер"),"_blank");return}
+  const L=$("#layer");L.innerHTML=`<div class="vid" id="vd"><button class="x" id="vx" aria-label="Закрыть">✕</button><div class="frame"><iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(tr.key)}?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="Трейлер"></iframe></div></div>`;
+  $("#vx").onclick=()=>L.innerHTML="";$("#vd").onclick=e=>{if(e.target.id==="vd")L.innerHTML=""}}
+/* filter sheet */
+function sheet(html){$("#layer").innerHTML=`<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`;$("#scrim").onclick=e=>{if(e.target.id==="scrim")closeSheet()}}
+function closeSheet(){$("#layer").innerHTML=""}
+function openPrefs(){
+  const p=JSON.parse(JSON.stringify(prefs[who]||DEF_PREFS()));["kinds","yes","no","eras"].forEach(k=>p[k]=p[k]||[]);
+  const draw=()=>{const sc=$(".sheet")?.scrollTop||0;const gs=g=>p.yes.includes(g)?"yes":p.no.includes(g)?"no":"";
+    sheet(`<h2>Что нравится ${DAT[who]}</h2><p class="sub" style="margin:-6px 0 0">Тап по жанру — нравится, ещё тап — не показывать. Сохраняется для каждого отдельно.</p>
+      <div class="sect"><span class="label">Что смотрим</span><div class="seg" id="pK">${KINDS.map(x=>`<button data-v="${x.k}" aria-pressed="${p.kinds.includes(x.k)}">${x.t}</button>`).join("")}</div></div>
+      <div class="sect"><span class="label">Жанры</span><div class="seg" id="pG">${FILTER_GENRES.map(g=>`<button data-v="${g}" class="${gs(g)}">${gs(g)==="no"?"✕ ":gs(g)==="yes"?"♥ ":""}${cap1(g)}</button>`).join("")}</div></div>
+      <div class="sect"><span class="label">Годы</span><div class="seg" id="pE">${ERAS.map(x=>`<button data-v="${x.k}" aria-pressed="${p.eras.includes(x.k)}">${x.t}</button>`).join("")}</div></div>
+      <div class="sect"><span class="label">Рейтинг</span><div class="seg" id="pR">${[0,6,7,8].map(r=>`<button data-v="${r}" aria-pressed="${(p.minR||0)===r}">${r?"от "+r+" ★":"Любой"}</button>`).join("")}</div></div>
+      <div class="sticky"><button class="btn red" id="pGo" style="flex:1">Показать</button><button class="btn" id="pRs">Сбросить</button></div>`);
+    $(".sheet").scrollTop=sc;
+    const tog=(arr,v)=>arr.includes(v)?arr.filter(x=>x!==v):[...arr,v];
+    $("#pK").onclick=e=>{const b=e.target.closest("button");if(b){p.kinds=tog(p.kinds,b.dataset.v);draw()}};
+    $("#pE").onclick=e=>{const b=e.target.closest("button");if(b){p.eras=tog(p.eras,b.dataset.v);draw()}};
+    $("#pR").onclick=e=>{const b=e.target.closest("button");if(b){p.minR=+b.dataset.v;draw()}};
+    $("#pG").onclick=e=>{const b=e.target.closest("button");if(!b)return;const g=b.dataset.v;if(p.yes.includes(g)){p.yes=p.yes.filter(x=>x!==g);p.no.push(g)}else if(p.no.includes(g))p.no=p.no.filter(x=>x!==g);else p.yes.push(g);draw()};
+    $("#pRs").onclick=()=>{Object.assign(p,DEF_PREFS());draw()};
+    $("#pGo").onclick=()=>{closeSheet();savePrefs(p)};
+  };draw();
+}
+/* lists */
+const thumb=d=>d?.poster?`<img src="${IMG}w185${d.poster}" alt="" loading="lazy">`:`<img alt="">`;
+const metaOf=d=>[TYPES[d?.ty]||"",d?.y,d?.r?"★ "+d.r:""].filter(Boolean).join(" · ");
+function rowHTML(r,opt){const d=r.data||{},on=shelf[who].has(r.tmdb),m=swipes[OTHER[who]].get(r.tmdb)?.v==="like";
+  return `<div class="lrow" data-k="${esc(r.tmdb)}">${thumb(d)}<div class="lt"><b>${esc(d.t||r.tmdb)}</b><span>${esc(metaOf(d))}${m&&opt.mark?' · <em>мэтч</em>':""}</span>
+    <span style="color:#b9b9c2">${esc((d.g||[]).map(cap1).join(", "))}</span>
+    <div class="la">${on?`<span class="onsh">На полке ✓</span>`:`<button class="btn red sm" data-a="add">На полку</button>`}${opt.rm?`<button class="btn ghost sm" data-a="rm">Убрать</button>`:""}</div></div></div>`}
+function listWire(){$("#main").onclick=async e=>{const b=e.target.closest("[data-a]"),row=e.target.closest(".lrow");if(!row)return;const k=row.dataset.k;
+  const r=swipes[who].get(k)||swipes[OTHER[who]].get(k)||shelf[who].get(k);const d=r?.data;
+  if(!b){if(d)openDetail(d);return}e.stopPropagation();b.disabled=true;
+  if(b.dataset.a==="add"){await addToShelf(who,d);b.outerHTML='<span class="onsh">На полке ✓</span>';toast("На полке "+GEN[who])}
+  else if(b.dataset.a==="rm"){const nr={...swipes[who].get(k),v:"nope",at:new Date().toISOString()};swipes[who].set(k,nr);await sb.from("kino_swipes").upsert(nr);row.remove();counts()}}}
+function renderLikes(){const l=likesOf(who);
+  $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Лайки",`Что ${NOM[who]} свайпнул${who==="karina"?"а":""} вправо`)}
+    ${l.length?`<div class="list">${l.map(r=>rowHTML(r,{rm:true,mark:true})).join("")}</div>`:`<div class="empty"><strong>Пока пусто</strong>Свайпайте вправо — фильмы появятся здесь, и отсюда можно положить их на полку.</div>`}</div></div>`;listWire()}
+function renderMatches(){const l=matchesList();
+  $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Мэтчи","Что понравилось вам обоим")}
+    ${l.length?`<div class="list">${l.map(r=>rowHTML(r,{})).join("")}</div>`:`<div class="empty"><strong>Пока нет мэтчей</strong>Свайпайте по очереди — когда обоим понравится один фильм, он появится тут.</div>`}</div></div>`;listWire()}
+let shelfType="";
+function renderShelf(){const all=[...shelf[who].values()].filter(r=>!shelfType||r.data?.ty===shelfType||(shelfType==="series"&&r.data?.type==="series"));
+  $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Полка "+GEN[who],all.length?`${all.filter(r=>r.status==="done").length} из ${all.length} посмотрено`:"")}
+    <div class="row" id="stt">${[{k:"",t:"Всё"},...KINDS].map(x=>`<button class="pill ${x.k===shelfType?"act":""}" data-k="${x.k}">${x.t}</button>`).join("")}</div>
+    ${all.length?ST.map(s=>{const l=all.filter(r=>(r.status||"want")===s.k).sort((a,b)=>(b.updated_at||"").localeCompare(a.updated_at||""));if(!l.length)return"";
+      return `<div class="sh"><span class="stdot" style="background:${s.c}"></span><h2>${s.t}</h2><span class="sub">${l.length}</span></div><div class="list">${l.map(r=>{const d=r.data||{};
+        return `<button class="lrow" data-open="${esc(r.tmdb)}">${thumb(d.poster?d:posterCache(r))}<div class="lt"><b>${esc(d.t||d.title||r.tmdb)}</b><span>${esc(metaOf(d.ty?d:{ty:d.type,y:d.year,r:d.tmdbRating}))}</span>
+          ${r.rating?`<span class="rt">★ ${r.rating}/10 моя оценка</span>`:""}<span style="color:#b9b9c2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(d.d||d.description||"")}</span></div></button>`}).join("")}</div>`}).join("")
+      :`<div class="empty"><strong>Полка пустая</strong>Мега-лайк в свайпе или «На полку» в лайках — и фильм окажется тут.</div>`}</div></div>`;
+  $("#stt").onclick=e=>{const b=e.target.closest("[data-k]");if(b){shelfType=b.dataset.k;renderShelf()}};
+  $("#main").onclick=e=>{const b=e.target.closest("[data-open]");if(b)openShelfItem(b.dataset.open)};
+  fixPosters();
+}
+/* migrated items have only a tmdb key: fetch poster once */
+const PC=(()=>{try{return JSON.parse(localStorage.getItem("pc")||"{}")}catch(e){return{}}})();
+function posterCache(r){return PC[r.tmdb]?{poster:PC[r.tmdb]}:null}
+async function fixPosters(){const miss=[...shelf[who].values()].filter(r=>!r.data?.poster&&/^(movie|tv)-\d+$/.test(r.tmdb)&&!PC[r.tmdb]);
+  for(const r of miss){const [kind,id]=r.tmdb.split("-");try{const d=await tmdb(`/${kind}/${id}`);const it=itemFrom(d,kind);PC[r.tmdb]=it.poster;
+    const nd={...it,...(r.data||{}),poster:it.poster,t:r.data?.title||it.t,ty:it.ty,g:it.g,y:it.y,r:it.r,d:r.data?.description||it.d};r.data=nd;
+    await sb.from("kino_shelf").update({data:nd}).match({person:r.person,tmdb:r.tmdb})}catch(e){}}
+  try{localStorage.setItem("pc",JSON.stringify(PC))}catch(e){}
+  if(miss.length&&view==="shelf")renderShelf()}
+function openShelfItem(k){const r=shelf[who].get(k);if(!r)return;const d=r.data||{};
+  const it=d.kind?d:(/^(movie|tv)-\d+$/.test(k)?{...d,k,kind:k.split("-")[0],id:+k.split("-")[1],t:d.title||d.t,y:d.year,d:d.description,poster:PC[k]}:null);
+  if(it)openDetail(it,r);}
+/* detail page (from lists, shelf, search) */
+async function openDetail(it,shelfRow){
+  const L=$("#layer");
+  L.innerHTML=`<div class="detail" id="det"><div class="dhero">${it.poster?`<img src="${IMG}w780${it.backdrop||it.poster}" alt="">`:""}<button class="dback" id="dBack">${backSvg} Назад</button></div>
+    <div class="dbody pad"><div><div class="sub">${esc(TYPES[it.ty]||"")}${it.y?" · "+esc(it.y):""}${it.g?.length?" · "+esc(it.g.join(", ")):""}</div><h2 class="dtitle">${esc(it.t)}</h2></div>
+    <div id="dAct"></div><div class="gal" id="dGal"></div>
+    <div class="sect"><span class="label">О чём</span><p class="desc">${esc(it.d||"")}</p></div><div id="dX"><div class="spin"></div></div></div></div>`;
+  $("#dBack").onclick=()=>{L.innerHTML="";go(view)};
+  const act=()=>{const r=shelf[who].get(it.k);$("#dAct").innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn red" id="dTr">▶ Трейлер</button>
+      ${r?"":`<button class="btn" id="dAdd">На полку ${GEN[who]}</button>`}</div>
+      ${r?`<div class="sect" style="margin-top:12px"><span class="label">Статус</span><div class="acts">${ST.map(s=>`<button class="act" data-st="${s.k}" style="--c:${s.c}" aria-pressed="${r.status===s.k}">${s.t}</button>`).join("")}</div></div>
+      <div class="sect" style="margin-top:12px"><span class="label">Моя оценка</span><div class="stars">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button data-r="${n}" class="${r.rating>=n?"on":""}">★</button>`).join("")}</div></div>
+      <button class="btn ghost sm" id="dDel" style="margin-top:8px">Убрать с полки</button>`:""}`;
+    const add=$("#dAdd");if(add)add.onclick=async()=>{await addToShelf(who,it);act()};
+    $("#dAct").querySelectorAll("[data-st]").forEach(b=>b.onclick=async()=>{r.status=b.dataset.st;await sb.from("kino_shelf").update({status:r.status,updated_at:new Date().toISOString()}).match({person:who,tmdb:it.k});act()});
+    $("#dAct").querySelectorAll("[data-r]").forEach(b=>b.onclick=async()=>{const n=+b.dataset.r;r.rating=r.rating===n?0:n;await sb.from("kino_shelf").update({rating:r.rating}).match({person:who,tmdb:it.k});act()});
+    const del=$("#dDel");if(del)del.onclick=async()=>{if(del.dataset.c){shelf[who].delete(it.k);await sb.from("kino_shelf").delete().match({person:who,tmdb:it.k});act()}else{del.dataset.c=1;del.textContent="Точно убрать? Нажми ещё раз"}};
+    $("#dTr").onclick=async()=>playTrailer(it,trailerOf(await details(it)));
+  };act();
+  if(!it.kind){$("#dX").innerHTML="";return}
+  const d=await details(it);if(!$("#det"))return;
+  $("#dGal").innerHTML=framesOf(it,d).slice(1).map(f=>`<img src="${f.u}" alt="" loading="lazy">`).join("");
+  $("#dX").innerHTML=detailsHTML(it,d);
+}
+/* search */
+let sq="",sres=[];
+function renderSearch(){
+  $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Поиск","Любой фильм, сериал или аниме")}
+    <input type="search" id="sq" placeholder="Название…" value="${esc(sq)}" autocomplete="off">
+    <div class="list" id="sr" style="margin-top:12px"></div></div></div>`;
+  const draw=()=>{$("#sr").innerHTML=sres.length?sres.map(it=>`<div class="lrow" data-s="${esc(it.k)}">${thumb(it)}<div class="lt"><b>${esc(it.t)}</b><span>${esc(metaOf(it))}</span><span style="color:#b9b9c2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(it.d)}</span>
+      <div class="la">${shelf[who].has(it.k)?`<span class="onsh">На полке ✓</span>`:`<button class="btn red sm" data-add="${esc(it.k)}">На полку</button>`}</div></div></div>`).join(""):sq?`<div class="empty">Ничего не нашлось</div>`:""};
+  draw();let t;$("#sq").oninput=e=>{clearTimeout(t);t=setTimeout(async()=>{sq=e.target.value.trim();if(!sq){sres=[];return draw()}
+    const r=await tmdb("/search/multi",{query:sq,include_adult:"false"});sres=(r.results||[]).filter(x=>(x.media_type==="movie"||x.media_type==="tv")&&x.poster_path).map(x=>itemFrom(x)).slice(0,20);draw()},300)};
+  $("#main").onclick=async e=>{const a=e.target.closest("[data-add]");if(a){const it=sres.find(x=>x.k===a.dataset.add);await addToShelf(who,it);a.outerHTML='<span class="onsh">На полке ✓</span>';toast("На полке "+GEN[who]);return}
+    const row=e.target.closest("[data-s]");if(row)openDetail(sres.find(x=>x.k===row.dataset.s))};
+}
+/* ---------- boot ---------- */
+async function migrateOnce(){
+  if(me.person!=="roma"||shelf.roma.size)return;
+  try{const m=await fetch("migrate.json").then(r=>r.ok?r.json():null);if(!m)return;
+    if(m.shelf?.length){await sb.from("kino_shelf").upsert(m.shelf.map(r=>({...r,added_at:r.added_at||new Date().toISOString()})),{ignoreDuplicates:true})}
+    if(m.swipes?.length){await sb.from("kino_swipes").upsert(m.swipes,{ignoreDuplicates:true})}
+    await loadAll();toast("Перенёс полку со старой страницы")}catch(e){}
+}
+async function start(session){
+  const email=session.user.email.toLowerCase();
+  const {data}=await sb.from("kino_allowed").select("email,person");
+  const mine=(data||[]).find(r=>r.email.toLowerCase()===email);
+  if(!mine){$("#nope").hidden=false;$("#out2").onclick=async()=>{await sb.auth.signOut();location.reload()};return}
+  me={email,person:mine.person};try{who=localStorage.getItem("who")||mine.person}catch(e){who=mine.person}if(!NOM[who])who=mine.person;
+  $("#app").hidden=false;$("#main").innerHTML=`<div class="swempty"><div class="spin"></div></div>`;
+  await Promise.all([loadAll(),loadGenres()]);await migrateOnce();
+  buildSources();go("swipe");
+  // keep the two phones in sync
+  sb.channel("kino").on("postgres_changes",{event:"*",schema:"public",table:"kino_swipes"},p=>{const r=p.new?.person?p.new:p.old;if(!r?.person)return;if(p.eventType==="DELETE")swipes[r.person].delete(r.tmdb);else swipes[r.person].set(r.tmdb,p.new);counts()})
+    .on("postgres_changes",{event:"*",schema:"public",table:"kino_shelf"},p=>{const r=p.new?.person?p.new:p.old;if(!r?.person)return;if(p.eventType==="DELETE")shelf[r.person].delete(r.tmdb);else shelf[r.person].set(r.tmdb,p.new);if(view==="shelf"&&!$("#layer").innerHTML)renderShelf()}).subscribe();
+  document.addEventListener("visibilitychange",async()=>{if(!document.hidden){await loadAll();counts();if(view!=="swipe")go(view)}});
+}
+$("#lf").onsubmit=async e=>{e.preventDefault();const b=$("#lb");b.disabled=true;const email=$("#em").value.trim();
+  const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname,shouldCreateUser:true}});
+  $("#lmsg").textContent=error?"Ошибка: "+error.message:"Письмо отправлено на "+email+". Открой ссылку из него на этом же телефоне.";b.disabled=false};
+(async()=>{const {data:{session}}=await sb.auth.getSession();if(session)start(session);else $("#login").hidden=false;
+  sb.auth.onAuthStateChange((ev,s)=>{if(ev==="SIGNED_IN"&&s&&!me){$("#login").hidden=true;start(s)}})})();
+</script>
+</body>
+</html>
