@@ -58,6 +58,7 @@ input:focus{outline:2px solid var(--red);border-color:transparent}
 #world.on{opacity:1}
 body.inapp #world{display:none}
 .land .sec,.land .hero{position:relative}
+.sec h2,.hero h1{text-shadow:0 4px 30px rgb(0 0 0/.85)}.sec .intro,.hero p.lead{text-shadow:0 2px 14px rgb(0 0 0/.9)}
 .step,.feat,.faq details{background:rgb(18 18 22/.78)!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .feat.wide{background:linear-gradient(135deg,rgb(255 45 63/.22),rgb(18 18 22/.8) 60%)!important}
 .lfoot{background:rgb(11 11 13/.85)}
@@ -481,7 +482,7 @@ function world(posters){
     cam.position.set(Math.sin(prog*Math.PI*2)*1.6+mx*2.2,Math.cos(prog*Math.PI*3)*.8-my*1.4,z);
     cam.rotation.set(-my*.12,-mx*.18,prog*Math.PI*.6+(calm?0:Math.sin(t*.2)*.02));
     for(const m of cards){const u=m.userData;if(!calm){m.rotation.z+=u.spin;m.position.y+=Math.sin(t+u.bob)*.0025}
-      const d=m.position.z-z;m.material.opacity=d>1?0:Math.min(1,Math.max(0,(-d-.5)/5))}
+      const d=m.position.z-z;m.material.opacity=d>1?0:Math.min(.62,Math.max(0,(-d-.5)/5))}
     if(!calm)dust.rotation.z=t*.02;sun.material.opacity=.35+prog*.5;
     r.render(scene,cam);
   })();
