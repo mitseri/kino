@@ -449,9 +449,12 @@ function factsOf(it,d){if(!d)return[];const tv=it.kind==="tv",f=[];const ly=(d.l
   if(tv&&d.networks?.length)f.push(["Канал",d.networks.slice(0,2).map(n=>n.name).join(", ")]);
   return f.filter(x=>x[1])}
 function framesOf(it,d){const out=[];if(it.poster)out.push({u:IMG+"w500"+it.poster,still:false});
-  const all=d?.images?.backdrops||[],bds=all.filter(b=>!b.iso_639_1).sort((a,b)=>b.vote_average-a.vote_average).slice(0,4);
-  (bds.length?bds:all.slice(0,3)).forEach(b=>out.push({u:IMG+"w780"+b.file_path,still:true}));
-  if(out.length===1&&it.backdrop)out.push({u:IMG+"w780"+it.backdrop,still:true});return out}
+  // the "main" backdrop is usually the same key art as the poster — skip it and show real stills from the film
+  const main=d?.backdrop_path||it.backdrop,all=(d?.images?.backdrops||[]).filter(b=>b.file_path!==main),seen=new Set();
+  const pick=all.filter(b=>!b.iso_639_1).sort((a,b)=>b.vote_average-a.vote_average||b.vote_count-a.vote_count)
+    .filter(b=>{const k=Math.round(b.vote_average*10)+":"+b.width;if(seen.has(b.file_path))return false;seen.add(b.file_path);return true}).slice(0,4);
+  pick.forEach(b=>out.push({u:IMG+"w780"+b.file_path,still:true}));
+  if(out.length<2&&main)out.push({u:IMG+"w780"+main,still:true});return out}
 const slim=it=>({k:it.k,kind:it.kind,id:it.id,t:it.t,o:it.o,y:it.y,r:it.r,d:it.d,poster:it.poster,backdrop:it.backdrop,ty:it.ty,g:it.g});
 
 /* ================= LANDING ================= */
@@ -709,7 +712,7 @@ function renderSwipeView(){
       <button class="cb no" id="bN" aria-label="Мимо"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button>
       <button class="cb mega" id="bM" aria-label="Мега-лайк: сразу на полку"><svg viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z" fill="currentColor"/></svg></button>
       <button class="cb yes" id="bY" aria-label="Нравится"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C1 8.7 3 5 6.6 5c2.1 0 3.6 1.2 5.4 3.2C13.8 6.2 15.3 5 17.4 5 21 5 23 8.7 21.6 11.8 19.5 16.4 12 21 12 21z" fill="currentColor"/></svg></button>
-      <button class="cb info" id="bI" aria-label="Подробнее"><svg viewBox="0 0 24 24"><path d="M12 11v6M12 7.5v.01" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg></button>
+      <button class="cb info" id="bI" aria-label="Подробнее"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v5.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="12" cy="7.6" r="1.5" fill="currentColor"/></svg></button>
     </div></div>`;
   $("#kinds").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;const p=prefs||DEF_PREFS();p.kinds=b.dataset.k?[b.dataset.k]:[];savePrefs(p)};
   $("#flt").onclick=openPrefs;$("#bN").onclick=()=>decide("nope");$("#bY").onclick=()=>decide("like");$("#bM").onclick=()=>decide("mega");$("#bU").onclick=undo;
