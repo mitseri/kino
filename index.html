@@ -847,7 +847,7 @@ async function loadImdb(root){const s=root.querySelector("[data-imdb]");if(!s)re
   try{const j=await tmdb("/omdb",{i:s.dataset.imdb});const nm={"Rotten Tomatoes":"🍅 Rotten Tomatoes","Metacritic":"Metacritic"};
     const out=[];if(j.imdb)out.push(`<a class="chip" style="background:#f5c518;color:#000;border-color:transparent;font-weight:800" href="https://www.imdb.com/title/${esc(s.dataset.imdb)}/" target="_blank" rel="noopener">IMDb ★ ${esc(j.imdb)}${j.votes?` <span style="opacity:.6">· ${esc(j.votes)}</span>`:""}</a>`);
     (j.ratings||[]).filter(r=>nm[r.s]).forEach(r=>out.push(`<span class="chip">${nm[r.s]} ${esc(r.v)}</span>`));
-    if(j.awards&&/Won|Oscar/.test(j.awards))out.push(`<span class="chip">🏆 ${esc(j.awards.replace(/Won (\d+) Oscars?/,"Оскар: $1").replace(/(\d+) wins?/,"$1 наград").replace(/(\d+) nominations?/,"$1 номинаций").replace(/Nominated for (\d+) Oscars?/,"номинации на Оскар: $1"))}</span>`);
+    if(j.awards){const o=j.awards.match(/Won (\d+) Oscar/),w=j.awards.match(/(\d+) wins?/);if(o)out.push(`<span class="chip">🏆 Оскар: ${o[1]}</span>`);else if(w)out.push(`<span class="chip">🏆 Наград: ${w[1]}</span>`)}
     if(out.length)s.innerHTML=out.join("");else s.remove()}catch(e){s.remove()}}
 async function loadColl(root){const s=root.querySelector("[data-coll]");if(!s)return;
   try{const c=await tmdb("/collection/"+s.dataset.coll);const parts=(c.parts||[]).filter(p=>p.poster_path).sort((a,b)=>(a.release_date||"9").localeCompare(b.release_date||"9"));
