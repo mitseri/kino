@@ -738,15 +738,18 @@ const CCS=["US","GB","FR","DE","ES","IT","KR","JP","CN","IN","TR","UA","PL","SE"
 const dayAgo=n=>new Date(Date.now()-n*864e5).toISOString().slice(0,10);
 function buildSources(){
   const p=prefs||DEF_PREFS(),kinds=p.kinds?.length?p.kinds:["film","series","anime","kr"];
-  const eras=p.eras?.length?ERAS.filter(e=>p.eras.includes(e.k)):[{}];
+  // no era chosen -> split by all eras anyway: TMDB gives max 500 pages per query, so this multiplies the catalogue
+  const eras=p.eras?.length?ERAS.filter(e=>p.eras.includes(e.k)):ERAS;
   src=[];
   if(p.person?.id){src.push({person:p.person.id,done:false});return}
   if(p.fresh){const t=dayAgo(0);
     src.push({kind:"movie",q:{sort_by:"popularity.desc","vote_count.gte":"15",with_release_type:"4|5","release_date.gte":dayAgo(150),"release_date.lte":t},page:0,done:false});
     src.push({kind:"tv",q:{sort_by:"popularity.desc","vote_count.gte":"40","first_air_date.gte":dayAgo(1100),"air_date.gte":dayAgo(10),"air_date.lte":t,without_genres:"10764,10767,10763,10766"},page:0,done:false});return}
   const moodG=(MOODS.find(m=>m.k===p.mood)||{}).g||[];
-  for(const k of kinds)for(const e of eras){
-    const kind=k==="film"?"movie":"tv",dk=kind==="movie"?"primary_release_date":"first_air_date",q={sort_by:"popularity.desc","vote_count.gte":k==="kr"?"30":"150"};
+  const VOTES={film:"50",series:"20",anime:"20",kr:"5"};
+  const plan=kinds.flatMap(k=>k==="anime"?[["anime","tv"],["anime","movie"]]:[[k,k==="film"?"movie":"tv"]]);
+  for(const [k,kind] of plan)for(const e of eras){
+    const dk=kind==="movie"?"primary_release_date":"first_air_date",q={sort_by:"popularity.desc","vote_count.gte":k==="anime"&&kind==="movie"?"30":VOTES[k]};
     if(e.a)q[dk+".gte"]=e.a;if(e.b)q[dk+".lte"]=e.b;if(p.minR)q["vote_average.gte"]=String(p.minR);
     const yes=[...new Set([...(p.yes||[]),...moodG].flatMap(g=>genreIds(g,kind)))].filter(g=>g!==16||k!=="anime");let no=(p.no||[]).flatMap(g=>genreIds(g,kind));
     if(p.len==="short")q["with_runtime.lte"]=kind==="movie"?"100":"30";if(p.len==="long"&&kind==="movie")q["with_runtime.gte"]="140";
