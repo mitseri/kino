@@ -1079,7 +1079,7 @@ async function start(session){
   if(started)return;started=true;track("login");
   $("#land").hidden=true;closeModal();$("#app").hidden=false;document.body.classList.add("inapp");
   $("#main").innerHTML=`<div class="swempty"><div class="spin"></div></div>`;
-  sb=REAL_SB;const p=await ensureProfile(session.user);me={...p,email:session.user.email};await migrateGuest();
+  sb=REAL_SB;const p=await ensureProfile(session.user);me={...p,email:session.user.email};await migrateGuest();if(window.LANG&&p.lang!==window.LANG)sb.from("km_profiles").update({lang:window.LANG}).eq("user_id",p.user_id).then(()=>{});
   await Promise.all([loadAll(),loadGenres()]);await importFirstVersion();
   const pair=new URLSearchParams(location.search).get("pair");
   if(pair){history.replaceState(null,"",location.pathname);if(!partner&&pair.toUpperCase()!==me.pair_code)await pairWith(pair)}

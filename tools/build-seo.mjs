@@ -35,7 +35,7 @@ const T = {
 function daysAgo(n) { return new Date(Date.now() - n * 864e5).toISOString().slice(0, 10); }
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
 const TR = {а:"a",б:"b",в:"v",г:"g",ґ:"g",д:"d",е:"e",є:"ye",ё:"e",ж:"zh",з:"z",и:"i",і:"i",ї:"yi",й:"y",к:"k",л:"l",м:"m",н:"n",о:"o",п:"p",р:"r",с:"s",т:"t",у:"u",ф:"f",х:"h",ц:"ts",ч:"ch",ш:"sh",щ:"sch",ъ:"",ы:"y",ь:"",э:"e",ю:"yu",я:"ya"};
-const slug = s => String(s || "").toLowerCase().split("").map(c => TR[c] ?? c).join("").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "film";
+const slug = (s, fb = "film") => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().split("").map(c => TR[c] ?? c).join("").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || fb;
 
 async function tmdb(p, q = {}, lang = "ru-RU", tries = 3) {
   const u = new URL(PROXY); u.searchParams.set("p", p); u.searchParams.set("language", lang);
@@ -131,7 +131,7 @@ async function main() {
   const actors = [...people.values()].filter(p => p.films.length >= 4).sort((a, b) => b.films.length - a.films.length).slice(0, Number(process.env.MAXA || 500));
   await pool(actors, 10, async p => { for (const lang of Object.keys(LANGS)) p[lang] = await tmdb(`/person/${p.id}`, {}, LANGS[lang].tmdb); });
   const ACT = new Map(actors.filter(p => p.ru && p.uk).map(p => [p.id, p]));
-  for (const p of ACT.values()) p.slug = slug(p.uk?.name && /[a-z]/i.test(p.uk.name) ? p.uk.name : p.name);
+  for (const p of ACT.values()) p.slug = slug(p.name, "akter");
   const actUrl = (lang, p) => `/${LANGS[lang].dir}aktery/${p.id}-${p.slug}.html`;
   // "similar to X" pages for the most popular titles
   const SIM = new Set([...BUILT].sort((a, b) => (films.get(b).ru.popularity || 0) - (films.get(a).ru.popularity || 0)).slice(0, Number(process.env.MAXS || 400)).filter(k => (films.get(k).ru.recommendations?.results || []).length >= 6));
