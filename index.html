@@ -31,7 +31,7 @@
 <link rel="preconnect" href="https://ebswykhozbzobrypderu.supabase.co" crossorigin>
 <link rel="dns-prefetch" href="https://www.youtube-nocookie.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@600;800;900&display=swap">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23ff2d3f'/%3E%3Crect x='14' y='16' width='22' height='32' rx='5' fill='%23fff' opacity='.55' transform='rotate(-10 25 32)'/%3E%3Crect x='28' y='16' width='22' height='32' rx='5' fill='%23fff' transform='rotate(10 39 32)'/%3E%3Cpath d='M39 39s-6-3.6-7.5-7c-1-2.4.6-5 3-5 1.5 0 2.5.8 4.5 2.5 2-1.7 3-2.5 4.5-2.5 2.4 0 4 2.6 3 5-1.5 3.4-7.5 7-7.5 7z' fill='%23ff2d3f'/%3E%3C/svg%3E">
+<link rel="icon" href="logo.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
 /* Layout: logged-out = cinematic landing (hero with fanned posters, steps, features, poster marquee, FAQ, footer with TMDB credit).
    Logged-in = full-height app: swipe deck + bottom tab bar; sheets and a full-screen detail page on top. */
@@ -381,6 +381,15 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .mb:disabled{opacity:.35}
 :root[data-theme=light] body.inapp .bigb.no{background:rgb(255 45 63/.08)}
 html.km-authed #land{display:none}
+.cap .kf{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.cap .kf:empty{display:none}
+.cap .kf span{font:800 .7rem var(--font);padding:3px 8px;border-radius:999px;background:rgb(0 0 0/.55);border:1px solid rgb(255 255 255/.14);backdrop-filter:blur(6px)}
+.cap .kf .imdb{background:#f5c518;color:#000;border-color:transparent}
+.keys{display:none;justify-content:center;flex-wrap:wrap;gap:4px 12px;color:var(--muted);font:700 .68rem var(--font)}
+.keys kbd{font:800 .66rem var(--font);border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 5px;background:var(--surface2);color:var(--ink)}
+@media (hover:hover) and (pointer:fine){.keys{display:flex}}
+.fan{touch-action:pan-y;cursor:grab}.fan .pc{will-change:transform}
+.fanhint{position:absolute;left:50%;bottom:-34px;transform:translateX(-50%);white-space:nowrap;font:800 .75rem var(--font);color:var(--muted);letter-spacing:.04em}
+.fan[data-dir=yes] .tag.l{opacity:1;transform:scale(1.15)}.fan[data-dir=no]::after{content:"Мимо";position:absolute;top:18px;left:10px;font:900 1rem var(--font);color:#ff6a77;border:3px solid #ff6a77;border-radius:10px;padding:4px 10px;transform:rotate(-12deg)}
 </style>
 </head>
 <body>
@@ -389,7 +398,7 @@ html.km-authed #land{display:none}
 <canvas id="world" aria-hidden="true"></canvas>
 <div class="land" id="land">
   <header class="lnav"><div class="in pad">
-    <a class="logo" href="#top"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#ff2d3f"/><rect x="14" y="16" width="22" height="32" rx="5" fill="#fff" opacity=".55" transform="rotate(-10 25 32)"/><rect x="28" y="16" width="22" height="32" rx="5" fill="#fff" transform="rotate(10 39 32)"/><path d="M39 39s-6-3.6-7.5-7c-1-2.4.6-5 3-5 1.5 0 2.5.8 4.5 2.5 2-1.7 3-2.5 4.5-2.5 2.4 0 4 2.6 3 5-1.5 3.4-7.5 7-7.5 7z" fill="#ff2d3f"/></svg>Kinomatch</a>
+    <a class="logo" href="#top"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="kmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff2d3f"/><stop offset="1" stop-color="#ff7a3c"/></linearGradient></defs><rect width="64" height="64" rx="18" fill="url(#kmg)"/><rect x="13" y="15" width="22" height="33" rx="6" fill="#fff" opacity=".42" transform="rotate(-12 24 31)"/><rect x="28" y="14" width="23" height="34" rx="6" fill="#fff" transform="rotate(9 39 31)"/><path d="M39.6 38.6s-6.4-3.8-8-7.4c-1.1-2.5.6-5.3 3.2-5.3 1.6 0 2.7.9 4.8 2.7 2.1-1.8 3.2-2.7 4.8-2.7 2.6 0 4.3 2.8 3.2 5.3-1.6 3.6-8 7.4-8 7.4z" fill="#ff2d3f"/></svg>Kinomatch</a>
     <select id="langSel" aria-label="Язык" style="background:transparent;color:inherit;border:1px solid rgb(255 255 255/.2);border-radius:10px;padding:6px 8px;font:700 .8rem var(--font)"><option value="ru">RU</option><option value="uk">UA</option><option value="en">EN</option></select>
     <nav class="links"><a href="#how">Как это работает</a><a href="#feat">Возможности</a><a href="#faq">Вопросы</a></nav>
     <button class="btn red sm" data-login>Войти</button>
@@ -400,12 +409,12 @@ html.km-authed #land{display:none}
       <span class="eyebrow">♥ Тиндер для фильмов</span>
       <h1>Что смотрим <em>сегодня?</em></h1>
       <p class="lead">Свайпайте фильмы, сериалы, аниме и дорамы вдвоём. Когда понравится обоим — мэтч. Больше никаких «давай ты выберешь» по полчаса.</p>
-      <div class="cta"><button class="btn red big" data-login>Начать бесплатно</button><a class="btn big" href="#how">Как это работает</a></div>
-      <div class="proof"><div><b>∞</b>фильмов и сериалов</div><div><b>2</b>вас — один мэтч</div><div><b>0 ₴</b>и без рекламы</div></div>
+      <div class="cta"><button class="btn red big" data-guest>Свайпать без регистрации</button><button class="btn big" data-login>Войти</button></div>
+      <div class="proof"><div><b>45 000+</b>фильмов и сериалов</div><div><b id="stSw">2</b><span id="stSwL">вас — один мэтч</span></div><div><b>0 ₴</b>и без рекламы</div></div>
     </div>
     <div class="fan" aria-hidden="true">
-      <div class="pc"><img id="hp1" alt=""></div><div class="pc"><img id="hp2" alt=""></div><div class="pc"><img id="hp3" alt=""></div>
-      <span class="tag l">Нравится</span><span class="tag m">Мэтч!</span>
+      <div class="pc"><img id="hp1" alt="" src="https://image.tmdb.org/t/p/w342/vLl5tcuabARqGBefccSsYAYXdgA.jpg" fetchpriority="high"></div><div class="pc"><img id="hp2" alt="" src="https://image.tmdb.org/t/p/w342/n7NR7SH7CyiiF70yN96r3d1jWr0.jpg" fetchpriority="high"></div><div class="pc"><img id="hp3" alt="" src="https://image.tmdb.org/t/p/w342/909iKtZQg7PWjBxNuFkTCd1LrGW.jpg" fetchpriority="high"></div>
+      <span class="tag l">Нравится</span><span class="tag m">Мэтч!</span><span class="fanhint">← потяни карточку →</span>
     </div>
   </section>
 
@@ -455,7 +464,7 @@ html.km-authed #land{display:none}
   <section class="sec pad final">
     <h2>Хватит выбирать дольше, чем смотреть</h2>
     <p class="intro" style="margin-inline:auto">Регистрация за 20 секунд — по логину и паролю.</p>
-    <button class="btn red big" data-login>Начать бесплатно</button>
+    <button class="btn red big" data-guest>Свайпать без регистрации</button>
   </section>
 
   <footer class="lfoot"><div class="in pad">
@@ -487,7 +496,7 @@ html.km-authed #land{display:none}
 const BRAND="Kinomatch";
 const SB_URL="https://ebswykhozbzobrypderu.supabase.co";
 const SB_KEY="sb_publishable_gUTbeq9JD9WOfaVDL5oPIA_8tt__0Us";
-const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,detectSessionInUrl:true,flowType:"implicit"}});
+let sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,detectSessionInUrl:true,flowType:"implicit"}});
 const IMG="https://image.tmdb.org/t/p/";
 const SITE="https://kinomatch-ua.netlify.app/";
 let SND_ON=true,SNDC=null;try{SND_ON=JSON.parse(localStorage.getItem("snd")??"true")}catch(e){}
@@ -582,13 +591,15 @@ const slim=it=>({k:it.k,kind:it.kind,id:it.id,t:it.t,o:it.o,y:it.y,r:it.r,d:it.d
 async function initLanding(){document.documentElement.classList.remove("km-authed");
   const lsel=$("#langSel");if(lsel){lsel.value=window.LANG||"ru";lsel.onchange=()=>{ls.set("lang",lsel.value);location.reload()}}
   $("#land").hidden=false;document.body.classList.remove("inapp");setTimeout(()=>loadGenres().then(openFromLink).catch(()=>{}),300);
-  document.querySelectorAll("[data-login]").forEach(b=>b.onclick=openLogin);
+  document.querySelectorAll("[data-login]").forEach(b=>b.onclick=()=>openLogin());
+  document.querySelectorAll("[data-guest]").forEach(b=>b.onclick=startGuest);
+  demoFan();sb.rpc("km_stats").then(({data})=>{if(data?.swipes>=200){$("#stSw").textContent=data.swipes.toLocaleString("ru-RU");$("#stSwL").textContent="свайпов уже сделали"}}).catch(()=>{});
   document.querySelectorAll("[data-privacy]").forEach(b=>b.onclick=e=>{e.preventDefault();openPrivacy()});
   if(location.hash==="#privacy")openPrivacy();
   if(new URLSearchParams(location.search).get("pair"))openLogin();
   try{const [a,b]=await Promise.all([tmdb("/trending/all/week"),tmdb("/movie/top_rated")]);
     const ps=[...(a.results||[]),...(b.results||[])].filter(x=>x.poster_path).map(x=>x.poster_path);
-    ["#hp1","#hp2","#hp3"].forEach((s,i)=>{if(ps[i])$(s).src=IMG+"w500"+ps[i]});
+    ["#hp1","#hp2","#hp3"].forEach((s,i)=>{if(!ps[i])return;const im=new Image();im.onload=()=>{const el=$(s);el.style.transition="opacity .5s";el.style.opacity=0;setTimeout(()=>{el.src=im.src;el.style.opacity=1},250)};im.src=IMG+"w342"+ps[i]});
     // each row must be at least twice the screen wide, or the loop shows an empty gap
     const row=arr=>{if(!arr.length)arr=ps;let a=[...arr];while(a.length<24)a=a.concat(arr);return a.concat(a).map(p=>`<img src="${IMG}w185${p}" alt="">`).join("")};
     const half=Math.max(8,Math.floor((ps.length-3)/2));
@@ -718,7 +729,8 @@ function openPrivacy(){
 
 /* ================= APP STATE ================= */
 let me=null,partner=null,mine={shelf:new Map(),swipes:new Map(),rx:new Map()},theirs={shelf:new Map(),swipes:new Map(),rx:new Map()},prefs=null,view="swipe",recsIn=new Map(),recsOut=new Map(),lists=[],listItems=new Map(),watchSet=new Map(),night=null;
-const DEF_PREFS=()=>({kinds:[],yes:[],no:[],eras:[],minR:0,mood:"",len:"",cc:[],person:null,fresh:false});
+const DEF_PREFS=()=>({kinds:[],yes:[],no:[],eras:[],minR:0,mood:"",len:"",cc:[],prov:[],person:null,fresh:false});
+let PROVS=null;async function loadProvs(){if(PROVS)return PROVS;try{const r=await tmdb("/watch/providers/movie",{watch_region:"UA"});PROVS=(r.results||[]).sort((a,b)=>(a.display_priorities?.UA??a.display_priority??99)-(b.display_priorities?.UA??b.display_priority??99)).slice(0,14).map(x=>({id:x.provider_id,n:x.provider_name,l:x.logo_path}))}catch(e){PROVS=[]}return PROVS}
 const myName=()=>me?.name||"Я",ptName=()=>partner?.name||"Партнёр";
 async function loadAll(){
   const [s,w,p,pr,rc,rx,li,lit,wt]=await Promise.all([sb.from("km_shelf").select("*"),sb.from("km_swipes").select("user_id,tmdb,v,mega,data,at"),sb.from("km_prefs").select("prefs").eq("user_id",me.user_id).maybeSingle(),sb.from("km_profiles").select("*"),
@@ -782,6 +794,7 @@ function buildSources(){
     const yes=[...new Set([...(p.yes||[]),...moodG].flatMap(g=>genreIds(g,kind)))].filter(g=>g!==16||k!=="anime");let no=(p.no||[]).flatMap(g=>genreIds(g,kind));
     if(p.len==="short")q["with_runtime.lte"]=kind==="movie"?"100":"30";if(p.len==="long"&&kind==="movie")q["with_runtime.gte"]="140";
     if(p.cc?.length&&k!=="anime"&&k!=="kr")q.with_origin_country=p.cc.join("|");
+    if(p.prov?.length){q.with_watch_providers=p.prov.join("|");q.watch_region="UA";q.with_watch_monetization_types="flatrate|free|ads"}
     if(k==="anime"){q.with_genres=[16,...yes.slice(0,1)].join(",");q.with_original_language="ja"}
     else{if(yes.length)q.with_genres=yes.join("|");no=[...no,16]}
     if(k==="kr")q.with_original_language="ko";
@@ -808,7 +821,7 @@ async function fill(min=8){
           .sort((a,b)=>(b.vote_count||0)-(a.vote_count||0)).map(x=>itemFrom(x,x.media_type)).filter(x=>!seenK(x.k));deck.push(...items);continue}
       const r=await tmdb("/discover/"+s.kind,{...s.q,page:String(s.page)});
       if(!r.results?.length||s.page>=r.total_pages)s.done=true;
-      const items=(r.results||[]).filter(x=>x.poster_path&&x.overview).map(x=>itemFrom(x,s.kind)).filter(x=>!seenK(x.k));
+      const items=(r.results||[]).filter(x=>x.poster_path&&(x.overview||window.LANG!=="ru")).map(x=>itemFrom(x,s.kind)).filter(x=>!seenK(x.k));
       for(let i=items.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[items[i],items[j]]=[items[j],items[i]]}
       deck.push(...smartSort(items));
     }
@@ -834,7 +847,7 @@ document.addEventListener("click",e=>{if(e.target.closest("#meBtn"))openProfile(
 function sheet(html){const L=$("#det")?$("#sheetRoot"):$("#layer");$("#sheetRoot").innerHTML="";L.innerHTML=`<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`;$("#scrim").onclick=e=>{if(e.target.id==="scrim")closeSheet()}}
 function closeSheet(){if($("#sheetRoot").innerHTML)$("#sheetRoot").innerHTML="";else $("#layer").innerHTML=""}
 const inviteLink=()=>location.origin+location.pathname+"?pair="+me.pair_code;
-function openProfile(){
+function openProfile(){if(needAccount("Профиль, пара, фото и уведомления"))return;
   sheet(`<h2>Профиль</h2>
     <div class="sect"><span class="label">Фото</span><div style="display:flex;align-items:center;gap:12px"><span style="transform:scale(1.8);margin:0 14px 0 18px">${myAv()}</span><label class="btn" style="cursor:pointer">Загрузить фото<input type="file" id="avF" accept="image/*" hidden></label></div></div>
     <div class="sect"><span class="label">Как вас зовут</span><div style="display:flex;gap:8px"><input type="text" id="nm" maxlength="30" value="${esc(me.name)}" placeholder="Имя"><button class="btn" id="nmB">Сохранить</button></div></div>
@@ -907,7 +920,7 @@ function nightListen(){if(!partner||nightCh)return;const key=[me.user_id,partner
     .on("broadcast",{event:"end"},()=>{if(night){toast(`${ptName()} завершил(а) вечер кино`);nightSummary()}})
     .subscribe()}
 function nightSend(event,payload){try{nightCh?.send({type:"broadcast",event,payload})}catch(e){}}
-async function startNight(){if(!partner)return;toast("Собираю колоду на вечер…");const keep=night;night=null;await fill(36);
+async function startNight(){if(needAccount("Вечер кино"))return;if(!partner)return;toast("Собираю колоду на вечер…");const keep=night;night=null;await fill(36);
   const d=deck.filter(x=>!mine.swipes.has(x.k)).slice(0,36).map(x=>({...slim(x),why:x.why}));if(d.length<5){toast("Мало фильмов по фильтру — ослабьте фильтры");night=keep;return}
   night={deck:d,their:new Map(),mine:new Map(),matches:[],joined:false};deck=d.slice();nightSend("invite",{deck:d});ls.set("nights",(+ls.get("nights",0))+1);
   tgCall({action:"notify",kind:"night"});go("swipe");toast(`Приглашение отправлено ${ptName()}`)}
@@ -970,7 +983,7 @@ function tilt(el){if(!matchMedia("(hover:hover)").matches)return;const g=el.quer
 
 /* ---------- swipe view ---------- */
 function renderSwipeView(){
-  const p=prefs||DEF_PREFS(),nf=(p.yes?.length||0)+(p.no?.length||0)+(p.eras?.length||0)+(p.minR?1:0)+(p.mood?1:0)+(p.len?1:0)+(p.cc?.length||0),kk=p.fresh?"fresh":p.kinds?.length===1?p.kinds[0]:"";
+  const p=prefs||DEF_PREFS(),nf=(p.yes?.length||0)+(p.no?.length||0)+(p.eras?.length||0)+(p.minR?1:0)+(p.mood?1:0)+(p.len?1:0)+(p.cc?.length||0)+(p.prov?.length||0),kk=p.fresh?"fresh":p.kinds?.length===1?p.kinds[0]:"";
   $("#main").innerHTML=`<div class="view swv" style="overflow:hidden"><div class="wrap pad" style="width:100%">${topBar("Свайп",partner?`Вы с ${esc(ptName())} в паре`:"")}
     ${partner?"":`<button class="banner" id="pairBanner"><span class="duo">${myAv()}<span class="av pt">+</span></span><span><b>Позовите пару</b><span>Чтобы ловить общие мэтчи</span></span></button>`}
     ${night?`<div class="nightbar"><span style="font-size:1.5rem">🍿</span><span class="grow"><b>Вечер кино с ${esc(ptName())}</b><span id="nightInfo">${nightInfo()}</span></span><button class="btn sm" id="nightEnd">Итоги</button></div>`
@@ -982,6 +995,7 @@ function renderSwipeView(){
     <div class="ctrl2 pad">
       <div class="big2"><button class="bigb no" id="bN" aria-label="Мимо"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>Мимо</button>
         <button class="bigb yes" id="bY" aria-label="Хочу"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C1 8.7 3 5 6.6 5c2.1 0 3.6 1.2 5.4 3.2C13.8 6.2 15.3 5 17.4 5 21 5 23 8.7 21.6 11.8 19.5 16.4 12 21 12 21z" fill="currentColor"/></svg>Хочу</button></div>
+      <div class="keys" aria-hidden="true"><span><kbd>←</kbd> мимо</span><span><kbd>→</kbd> хочу</span><span><kbd>↑</kbd> мега</span><span><kbd>↓</kbd> смотрел</span><span><kbd>Пробел</kbd> трейлер</span><span><kbd>I</kbd> инфо</span><span><kbd>Z</kbd> вернуть</span></div>
       <div class="mini2">
         <button class="mb undo" id="bU" aria-label="Вернуть"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>Вернуть</button>
         <button class="mb mega" id="bM" aria-label="Мега-лайк: сразу на полку"><svg viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z" fill="currentColor"/></svg>Мега</button>
@@ -1005,7 +1019,7 @@ function cardHTML(it,front){const pl=partner&&theirs.swipes.get(it.k)?.v==="like
       <div class="gen">${it.why?`<span class="why">✨ Похоже на «${esc(it.why)}»</span>`:""}${rc?`<span class="rc">💌 ${esc(ptName())} советует</span>`:""}${pl?`<span class="liked">♥ ${esc(ptName())} уже лайкнул(а)</span>`:""}<span class="ty">${TYPES[it.ty]||""}</span>${(it.g||[]).map(x=>`<span class="gn">${esc(cap1(x))}</span>`).join("")}</div>
       <span class="stamp yes">Нравится</span><span class="stamp no">Мимо</span><span class="stamp mega">Мега-лайк</span>
       <button class="trb" data-tr type="button"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>Трейлер</button>
-      <div class="cap"><b>${esc(it.t)}</b><div class="m">${it.y?`<span>${esc(it.y)}</span>`:""}${it.r?`<span class="rt">★ ${it.r}</span>`:""}</div></div></div>
+      <div class="cap"><b>${esc(it.t)}</b><div class="m">${it.y?`<span>${esc(it.y)}</span>`:""}${it.r?`<span class="rt">★ ${it.r}</span>`:""}</div><div class="kf"></div></div></div>
     <div class="info"><button class="more" type="button">↓ Подробнее · свайп вверх — мега-лайк</button>${rc?`<span class="recn">💌 <b>${esc(ptName())}</b> советует${rc.note?`: «${esc(rc.note)}»`:""}</span>`:""}<div class="sect"><span class="label">О чём</span><p class="desc">${esc(it.d)}</p></div><div class="dx"><div class="spin"></div></div></div></div>`}
 function detailsHTML(it,d){const x=d||{},w=whereOf(it,d),q=qualOf(it,d),vids=videosOf(d);
   const dirs=it.kind==="tv"?(x.created_by||[]).map(c=>({id:c.id,name:c.name,profile_path:c.profile_path,character:"создатель"})):(x.credits?.crew||[]).filter(c=>c.job==="Director").map(c=>({...c,character:"режиссёр"}));
@@ -1019,12 +1033,21 @@ function detailsHTML(it,d){const x=d||{},w=whereOf(it,d),q=qualOf(it,d),vids=vid
     <div class="sect"><span class="label">Где смотреть в Украине</span><div class="chips">${w.length?w.map(p=>`<a class="chip ${p.sub?"free":""}" href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)} · ${p.sub?"подписка":"купить"} ›</a>`).join(""):`<a class="chip" href="https://www.justwatch.com/ua/search?q=${encodeURIComponent(it.t)}" target="_blank" rel="noopener">В Украине не найдено · искать ›</a>`}</div></div>`}
 async function hydrateCard(el,it){
   const d=await details(it);if(!el.isConnected)return;
+  if(d&&!d.overview&&window.LANG!=="ru"){try{const en=await tmdb(`/${it.kind}/${it.id}`,{language:"en-US"});if(en?.overview){d.overview=en.overview;it.d=en.overview;const dd=el.querySelector(".desc,.clamp");if(dd&&!dd.textContent.trim())dd.textContent=en.overview}}catch(e){}}
   el._frames=framesOf(it,d);el._i=0;
   el.querySelector(".bars").innerHTML=el._frames.length>1?el._frames.map((_,j)=>`<span class="${j?"":"on"}"></span>`).join(""):"";
   const dx=el.querySelector(".dx");if(dx){dx.outerHTML=detailsHTML(it,d);loadColl(el);loadImdb(el)}
+  keyFacts(el,it,d);
   const tr=trailerOf(d),b=el.querySelector("[data-tr]");b.onclick=e=>{e.stopPropagation();playTrailer(it,tr)};
   el._frames.slice(1).forEach(f=>{const im=new Image();im.src=f.u});showFrame(el,0);
 }
+function keyFacts(el,it,d){const kf=el.querySelector(".kf");if(!kf||!d)return;const tv=it.kind==="tv",out=[];
+  const rt=tv?((d.episode_run_time||[])[0]||d.last_episode_to_air?.runtime):d.runtime;
+  if(tv&&d.number_of_seasons)out.push(RN(d.number_of_seasons,"сезон","сезона","сезонов"));else if(rt)out.push(rt>=60?`${Math.floor(rt/60)} ч ${rt%60?rt%60+" мин":""}`.trim():`${rt} мин`);
+  const age=ageOf(it,d);if(age)out.push(age);
+  const ua=d["watch/providers"]?.results?.UA,pv=(ua?.flatrate||ua?.free||ua?.ads||[])[0];if(pv)out.push("▶ "+pv.provider_name);
+  kf.innerHTML=out.map(x=>`<span>${esc(x)}</span>`).join("");
+  const imdb=d.imdb_id||d.external_ids?.imdb_id;if(imdb)tmdb("/omdb",{i:imdb}).then(j=>{if(j?.imdb&&kf.isConnected)kf.insertAdjacentHTML("afterbegin",`<span class="imdb">IMDb ${esc(j.imdb)}</span>`)}).catch(()=>{})}
 const COLLI=new Map();
 async function loadImdb(root){const s=root.querySelector("[data-imdb]");if(!s)return;
   try{const j=await tmdb("/omdb",{i:s.dataset.imdb});const nm={"Rotten Tomatoes":"🍅 Rotten Tomatoes","Metacritic":"Metacritic"};
@@ -1057,7 +1080,7 @@ function renderSwipe(loadingNow){
 }
 function attachDrag(el){
   let x0=0,y0=0,dx=0,dy=0,id=null,moved=false,locked=false,up=false,onPic=false;const st=s=>el.querySelector(".stamp."+s);
-  el.addEventListener("pointerdown",e=>{if(busy||e.target.closest("a,button,.cast,.coll,.chips"))return;id=e.pointerId;x0=e.clientX;y0=e.clientY;dx=dy=0;moved=false;locked=false;up=false;onPic=!!e.target.closest(".pic");el._drag=true;el.style.transition="none"});
+  let t0=0;el.addEventListener("pointerdown",e=>{if(busy||e.target.closest("a,button,.cast,.coll,.chips"))return;t0=performance.now();id=e.pointerId;x0=e.clientX;y0=e.clientY;dx=dy=0;moved=false;locked=false;up=false;onPic=!!e.target.closest(".pic");el._drag=true;el.style.transition="none"});
   el.addEventListener("pointermove",e=>{if(e.pointerId!==id)return;dx=e.clientX-x0;dy=e.clientY-y0;
     if(!locked){if(Math.abs(dy)>8&&Math.abs(dy)>Math.abs(dx)){
         if(onPic&&dy<0&&el.scrollTop<8){locked=true;up=true;try{el.setPointerCapture(e.pointerId)}catch(_){}}
@@ -1068,21 +1091,23 @@ function attachDrag(el){
     if(up){el.style.transform=`translate(${dx*.2}px,${Math.min(0,dy)}px) scale(${1+Math.max(0,-dy)/1500})`;st("mega").style.opacity=Math.max(0,Math.min(1,-dy/110));return}
     el.style.transform=`translate(${dx}px,${dy*.2}px) rotate(${dx/18}deg)`;st("yes").style.opacity=Math.max(0,Math.min(1,dx/90));st("no").style.opacity=Math.max(0,Math.min(1,-dx/90))});
   const end=e=>{if(e.pointerId!==id)return;id=null;el._drag=false;
-    if(moved&&up&&dy<-110){decide("mega",true)}
+    const fast=(performance.now()-t0)<420;
+    if(moved&&up&&(dy<-220||(dy<-110&&fast))){decide("mega",true);if(!ls.get("megaHint",false)){ls.set("megaHint",true);setTimeout(()=>toast("Это был мега-лайк ⭐ — фильм на полке. Передумали? Кнопка «Вернуть»"),400)}}
     else if(moved&&!up&&Math.abs(dx)>100){decide(dx>0?"like":"nope",true)}
     else{el.style.transition="transform .25s";el.style.transform="";st("yes").style.opacity=st("no").style.opacity=st("mega").style.opacity=0;
       if(!moved&&e.target.closest(".pic")){const r=el.getBoundingClientRect();showFrame(el,(el._i||0)+(e.clientX-r.left<r.width/3?-1:1))}}};
   el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);
 }
 document.addEventListener("keydown",e=>{if(view!=="swipe"||$("#layer").innerHTML||$("#modalRoot").innerHTML||/INPUT|TEXTAREA/.test(document.activeElement?.tagName))return;
-  if(e.key==="ArrowRight")decide("like");else if(e.key==="ArrowLeft")decide("nope");else if(e.key==="ArrowUp")decide("mega")});
+  if(e.key==="ArrowRight")decide("like");else if(e.key==="ArrowLeft")decide("nope");else if(e.key==="ArrowUp")decide("mega");else if(e.key==="ArrowDown"){e.preventDefault();decide("seen")}
+  else if(e.key===" "){e.preventDefault();$("#stack .sc.front [data-tr]")?.click()}else if(e.key.toLowerCase()==="i"||e.key==="ш")$("#bI")?.click();else if(e.key==="Backspace"||e.key.toLowerCase()==="z"||e.key==="я")$("#bU")?.click()});
 async function decide(v,dragged){
   if(busy||!deck.length)return;busy=true;const it=deck[0],el=$("#stack .sc.front"),like=v==="like"||v==="mega";
   if(el){const dir=like?1:-1;el.style.transition="transform .3s ease-out,opacity .3s";const sp=el.querySelector(".stamp."+(v==="mega"?"mega":like?"yes":"no"));if(v!=="seen")sp.style.opacity=1;
     el.style.transform=v==="mega"?`translateY(${-Math.max(innerHeight,700)}px)`:v==="seen"?`translateY(${Math.max(innerHeight,700)}px) scale(.9)`:`translate(${dir*Math.max(innerWidth,500)}px,${dragged?0:-30}px) rotate(${dir*24}deg)`;el.style.opacity=.6}
   if(v!=="seen")burst(v,$(v==="mega"?"#bM":like?"#bY":"#bN"));snd(v);if(night)nightSend("swipe",{k:it.k,v:v==="seen"?"seen":like?"like":"nope"});if(navigator.vibrate)try{navigator.vibrate(v==="mega"?[10,40,10]:8)}catch(e){}
   const row={user_id:me.user_id,tmdb:it.k,v:v==="seen"?"seen":like?"like":"nope",mega:v==="mega",data:slim(it),at:new Date().toISOString()};
-  mine.swipes.set(it.k,row);deck.shift();if(night){night.mine.set(it.k,row.v);setTimeout(nightUpd,0)}hist.push({it,mega:v==="mega",seen:v==="seen"});
+  mine.swipes.set(it.k,row);deck.shift();if(me.guest&&mine.swipes.size%15===0)setTimeout(()=>needAccount(`Вы уже оценили ${mine.swipes.size} фильмов — сохраните их`),500);if(night){night.mine.set(it.k,row.v);setTimeout(nightUpd,0)}hist.push({it,mega:v==="mega",seen:v==="seen"});
   const rc=recsIn.get(it.k);if(rc&&!rc.seen){rc.seen=true;sb.from("km_recs").update({seen:true}).eq("id",rc.id).then(()=>{})}if(hist.length>30)hist.shift();
   setTimeout(()=>{busy=false;renderSwipe();counts();if(deck.length<6)fill().then(()=>{if(view==="swipe")renderSwipe()})},230);
   const {error}=await sb.from("km_swipes").upsert(row);if(error)return toast("Не сохранилось: "+error.message);
@@ -1101,8 +1126,8 @@ function playTrailer(it,tr){
   if(!tr){if(it)window.open("https://www.youtube.com/results?search_query="+encodeURIComponent((it.o||it.t)+" трейлер"),"_blank");return}
   const L=$("#modalRoot");L.innerHTML=`<div class="vid" id="vd"><button class="x" id="vx" aria-label="Закрыть">✕</button><div class="frame"><iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(tr.key)}?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="Трейлер"></iframe></div></div>`;
   $("#vx").onclick=()=>L.innerHTML="";$("#vd").onclick=e=>{if(e.target.id==="vd")L.innerHTML=""}}
-function openPrefs(){
-  const p={...DEF_PREFS(),...JSON.parse(JSON.stringify(prefs||{}))};["kinds","yes","no","eras","cc"].forEach(k=>p[k]=p[k]||[]);
+async function openPrefs(){
+  const p={...DEF_PREFS(),...JSON.parse(JSON.stringify(prefs||{}))};["kinds","yes","no","eras","cc","prov"].forEach(k=>p[k]=p[k]||[]);const provs=await loadProvs();
   const draw=()=>{const sc=$(".sheet")?.scrollTop||0,gs=g=>p.yes.includes(g)?"yes":p.no.includes(g)?"no":"";
     sheet(`<h2>Что вам нравится?</h2><p class="sub" style="margin:-6px 0 0">Тап по жанру — нравится, ещё тап — не показывать.</p>
       <div class="sect"><span class="label">Что смотрим</span><div class="seg" id="pK">${KINDS.map(x=>`<button data-v="${x.k}" aria-pressed="${p.kinds.includes(x.k)}">${x.t}</button>`).join("")}</div></div>
@@ -1110,6 +1135,7 @@ function openPrefs(){
       <div class="sect"><span class="label">Сколько времени есть</span><div class="seg" id="pL">${[{k:"",t:"Неважно"},...LENS].map(x=>`<button data-v="${x.k}" aria-pressed="${p.len===x.k}">${x.t}${x.s?` <small style="opacity:.6;font-weight:600">${x.s}</small>`:""}</button>`).join("")}</div></div>
       <div class="sect"><span class="label">Жанры</span><div class="seg" id="pG">${FILTER_GENRES.map(g=>`<button data-v="${g}" class="${gs(g)}">${gs(g)==="no"?"✕ ":gs(g)==="yes"?"♥ ":""}${cap1(g)}</button>`).join("")}</div></div>
       <div class="sect"><span class="label">Годы</span><div class="seg" id="pE">${ERAS.map(x=>`<button data-v="${x.k}" aria-pressed="${p.eras.includes(x.k)}">${x.t}</button>`).join("")}</div></div>
+      ${provs.length?`<div class="sect"><span class="label">Только то, что есть на моих сервисах</span><div class="seg" id="pP">${provs.map(x=>`<button data-v="${x.id}" aria-pressed="${p.prov.includes(x.id)}" style="display:inline-flex;align-items:center;gap:6px">${x.l?`<img src="${IMG}w45${x.l}" alt="" width="18" height="18" style="border-radius:5px">`:""}${esc(x.n)}</button>`).join("")}</div></div>`:""}
       <div class="sect"><span class="label">Страна</span><div class="seg" id="pC">${CCS.map(c=>`<button data-v="${c}" aria-pressed="${p.cc.includes(c)}">${esc(country([c]))}</button>`).join("")}</div></div>
       <div class="sect"><span class="label">Рейтинг</span><div class="seg" id="pR">${[0,6,7,8].map(r=>`<button data-v="${r}" aria-pressed="${(p.minR||0)===r}">${r?"от "+r+" ★":"Любой"}</button>`).join("")}</div></div>
       <div class="sticky"><button class="btn red" id="pGo" style="flex:1">Показать</button><button class="btn" id="pRs">Сбросить</button></div>`);
@@ -1118,6 +1144,7 @@ function openPrefs(){
     $("#pE").onclick=e=>{const b=e.target.closest("button");if(b){p.eras=tog(p.eras,b.dataset.v);draw()}};
     $("#pM").onclick=e=>{const b=e.target.closest("button");if(b){p.mood=p.mood===b.dataset.v?"":b.dataset.v;draw()}};
     $("#pL").onclick=e=>{const b=e.target.closest("button");if(b){p.len=b.dataset.v;draw()}};
+    const pP=$("#pP");if(pP)pP.onclick=e=>{const b=e.target.closest("button");if(b){p.prov=tog(p.prov,+b.dataset.v);draw()}};
     $("#pC").onclick=e=>{const b=e.target.closest("button");if(b){p.cc=tog(p.cc,b.dataset.v);draw()}};
     $("#pR").onclick=e=>{const b=e.target.closest("button");if(b){p.minR=+b.dataset.v;draw()}};
     $("#pG").onclick=e=>{const b=e.target.closest("button");if(!b)return;const g=b.dataset.v;if(p.yes.includes(g)){p.yes=p.yes.filter(x=>x!==g);p.no.push(g)}else if(p.no.includes(g))p.no=p.no.filter(x=>x!==g);else p.yes.push(g);draw()};
@@ -1277,7 +1304,7 @@ async function openDetail(it){
   $("#dX").innerHTML=detailsHTML(it,d);loadColl($("#dX"));loadImdb($("#dX"));
 }
 const RX=["🔥","😂","😱","❤️","🤔","👎"],DET_SEASONS=new Map();
-function recommend(it,done){sheet(`<h2>Посоветовать ${esc(ptName())}</h2><p class="sub" style="margin:-6px 0 0">«${esc(it.t)}» появится у ${esc(ptName())} первым в свайпе с подписью «💌 ${esc(myName())} советует».</p>
+function recommend(it,done){if(needAccount("Советовать фильмы паре"))return;sheet(`<h2>Посоветовать ${esc(ptName())}</h2><p class="sub" style="margin:-6px 0 0">«${esc(it.t)}» появится у ${esc(ptName())} первым в свайпе с подписью «💌 ${esc(myName())} советует».</p>
     <textarea id="rcN" maxlength="300" rows="3" placeholder="Пара слов, почему стоит глянуть (необязательно)" style="width:100%;font:500 1rem var(--font);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px"></textarea>
     <div class="sticky"><button class="btn red" id="rcGo" style="flex:1">Отправить</button></div>`);
   $("#rcGo").onclick=async()=>{const row={from_user:me.user_id,to_user:partner.user_id,tmdb:it.k,data:slim(it),note:$("#rcN").value.trim(),seen:false};
@@ -1309,23 +1336,74 @@ async function openColl(i){const c=COLLS[i];collOpen=i;sq="";
   try{const pages=await Promise.all([1,2].map(pg=>tmdb(c.p,{...(c.q||{}),page:String(pg)})));
     sres=pages.flatMap(r=>r.results||[]).filter(x=>x.poster_path&&(kind||x.media_type==="movie"||x.media_type==="tv")).map(x=>itemFrom(x,kind||x.media_type)).filter((x,j,a)=>a.findIndex(y=>y.k===x.k)===j)}catch(e){sres=[]}
   renderSearch()}
-let sq="",sres=[];
+let sq="",sres=[],speople=[];
 function renderSearch(){
   const c=collOpen!=null?COLLS[collOpen]:null;
   $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Поиск","Любой фильм, сериал или аниме — или готовые подборки")}
     <input type="search" id="sq" placeholder="Название…" value="${esc(sq)}" autocomplete="off">
     ${c?`<div class="row" style="margin-top:12px"><button class="pill" id="cBack">← Подборки</button><button class="pill act" id="cSwipe">🃏 Свайпать эту подборку</button></div><h2 style="margin:6px 0 0;font:800 1.1rem var(--font)">${esc(c.t)}</h2>`:""}
     <div class="list" id="sr" style="margin-top:12px"></div></div></div>`;
-  const draw=()=>{$("#sr").innerHTML=sres.length?sres.map(it=>`<div class="lrow" data-s="${esc(it.k)}">${thumb(it)}<div class="lt"><b>${esc(it.t)}</b><span>${esc(metaOf(it))}</span><span class="clamp">${esc(it.d)}</span>
+  const draw=()=>{$("#sr").innerHTML=(speople.length&&sq?`<span class="label">Люди</span><div class="cast" style="margin-bottom:10px">${speople.map(c=>`<button type="button" data-person="${c.id}" data-pname="${esc(c.name)}"><img src="${IMG}w185${c.profile_path}" alt="" loading="lazy">${esc(c.name)}<small>${esc((c.known_for||[]).map(k=>k.title||k.name).slice(0,2).join(", "))}</small></button>`).join("")}</div>`:"")+(sres.length?sres.map(it=>`<div class="lrow" data-s="${esc(it.k)}">${thumb(it)}<div class="lt"><b>${esc(it.t)}</b><span>${esc(metaOf(it))}</span><span class="clamp">${esc(it.d)}</span>
       <div class="la">${mine.shelf.has(it.k)?`<span class="onsh">На полке ✓</span>`:`<button class="btn red sm" data-add="${esc(it.k)}">На полку</button>`}</div></div></div>`).join(""):sq?`<div class="empty">Ничего не нашлось</div>`
-      :`<span class="label">Подборки</span><div class="colls">${COLLS.map((x,i)=>`<button data-coll-i="${i}">${esc(x.t)}</button>`).join("")}</div>`};
+      :`<span class="label">Подборки</span><div class="colls">${COLLS.map((x,i)=>`<button data-coll-i="${i}">${esc(x.t)}</button>`).join("")}</div>`)};
   draw();let t;$("#sq").oninput=e=>{clearTimeout(t);t=setTimeout(async()=>{sq=e.target.value.trim();if(collOpen!=null&&sq){collOpen=null;$("#cBack")?.parentElement.nextElementSibling?.remove();$("#cBack")?.parentElement.remove()}if(!sq){sres=[];return draw()}
-    try{const r=await tmdb("/search/multi",{query:sq,include_adult:"false"});sres=(r.results||[]).filter(x=>(x.media_type==="movie"||x.media_type==="tv")&&x.poster_path).map(x=>itemFrom(x)).slice(0,20)}catch(err){sres=[]}draw()},300)};
+    try{const r=await tmdb("/search/multi",{query:sq,include_adult:"false"});speople=(r.results||[]).filter(x=>x.media_type==="person"&&x.profile_path).slice(0,8);
+      sres=(r.results||[]).filter(x=>(x.media_type==="movie"||x.media_type==="tv")&&x.poster_path).map(x=>itemFrom(x)).slice(0,20)}catch(err){sres=[];speople=[]}draw()},300)};
   const cb=$("#cBack");if(cb)cb.onclick=()=>{collOpen=null;sres=[];renderSearch()};
   const cs=$("#cSwipe");if(cs)cs.onclick=()=>{const l=sres.filter(x=>!mine.swipes.has(x.k)&&!mine.shelf.has(x.k));if(!l.length)return toast("Всё из подборки вы уже видели");deck=l;hist=[];go("swipe");toast("Свайпаете подборку «"+c.t.replace(/^\S+\s/,"")+"»")};
   $("#main").onclick=async e=>{const ci=e.target.closest("[data-coll-i]");if(ci)return openColl(+ci.dataset.collI);const a=e.target.closest("[data-add]");if(a){await addToShelf(sres.find(x=>x.k===a.dataset.add));a.outerHTML='<span class="onsh">На полке ✓</span>';toast("На полке");return}
     const row=e.target.closest("[data-s]");if(row)openDetail(sres.find(x=>x.k===row.dataset.s))};
 }
+/* ---------- guest mode ---------- */
+const GKEY={km_swipes:r=>r.tmdb,km_shelf:r=>r.tmdb,km_prefs:()=>"p",km_reactions:r=>r.tmdb,km_lists:r=>r.id,km_list_items:r=>r.list_id+"|"+r.tmdb,km_watch:r=>r.tmdb};
+function gdb(){try{return JSON.parse(localStorage.getItem("km_guest")||"{}")}catch(e){return{}}}
+function gsave(d){try{localStorage.setItem("km_guest",JSON.stringify(d))}catch(e){}}
+function guestClient(real){
+  const from=table=>{const st={op:"select",f:[],data:null,single:false};
+    const run=async()=>{const d=gdb();const t=d[table]||{};const match=r=>st.f.every(([k,v])=>String(r[k])===String(v));
+      if(table==="km_profiles")return{data:st.single?me:[me],error:null};
+      if(!GKEY[table])return{data:st.single?null:[],error:null};
+      if(st.op==="select"){const rows=Object.values(t).filter(match);return{data:st.single?rows[0]||null:rows,error:null}}
+      if(st.op==="upsert"||st.op==="insert"){const rows=(Array.isArray(st.data)?st.data:[st.data]).map(r=>({...r,id:r.id||(table==="km_lists"?crypto.randomUUID():undefined),created_at:r.created_at||new Date().toISOString()}));
+        if(table==="km_swipes"&&Object.keys(t).length>=400)return{data:null,error:{message:"guest_limit"}};
+        rows.forEach(r=>t[GKEY[table](r)]=r);d[table]=t;gsave(d);return{data:st.single?rows[0]:rows,error:null}}
+      if(st.op==="update"){Object.values(t).filter(match).forEach(r=>Object.assign(r,st.data));d[table]=t;gsave(d);return{data:null,error:null}}
+      if(st.op==="delete"){for(const [k,r] of Object.entries(t))if(match(r))delete t[k];d[table]=t;gsave(d);return{data:null,error:null}}
+      return{data:null,error:null}};
+    const b={select(){return b},order(){return b},in(){return b},like(){return b},not(){return b},limit(){return b},
+      eq(k,v){st.f.push([k,v]);return b},match(o){Object.entries(o).forEach(e=>st.f.push(e));return b},
+      maybeSingle(){st.single=true;return b},single(){st.single=true;return b},
+      upsert(d){st.op="upsert";st.data=d;return b},insert(d){st.op="insert";st.data=d;return b},update(d){st.op="update";st.data=d;return b},delete(){st.op="delete";return b},
+      then(ok,no){return run().then(ok,no)}};return b};
+  const ch={on(){return ch},subscribe(){return ch},send(){}};
+  return{auth:real.auth,from,rpc:async()=>({data:null,error:null}),channel:()=>ch,storage:{from:()=>({upload:async()=>({error:{message:"guest"}}),getPublicUrl:()=>({data:{}})})}}}
+const REAL_SB=sb;
+async function startGuest(){if(started)return;sb=guestClient(REAL_SB);ls.set("guest",true);started=true;
+  $("#land").hidden=true;closeModal();$("#app").hidden=false;document.body.classList.add("inapp");$("#main").innerHTML=`<div class="swempty"><div class="spin"></div></div>`;
+  me={user_id:"guest",name:"Гость",pair_code:"",guest:true};await Promise.all([loadAll(),loadGenres()]);buildSources();go("swipe");openFromLink();setTimeout(()=>startTour(false),900)}
+function needAccount(what){if(!me?.guest)return false;sheet(`<h2>Нужен аккаунт</h2><p class="sub" style="margin:-6px 0 0">${esc(what||"Эта функция работает после регистрации")}. Регистрация занимает 20 секунд — всё, что вы уже налайкали, переедет в аккаунт.</p>
+  <div class="sticky"><button class="btn red" id="gReg" style="flex:1">Создать аккаунт</button><button class="btn" id="gLog">Войти</button></div>`);
+  $("#gReg").onclick=()=>{closeSheet();openLogin("up")};$("#gLog").onclick=()=>{closeSheet();openLogin()};return true}
+async function migrateGuest(){const d=gdb();if(!Object.keys(d).length)return;const uid=me.user_id,ids=new Map();
+  try{for(const l of Object.values(d.km_lists||{})){const {data}=await REAL_SB.from("km_lists").insert({user_id:uid,name:l.name}).select().single();if(data)ids.set(l.id,data.id)}
+    const put=async(t,rows)=>{if(rows.length)await REAL_SB.from(t).upsert(rows,{ignoreDuplicates:true})};
+    await put("km_swipes",Object.values(d.km_swipes||{}).map(r=>({...r,user_id:uid})));
+    await put("km_shelf",Object.values(d.km_shelf||{}).map(({id,created_at,...r})=>({...r,user_id:uid})));
+    await put("km_reactions",Object.values(d.km_reactions||{}).map(({id,created_at,...r})=>({...r,user_id:uid})));
+    await put("km_watch",Object.values(d.km_watch||{}).map(({id,created_at,...r})=>({...r,user_id:uid})));
+    await put("km_list_items",Object.values(d.km_list_items||{}).filter(r=>ids.has(r.list_id)).map(({id,created_at,...r})=>({...r,list_id:ids.get(r.list_id)})));
+    const pr=d.km_prefs?.p?.prefs;if(pr)await REAL_SB.from("km_prefs").upsert({user_id:uid,prefs:pr});
+    localStorage.removeItem("km_guest");ls.set("guest",false);toast("Ваши лайки и полка перенесены в аккаунт ✓")}catch(e){}}
+function demoFan(){const fan=document.querySelector(".fan");if(!fan||fan._demo)return;fan._demo=true;const cards=[...fan.querySelectorAll(".pc")];
+  const top=()=>cards[cards.length-1];let x0=0,dx=0,dragging=false;
+  fan.addEventListener("pointerdown",e=>{if(!e.target.closest(".pc"))return;dragging=true;x0=e.clientX;dx=0;top().style.transition="none";try{fan.setPointerCapture(e.pointerId)}catch(_){}});
+  fan.addEventListener("pointermove",e=>{if(!dragging)return;dx=e.clientX-x0;top().style.transform=`translateX(${dx}px) rotate(${dx/14}deg)`;fan.dataset.dir=dx>30?"yes":dx<-30?"no":""});
+  const end=()=>{if(!dragging)return;dragging=false;const t=top();t.style.transition="transform .35s ease, opacity .35s";
+    if(Math.abs(dx)>70){t.style.transform=`translateX(${dx>0?420:-420}px) rotate(${dx>0?28:-28}deg)`;t.style.opacity=0;snd(dx>0?"like":"nope");
+      setTimeout(()=>{t.style.transition="none";t.style.transform="";t.style.opacity=1;fan.prepend(t);cards.unshift(cards.pop());fan.dataset.dir=""},380)}
+    else{t.style.transform="";fan.dataset.dir=""}};
+  fan.addEventListener("pointerup",end);fan.addEventListener("pointercancel",end)}
+
 /* ---------- boot ---------- */
 if("serviceWorker" in navigator&&location.protocol==="https:")addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 let installEvt=null;addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEvt=e;const b=$("#instBtn");if(b)b.hidden=false});
@@ -1346,7 +1424,7 @@ async function start(session){
   if(started)return;started=true;
   $("#land").hidden=true;closeModal();$("#app").hidden=false;document.body.classList.add("inapp");
   $("#main").innerHTML=`<div class="swempty"><div class="spin"></div></div>`;
-  const p=await ensureProfile(session.user);me={...p,email:session.user.email};
+  sb=REAL_SB;const p=await ensureProfile(session.user);me={...p,email:session.user.email};await migrateGuest();
   await Promise.all([loadAll(),loadGenres()]);await importFirstVersion();
   const pair=new URLSearchParams(location.search).get("pair");
   if(pair){history.replaceState(null,"",location.pathname);if(!partner&&pair.toUpperCase()!==me.pair_code)await pairWith(pair)}
@@ -1362,8 +1440,8 @@ async function start(session){
 }
 (async()=>{
   const {data:{session}}=await sb.auth.getSession();
-  if(session)start(session);else initLanding();
-  sb.auth.onAuthStateChange((ev,s)=>{if(ev==="PASSWORD_RECOVERY"){openNewPassword();return}if(ev==="SIGNED_IN"&&s)start(s)});
+  if(session)start(session);else if(ls.get("guest",false))startGuest();else initLanding();
+  sb.auth.onAuthStateChange((ev,s)=>{if(ev==="PASSWORD_RECOVERY"){openNewPassword();return}if(ev==="SIGNED_IN"&&s){if(me?.guest){location.reload();return}start(s)}});
 })();
 </script>
 </body>

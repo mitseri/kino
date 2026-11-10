@@ -1,7 +1,7 @@
 /* Kinomatch service worker: makes the site installable and fast on repeat visits.
    Pages: network first (always fresh), cached copy when offline.
    Libraries, fonts, posters: served from cache, refreshed in the background. */
-const V="km-v1",STATIC=["./","index.html","i18n.js","manifest.webmanifest","icon-192.png","icon-512.png"];
+const V="km-v2",STATIC=["./","index.html","i18n.js","manifest.webmanifest","icon-192.png","icon-512.png"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(STATIC)).then(()=>self.skipWaiting()))});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V&&k!=="km-img").map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 async function trimImages(){const c=await caches.open("km-img"),ks=await c.keys();for(let i=0;i<ks.length-400;i++)await c.delete(ks[i])}

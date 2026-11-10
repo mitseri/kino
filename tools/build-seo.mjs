@@ -56,7 +56,7 @@ function page(lang, {title, desc, canon, alt, body, ld, img}) {
 <title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><link rel="canonical" href="${SITE}${canon}">
 ${alt ? Object.entries(alt).map(([l, h]) => `<link rel="alternate" hreflang="${l}" href="${SITE}${h}">`).join("") + `<link rel="alternate" hreflang="x-default" href="${SITE}${alt.ru}">` : ""}
 <meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${SITE}${canon}"><meta property="og:type" content="website"><meta property="og:site_name" content="Kinomatch">
-<meta property="og:image" content="${esc(img || SITE + "/og.jpg")}"><meta name="twitter:card" content="summary_large_image"><meta name="theme-color" content="#0b0b0d"><link rel="icon" href="/icon-192.png">
+<meta property="og:image" content="${esc(img || SITE + "/og.jpg")}"><meta name="twitter:card" content="summary_large_image"><meta name="theme-color" content="#0b0b0d"><link rel="icon" href="/logo.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://image.tmdb.org">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Unbounded:wght@800&display=swap">
 ${ld ? `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>` : ""}
@@ -76,7 +76,7 @@ h1{font:800 clamp(1.6rem,5vw,2.6rem)/1.12 Unbounded,system-ui;margin:12px 0 10px
 footer{border-top:1px solid var(--line);margin-top:40px;padding:22px 0 40px;color:var(--mu);font-size:.82rem}footer a{color:var(--mu)}
 .film img.p,.card img{height:auto}header .cta{white-space:nowrap;padding:10px 15px;font-size:.85rem;margin-left:auto}header nav+.cta{margin-left:0}
 @media(max-width:700px){.film{grid-template-columns:1fr}.film img.p{max-width:220px}header nav{display:none}}</style></head>
-<body><div class="w"><header><a class="logo" href="/"><i></i>Kinomatch</a><nav><a href="/${LANGS[lang].dir}podborki/">${t.colls}</a><a href="${alt ? (lang === "ru" ? alt.uk : alt.ru) : "/"}">${t.lang}</a></nav><a class="cta" href="/">${t.cta}</a></header>
+<body><div class="w"><header><a class="logo" href="/"><img src="/logo.svg" alt="" width="28" height="28">Kinomatch</a><nav><a href="/${LANGS[lang].dir}podborki/">${t.colls}</a><a href="${alt ? (lang === "ru" ? alt.uk : alt.ru) : "/"}">${t.lang}</a></nav><a class="cta" href="/">${t.cta}</a></header>
 ${body}
 <footer><p>${t.about}</p><p><a href="/${LANGS[lang].dir}podborki/">${t.allColls}</a> · <a href="/privacy.html">Privacy</a></p><p>${t.tmdb}</p></footer></div></body></html>`;
 }
