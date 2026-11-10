@@ -374,3 +374,14 @@ html.km-authed #land{display:none}
 @keyframes pop{from{opacity:0;transform:translateY(16px) scale(.9)}}
 .onbbar{position:fixed;left:0;right:0;bottom:0;display:flex;gap:10px;align-items:center;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:linear-gradient(to top,var(--bg) 70%,transparent)}
 .onbbar span{flex:1;color:var(--muted);font-weight:800}
+/* light theme polish */
+:root[data-theme=light]:has(body.inapp){background:#f5f3ef}
+:root[data-theme=light] body.inapp{min-height:100dvh}
+:root[data-theme=light] .top h1{background:linear-gradient(90deg,#17171c 45%,#e0283a);-webkit-background-clip:text;background-clip:text;color:transparent}
+:root[data-theme=light] .pill.act{background:linear-gradient(135deg,var(--red),var(--red2));border-color:transparent;color:#fff;box-shadow:0 6px 18px rgb(255 45 63/.28)}
+:root[data-theme=light] .lrow{background:rgb(255 255 255/.86);border:1px solid var(--line)!important;box-shadow:0 4px 14px rgb(0 0 0/.05)}
+:root[data-theme=light] .me{background:rgb(255 255 255/.86);border-color:var(--line);color:var(--ink)}
+:root[data-theme=light] .lt span,:root[data-theme=light] .sub{color:#5d5d68}
+:root[data-theme=light] .lt em{color:#b7791f}
+:root[data-theme=light] .dhero::after{background:linear-gradient(to bottom,rgb(0 0 0/.25),transparent 30%,transparent 55%,var(--bg))}
+:root[data-theme=light] .rev,:root[data-theme=light] .chat,:root[data-theme=light] .msg:not(.mine){background:var(--surface);border-color:var(--line)}
