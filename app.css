@@ -389,3 +389,5 @@ html.km-authed #land{display:none}
 .pill.sel select{appearance:none;-webkit-appearance:none;background:transparent;border:0;color:inherit;font:inherit;padding:0;margin:0;outline:none;cursor:pointer}
 .pill.sel select option{color:#111}
 .pill.sel svg{position:absolute;right:12px;top:50%;width:16px;height:16px;transform:translateY(-50%);pointer-events:none}
+.info .more{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:auto;margin:2px auto 6px;padding:9px 18px;border-radius:999px;background:var(--surface2);border:1px solid var(--line);color:var(--ink);font:800 .9rem var(--font)}
+.info{text-align:center}.info>*:not(.more){text-align:left}

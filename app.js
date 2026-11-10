@@ -473,7 +473,7 @@ const TOUR=[
   ["#bM","Мега-лайк","Точно хочу посмотреть — фильм сразу ложится на полку."],
   ["#bS","Уже смотрел","Фильм уйдёт в «Посмотрено» на полке, и его можно оценить. Больше в свайпе не появится."],
   ["#bU","Вернуть","Свайпнули случайно? Эта кнопка возвращает последнюю карточку."],
-  ["#bI","Подробнее","Описание, актёры, все трейлеры, рейтинг IMDb, возраст и где смотреть в Украине. Ещё можно просто пролистать карточку вниз."],
+  ["#stack .sc.front .more","Подробнее","Описание, актёры, все трейлеры, рейтинг IMDb, возраст и где смотреть в Украине. Ещё можно просто пролистать карточку вниз."],
   ["#kinds","Что показывать","Нажмите, чтобы выбрать: всё, новинки, фильмы, сериалы, аниме или дорамы."],
   ["#flt","Фильтры","Настроение, жанры, годы, страна, рейтинг и сколько у вас времени."],
   ["#nightGo,#pairBanner","Вдвоём веселее","Позовите пару по ссылке — и ловите общие мэтчи. А «Вечер кино» — свайпаете одни и те же фильмы одновременно."],
@@ -532,15 +532,15 @@ function renderSwipeView(){
         <button class="mb undo" id="bU" aria-label="Вернуть"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>Вернуть</button>
         <button class="mb mega" id="bM" aria-label="Мега-лайк: сразу на полку"><svg viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z" fill="currentColor"/></svg>Мега</button>
         <button class="mb seen" id="bS" aria-label="Уже смотрел"><svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/></svg>Смотрел</button>
-        <button class="mb info" id="bI" aria-label="Подробнее"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v5.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="12" cy="7.6" r="1.5" fill="currentColor"/></svg>Инфо</button>
+        
       </div>
     </div></div>`;
   $("#kindSel").onchange=e=>{const v=e.target.value,p={...DEF_PREFS(),...(prefs||{})};p.person=null;p.fresh=v==="fresh";p.kinds=v&&!p.fresh?[v]:[];savePrefs(p)};
   const ng=$("#nightGo");if(ng)ng.onclick=startNight;const rg=$("#roomGo");if(rg)rg.onclick=()=>{if(needAccount("Комнаты с друзьями"))return;go("matches")};const re=$("#roomEnd");if(re)re.onclick=roomSummary;const ne=$("#nightEnd");if(ne)ne.onclick=nightSummary;
   const np=$("#noPerson");if(np)np.onclick=()=>savePrefs({...DEF_PREFS(),...prefs,person:null});$("#bS").onclick=()=>decide("seen");
   $("#flt").onclick=openPrefs;$("#bN").onclick=()=>decide("nope");$("#bY").onclick=()=>decide("like");$("#bM").onclick=()=>decide("mega");$("#bU").onclick=undo;
-  $("#bI").onclick=()=>{const t=$("#stack .sc.front");if(t)t.scrollTo({top:t.scrollTop>40?0:t.querySelector(".info").offsetTop-50,behavior:"smooth"})};
-  $("#stack").addEventListener("click",e=>{if(e.target.closest(".more"))$("#bI").click()});
+
+  $("#stack").addEventListener("click",e=>{if(e.target.closest(".more"))moreInfo()});
   renderSwipe(!deck.length);if(deck.length<6)fill().then(()=>{if(view==="swipe")renderSwipe()});
 }
 async function savePrefs(p){prefs=p;resetDeck();renderSwipeView();await sb.from("km_prefs").upsert({user_id:me.user_id,prefs:p})}
@@ -552,7 +552,7 @@ function cardHTML(it,front){const pl=partner&&theirs.swipes.get(it.k)?.v==="like
       <span class="stamp yes">Нравится</span><span class="stamp no">Мимо</span><span class="stamp mega">Мега-лайк</span>
       <button class="trb" data-tr type="button"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>Трейлер</button>
       <div class="cap"><b>${esc(it.t)}</b><div class="m">${it.y?`<span>${esc(it.y)}</span>`:""}${it.r?`<span class="rt">★ ${it.r}</span>`:""}</div><div class="kf"></div></div></div>
-    <div class="info"><button class="more" type="button">↓ Подробнее · свайп вверх — мега-лайк</button>${rc?`<span class="recn">💌 <b>${esc(ptName())}</b> советует${rc.note?`: «${esc(rc.note)}»`:""}</span>`:""}<div class="sect"><span class="label">О чём</span><p class="desc">${esc(it.d)}</p></div><div class="dx"><div class="spin"></div></div></div></div>`}
+    <div class="info"><button class="more" type="button">Подробнее ↓</button>${rc?`<span class="recn">💌 <b>${esc(ptName())}</b> советует${rc.note?`: «${esc(rc.note)}»`:""}</span>`:""}<div class="sect"><span class="label">О чём</span><p class="desc">${esc(it.d)}</p></div><div class="dx"><div class="spin"></div></div></div></div>`}
 function detailsHTML(it,d){const x=d||{},w=whereOf(it,d),q=qualOf(it,d),vids=videosOf(d);
   const dirs=it.kind==="tv"?(x.created_by||[]).map(c=>({id:c.id,name:c.name,profile_path:c.profile_path,character:"создатель"})):(x.credits?.crew||[]).filter(c=>c.job==="Director").map(c=>({...c,character:"режиссёр"}));
   const ppl=[...dirs.slice(0,2),...(x.credits?.cast||[]).slice(0,12)];
@@ -612,14 +612,13 @@ function renderSwipe(loadingNow){
   const f=S.querySelector(".sc.front");f.classList.add("enter");ambient(deck[0].backdrop||deck[0].poster);tilt(f);hydrateCard(f,deck[0]);deck.slice(1,4).forEach(x=>{details(x);if(x.poster){const im=new Image();im.src=IMG+"w500"+x.poster}});
   attachDrag(f);
 }
+function moreInfo(){const t=$("#stack .sc.front");if(t)t.scrollTo({top:t.scrollTop>40?0:t.querySelector(".info").offsetTop-50,behavior:"smooth"})}
 function attachDrag(el){
   let x0=0,y0=0,dx=0,dy=0,id=null,moved=false,locked=false,up=false,onPic=false;const st=s=>el.querySelector(".stamp."+s);
   let t0=0;el.addEventListener("pointerdown",e=>{if(busy||e.target.closest("a,button,.cast,.coll,.chips"))return;t0=performance.now();id=e.pointerId;x0=e.clientX;y0=e.clientY;dx=dy=0;moved=false;locked=false;up=false;onPic=!!e.target.closest(".pic");el._drag=true;el.style.transition="none"});
   el.addEventListener("pointermove",e=>{if(e.pointerId!==id)return;dx=e.clientX-x0;dy=e.clientY-y0;
     if(!locked){if(Math.abs(dy)>8&&Math.abs(dy)>Math.abs(dx)){
-        if(onPic&&dy<0&&el.scrollTop<8){locked=true;up=true;try{el.setPointerCapture(e.pointerId)}catch(_){}}
-        else if(onPic&&dy>0&&el.scrollTop>0){id=null;el._drag=false;return}
-        else{id=null;el._drag=false;return}}
+        id=null;el._drag=false;return}
       else if(Math.abs(dx)>8){locked=true;try{el.setPointerCapture(e.pointerId)}catch(_){}}}
     if(!locked)return;moved=true;
     if(up){el.style.transform=`translate(${dx*.2}px,${Math.min(0,dy)}px) scale(${1+Math.max(0,-dy)/1500})`;st("mega").style.opacity=Math.max(0,Math.min(1,-dy/110));return}
@@ -634,7 +633,7 @@ function attachDrag(el){
 }
 document.addEventListener("keydown",e=>{if(view!=="swipe"||$("#layer").innerHTML||$("#modalRoot").innerHTML||/INPUT|TEXTAREA/.test(document.activeElement?.tagName))return;
   if(e.key==="ArrowRight")decide("like");else if(e.key==="ArrowLeft")decide("nope");else if(e.key==="ArrowUp")decide("mega");else if(e.key==="ArrowDown"){e.preventDefault();decide("seen")}
-  else if(e.key===" "){e.preventDefault();$("#stack .sc.front [data-tr]")?.click()}else if(e.key.toLowerCase()==="i"||e.key==="ш")$("#bI")?.click();else if(e.key==="Backspace"||e.key.toLowerCase()==="z"||e.key==="я")$("#bU")?.click()});
+  else if(e.key===" "){e.preventDefault();$("#stack .sc.front [data-tr]")?.click()}else if(e.key.toLowerCase()==="i"||e.key==="ш")moreInfo();else if(e.key==="Backspace"||e.key.toLowerCase()==="z"||e.key==="я")$("#bU")?.click()});
 async function decide(v,dragged){
   if(busy||!deck.length)return;busy=true;const it=deck[0],el=$("#stack .sc.front"),like=v==="like"||v==="mega";
   if(el){const dir=like?1:-1;el.style.transition="transform .3s ease-out,opacity .3s";const sp=el.querySelector(".stamp."+(v==="mega"?"mega":like?"yes":"no"));if(v!=="seen")sp.style.opacity=1;
