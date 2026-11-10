@@ -390,6 +390,25 @@ html.km-authed #land{display:none}
 .fan{touch-action:pan-y;cursor:grab}.fan .pc{will-change:transform}
 .fanhint{position:absolute;left:50%;bottom:-34px;transform:translateX(-50%);white-space:nowrap;font:800 .75rem var(--font);color:var(--muted);letter-spacing:.04em}
 .fan[data-dir=yes] .tag.l{opacity:1;transform:scale(1.15)}.fan[data-dir=no]::after{content:"Мимо";position:absolute;top:18px;left:10px;font:900 1rem var(--font);color:#ff6a77;border:3px solid #ff6a77;border-radius:10px;padding:4px 10px;transform:rotate(-12deg)}
+.revhead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.revhead .big{font:900 1.6rem var(--display,var(--font));color:var(--gold)}.revhead span{color:var(--muted);font-size:.85rem}
+.revform{display:grid;gap:8px;margin:8px 0}.revform textarea{width:100%;box-sizing:border-box;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px;font:500 .95rem var(--font)}
+.revs{display:grid;gap:10px;margin-top:6px}.rev{display:flex;gap:10px}.rev .av{flex:none;width:34px;height:34px;font-size:.9rem}.rev b{font-size:.9rem}.rev .rt{color:var(--gold);font-weight:800;font-size:.82rem;margin-left:4px}.rev .dt{color:var(--muted);font-size:.72rem;margin-left:6px}.rev p{margin:3px 0 0;font-size:.9rem;line-height:1.4}
+.chat .msgs{display:grid;gap:6px;max-height:260px;overflow:auto;padding:4px 0}.msg{justify-self:start;max-width:80%;background:var(--surface2);padding:8px 12px;border-radius:14px 14px 14px 4px;font-size:.92rem}
+.msg.me{justify-self:end;background:linear-gradient(135deg,var(--red),var(--red2));color:#fff;border-radius:14px 14px 4px 14px}.msg small{display:block;font-size:.62rem;opacity:.65;margin-top:2px}
+.chat .quick{display:flex;gap:6px;flex-wrap:wrap}.msgf{display:flex;gap:8px}.msgf input{flex:1;min-width:0}
+.year{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 10px}.year div{background:var(--surface2);border-radius:16px;padding:14px;font-weight:700;font-size:.82rem;color:var(--muted)}.year b{display:block;font:900 2rem var(--display,var(--font));color:var(--gold)}
+.onb{position:fixed;inset:0;z-index:140;background:radial-gradient(80% 60% at 50% 0%,rgb(255 45 63/.25),transparent 60%),var(--bg);overflow:auto;animation:vin .35s}
+.onbin{max-width:760px;margin:0 auto;padding:calc(28px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-left,0px)) 120px max(16px,env(safe-area-inset-right,0px))}
+.onb h2{font:900 clamp(1.6rem,6vw,2.4rem)/1.1 var(--display,var(--font));margin:0 0 6px}.onb p{color:var(--muted);margin:0 0 18px}
+.onbg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.ot{position:relative;height:110px;border-radius:18px;overflow:hidden;border:2px solid transparent;background:var(--surface2);color:#fff;cursor:pointer;text-align:left;padding:0;animation:pop .45s cubic-bezier(.2,.9,.3,1.3) both;transition:transform .2s,border-color .2s,box-shadow .2s}
+.ot i{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transform:scale(1.15);transition:opacity .6s,transform 1.2s}.ot i.on{opacity:1;transform:scale(1)}
+.ot::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgb(0 0 0/.85),rgb(0 0 0/.15))}
+.ot span{position:absolute;top:10px;left:12px;font-size:1.5rem;z-index:2}.ot b{position:absolute;left:12px;bottom:10px;z-index:2;font:800 1rem var(--font)}
+.ot.sel{border-color:var(--red);transform:scale(.97);box-shadow:0 0 0 4px rgb(255 45 63/.25),0 10px 30px rgb(255 45 63/.35)}.ot.sel::before{content:"✓";position:absolute;top:8px;right:10px;z-index:3;width:26px;height:26px;border-radius:50%;background:var(--red);display:grid;place-items:center;font-weight:900}
+@keyframes pop{from{opacity:0;transform:translateY(16px) scale(.9)}}
+.onbbar{position:fixed;left:0;right:0;bottom:0;display:flex;gap:10px;align-items:center;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:linear-gradient(to top,var(--bg) 70%,transparent)}
+.onbbar span{flex:1;color:var(--muted);font-weight:800}
 </style>
 </head>
 <body>
@@ -588,7 +607,7 @@ function qualOf(it,d){if(!d)return null;const now=Date.now();
 const slim=it=>({k:it.k,kind:it.kind,id:it.id,t:it.t,o:it.o,y:it.y,r:it.r,d:it.d,poster:it.poster,backdrop:it.backdrop,ty:it.ty,g:it.g});
 
 /* ================= LANDING ================= */
-async function initLanding(){document.documentElement.classList.remove("km-authed");
+async function initLanding(){document.documentElement.classList.remove("km-authed");{const q=new URLSearchParams(location.search);if(q.get("u"))setTimeout(()=>openPublic(q.get("u")),300);if(q.get("room"))setTimeout(()=>openLogin("up"),300)}
   const lsel=$("#langSel");if(lsel){lsel.value=window.LANG||"ru";lsel.onchange=()=>{ls.set("lang",lsel.value);location.reload()}}
   $("#land").hidden=false;document.body.classList.remove("inapp");setTimeout(()=>loadGenres().then(openFromLink).catch(()=>{}),300);
   document.querySelectorAll("[data-login]").forEach(b=>b.onclick=()=>openLogin());
@@ -728,7 +747,7 @@ function openPrivacy(){
 }
 
 /* ================= APP STATE ================= */
-let me=null,partner=null,mine={shelf:new Map(),swipes:new Map(),rx:new Map()},theirs={shelf:new Map(),swipes:new Map(),rx:new Map()},prefs=null,view="swipe",recsIn=new Map(),recsOut=new Map(),lists=[],listItems=new Map(),watchSet=new Map(),night=null;
+let me=null,partner=null,mine={shelf:new Map(),swipes:new Map(),rx:new Map()},theirs={shelf:new Map(),swipes:new Map(),rx:new Map()},prefs=null,view="swipe",recsIn=new Map(),recsOut=new Map(),lists=[],listItems=new Map(),watchSet=new Map(),night=null,room=null,myRooms=[];
 const DEF_PREFS=()=>({kinds:[],yes:[],no:[],eras:[],minR:0,mood:"",len:"",cc:[],prov:[],person:null,fresh:false});
 let PROVS=null;async function loadProvs(){if(PROVS)return PROVS;try{const r=await tmdb("/watch/providers/movie",{watch_region:"UA"});PROVS=(r.results||[]).sort((a,b)=>(a.display_priorities?.UA??a.display_priority??99)-(b.display_priorities?.UA??b.display_priority??99)).slice(0,14).map(x=>({id:x.provider_id,n:x.provider_name,l:x.logo_path}))}catch(e){PROVS=[]}return PROVS}
 const myName=()=>me?.name||"Я",ptName=()=>partner?.name||"Партнёр";
@@ -812,7 +831,7 @@ async function becauseYouLiked(){const p=prefs||{};if(p.person?.id||p.fresh||nig
     const rec=(r.results||[]).filter(x=>x.poster_path&&x.overview).map(x=>itemFrom(x,x.media_type||base.kind)).filter(x=>!seenK(x.k)&&(!kinds||kinds.includes(x.ty))).slice(0,3);
     rec.forEach((x,i)=>{x.why=base.t;deck.splice(Math.min(deck.length,2+i*3),0,x)})}catch(e){}}
 async function fill(min=8){
-  if(loading||night)return;loading=true;
+  if(loading||night||room)return;loading=true;
   try{let guard=0;
     while(deck.length<min&&src.some(s=>!s.done)&&guard++<12){
       const live=src.filter(s=>!s.done),s=live[guard%live.length];s.page++;
@@ -858,6 +877,9 @@ function openProfile(){if(needAccount("Профиль, пара, фото и у�
     ${(()=>{const st=stats(),lv=levelOf(xpOf(st)),got=new Set(ACH.filter(a=>a[3](st)).map(a=>a[0]));const pct=lv.to?Math.round((lv.xp-lv.from)/(lv.to-lv.from)*100):100;
       return `<div class="sect lvl"><span class="label">Уровень ${lv.i} · ${esc(lv.name)}</span><div class="bar"><i style="width:${pct}%"></i></div><span class="sub" style="font-size:.76rem">${lv.xp} XP${lv.to?` · до следующего уровня ${lv.to-lv.xp}`:" · максимум!"}</span></div>
         <div class="sect"><span class="label">Ачивки · ${got.size} из ${ACH.length}</span><div class="ach">${ACH.map(a=>`<div class="${got.has(a[0])?"":"off"}"><b>${a[1]}</b>${esc(a[2])}</div>`).join("")}</div></div>`})()}
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="yrBtn">🎬 Мой кино-год</button><button class="btn" id="onbAgain">🎨 Выбрать жанры заново</button></div>
+    <div class="sect"><span class="label">Публичная полка</span><p class="sub" style="margin:0">Друзья увидят, что вы посмотрели и как оценили — по ссылке.</p>
+      ${me.username?`<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn sm" id="pubT">${me.is_public?"✅ Включена":"Включить"}</button>${me.is_public?`<button class="btn sm" id="pubL">🔗 Скопировать ссылку</button>`:""}</div>`:`<p class="sub" style="margin:0">Сначала задайте логин:</p><div class="shtools"><input id="unI" maxlength="20" placeholder="логин: латиница, цифры, _ ."><button class="btn sm" id="unS">Сохранить</button></div>`}</div>
     <button class="btn red" id="instBtn" ${installEvt?"":"hidden"}>📲 Установить приложение на телефон</button>
     <button class="btn" id="tourAgain">🎓 Пройти обучение заново</button>
     <div class="sect"><span class="label">Язык</span><div class="seg" id="lngT">${[["ru","Русский"],["uk","Українська"],["en","English"]].map(([k,t])=>`<button data-l="${k}" aria-pressed="${window.LANG===k}">${t}</button>`).join("")}</div></div>
@@ -871,6 +893,11 @@ function openProfile(){if(needAccount("Профиль, пара, фото и у�
   const tgOn=$("#tgOn");if(tgOn)tgOn.onclick=async()=>{const w=window.open("","_blank");const r=await tgCall({action:"link"});if(r?.url){if(w)w.location=r.url;else location.href=r.url;toast("Нажмите «Start» в Telegram — и готово")}else{w&&w.close();toast("Не получилось, попробуйте ещё раз")}};
   const tgOff=$("#tgOff");if(tgOff)tgOff.onclick=async()=>{await tgCall({action:"unlink"});me.tg_chat_id=null;closeSheet();toast("Уведомления отключены")};
   $("#instBtn").onclick=async()=>{if(!installEvt)return;installEvt.prompt();const r=await installEvt.userChoice.catch(()=>null);if(r?.outcome==="accepted")toast("Kinomatch на главном экране 🎉");installEvt=null;$("#instBtn").hidden=true};
+  $("#yrBtn").onclick=()=>{closeSheet();openYear()};$("#onbAgain").onclick=()=>{closeSheet();openOnboarding(true)};
+  const pubT=$("#pubT");if(pubT)pubT.onclick=async()=>{const v=!me.is_public;const {error}=await sb.from("km_profiles").update({is_public:v}).eq("user_id",me.user_id);if(error)return toast("Не получилось");me.is_public=v;closeSheet();openProfile();if(v)copy(SITE+"?u="+me.username)};
+  const pubL=$("#pubL");if(pubL)pubL.onclick=()=>copy(SITE+"?u="+me.username);
+  const unS=$("#unS");if(unS)unS.onclick=async()=>{const u=$("#unI").value.trim().toLowerCase();if(!/^[a-z0-9_.]{3,20}$/.test(u))return toast("Логин: 3–20 символов, латиница, цифры, _ .");
+    const {error}=await sb.from("km_profiles").update({username:u}).eq("user_id",me.user_id);if(error)return toast(/duplicate|unique/.test(error.message)?"Такой логин уже занят":"Не получилось");me.username=u;closeSheet();openProfile()};
   $("#tourAgain").onclick=()=>{closeSheet();startTour(true)};
   $("#lngT").onclick=e=>{const b=e.target.closest("[data-l]");if(b&&b.dataset.l!==window.LANG){ls.set("lang",b.dataset.l);location.reload()}};
   $("#thm").onclick=e=>{const b=e.target.closest("[data-t]");if(!b)return;ls.set("theme",b.dataset.t);let t=b.dataset.t;if(t==="auto")t=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";document.documentElement.dataset.theme=t;
@@ -986,10 +1013,10 @@ function renderSwipeView(){
   const p=prefs||DEF_PREFS(),nf=(p.yes?.length||0)+(p.no?.length||0)+(p.eras?.length||0)+(p.minR?1:0)+(p.mood?1:0)+(p.len?1:0)+(p.cc?.length||0)+(p.prov?.length||0),kk=p.fresh?"fresh":p.kinds?.length===1?p.kinds[0]:"";
   $("#main").innerHTML=`<div class="view swv" style="overflow:hidden"><div class="wrap pad" style="width:100%">${topBar("Свайп",partner?`Вы с ${esc(ptName())} в паре`:"")}
     ${partner?"":`<button class="banner" id="pairBanner"><span class="duo">${myAv()}<span class="av pt">+</span></span><span><b>Позовите пару</b><span>Чтобы ловить общие мэтчи</span></span></button>`}
-    ${night?`<div class="nightbar"><span style="font-size:1.5rem">🍿</span><span class="grow"><b>Вечер кино с ${esc(ptName())}</b><span id="nightInfo">${nightInfo()}</span></span><button class="btn sm" id="nightEnd">Итоги</button></div>`
-      :partner?`<div class="row"><button class="pill" id="nightGo">🍿 Вечер кино вдвоём</button></div>`:""}
-    ${night?"":p.person?`<div class="row"><button class="pill act" id="noPerson">🎭 ${esc(p.person.name)} <b>✕</b></button></div>`:""}
-    <div class="row" id="kinds" ${night?"hidden":""}>${[{k:"",t:"Всё"},{k:"fresh",t:"🆕 Новинки"},...KINDS].map(x=>`<button class="pill ${x.k===kk&&!p.person?"act":""}" data-k="${x.k}">${x.t}</button>`).join("")}
+    ${room?`<div class="nightbar"><span style="font-size:1.5rem">👥</span><span class="grow"><b>Комната «${esc(room.name)}»</b><span id="roomInfo">${roomInfo()}</span></span><button class="btn sm" id="roomEnd">Итоги</button></div>`:night?`<div class="nightbar"><span style="font-size:1.5rem">🍿</span><span class="grow"><b>Вечер кино с ${esc(ptName())}</b><span id="nightInfo">${nightInfo()}</span></span><button class="btn sm" id="nightEnd">Итоги</button></div>`
+      :`<div class="row">${partner?`<button class="pill" id="nightGo">🍿 Вечер кино вдвоём</button>`:""}<button class="pill" id="roomGo">👥 С друзьями</button></div>`}
+    ${night||room?"":p.person?`<div class="row"><button class="pill act" id="noPerson">🎭 ${esc(p.person.name)} <b>✕</b></button></div>`:""}
+    <div class="row" id="kinds" ${night||room?"hidden":""}>${[{k:"",t:"Всё"},{k:"fresh",t:"🆕 Новинки"},...KINDS].map(x=>`<button class="pill ${x.k===kk&&!p.person?"act":""}" data-k="${x.k}">${x.t}</button>`).join("")}
       <button class="pill ${nf?"act":""}" id="flt"><svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Фильтры${nf?` <b>${nf}</b>`:""}</button></div></div>
     <div class="stage"><div class="stack" id="stack"></div></div>
     <div class="ctrl2 pad">
@@ -1004,7 +1031,7 @@ function renderSwipeView(){
       </div>
     </div></div>`;
   $("#kinds").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;const p={...DEF_PREFS(),...(prefs||{})};p.person=null;p.fresh=b.dataset.k==="fresh";p.kinds=b.dataset.k&&!p.fresh?[b.dataset.k]:[];savePrefs(p)};
-  const ng=$("#nightGo");if(ng)ng.onclick=startNight;const ne=$("#nightEnd");if(ne)ne.onclick=nightSummary;
+  const ng=$("#nightGo");if(ng)ng.onclick=startNight;const rg=$("#roomGo");if(rg)rg.onclick=()=>{if(needAccount("Комнаты с друзьями"))return;go("matches")};const re=$("#roomEnd");if(re)re.onclick=roomSummary;const ne=$("#nightEnd");if(ne)ne.onclick=nightSummary;
   const np=$("#noPerson");if(np)np.onclick=()=>savePrefs({...DEF_PREFS(),...prefs,person:null});$("#bS").onclick=()=>decide("seen");
   $("#flt").onclick=openPrefs;$("#bN").onclick=()=>decide("nope");$("#bY").onclick=()=>decide("like");$("#bM").onclick=()=>decide("mega");$("#bU").onclick=undo;
   $("#bI").onclick=()=>{const t=$("#stack .sc.front");if(t)t.scrollTo({top:t.scrollTop>40?0:t.querySelector(".info").offsetTop-50,behavior:"smooth"})};
@@ -1069,6 +1096,7 @@ function showFrame(el,i){const a=el._frames||[];if(!a.length)return;i=(i+a.lengt
 function renderSwipe(loadingNow){
   const S=$("#stack");if(!S)return;$("#bU").disabled=!hist.length;
   const off=!deck.length;["#bN","#bY","#bM"].forEach(s=>$(s).disabled=off);
+  if(!deck.length&&room){S.innerHTML=`<div class="swempty"><strong>Колода комнаты закончилась 👥</strong>Смотрим, что выбрала компания.<button class="btn red" id="rt">Итоги</button></div>`;$("#rt").onclick=roomSummary;return}
   if(!deck.length&&night){S.innerHTML=`<div class="swempty"><strong>Колода вечера закончилась 🍿</strong>Посмотрим, что совпало.<button class="btn red" id="rt">Итоги</button></div>`;$("#rt").onclick=nightSummary;return}
   if(!deck.length){S.innerHTML=deckErr?`<div class="swempty"><strong>Не загрузилось</strong>Проверьте интернет.<button class="btn red" id="rt">Ещё раз</button></div>`
     :(loading||loadingNow)?`<div class="swempty"><div class="spin"></div>Подбираю фильмы…</div>`
@@ -1105,7 +1133,7 @@ async function decide(v,dragged){
   if(busy||!deck.length)return;busy=true;const it=deck[0],el=$("#stack .sc.front"),like=v==="like"||v==="mega";
   if(el){const dir=like?1:-1;el.style.transition="transform .3s ease-out,opacity .3s";const sp=el.querySelector(".stamp."+(v==="mega"?"mega":like?"yes":"no"));if(v!=="seen")sp.style.opacity=1;
     el.style.transform=v==="mega"?`translateY(${-Math.max(innerHeight,700)}px)`:v==="seen"?`translateY(${Math.max(innerHeight,700)}px) scale(.9)`:`translate(${dir*Math.max(innerWidth,500)}px,${dragged?0:-30}px) rotate(${dir*24}deg)`;el.style.opacity=.6}
-  if(v!=="seen")burst(v,$(v==="mega"?"#bM":like?"#bY":"#bN"));snd(v);if(night)nightSend("swipe",{k:it.k,v:v==="seen"?"seen":like?"like":"nope"});if(navigator.vibrate)try{navigator.vibrate(v==="mega"?[10,40,10]:8)}catch(e){}
+  if(v!=="seen")burst(v,$(v==="mega"?"#bM":like?"#bY":"#bN"));snd(v);if(night)nightSend("swipe",{k:it.k,v:v==="seen"?"seen":like?"like":"nope"});if(room&&v!=="seen")roomVote(it,like?"like":"nope");if(navigator.vibrate)try{navigator.vibrate(v==="mega"?[10,40,10]:8)}catch(e){}
   const row={user_id:me.user_id,tmdb:it.k,v:v==="seen"?"seen":like?"like":"nope",mega:v==="mega",data:slim(it),at:new Date().toISOString()};
   mine.swipes.set(it.k,row);deck.shift();if(me.guest&&mine.swipes.size%15===0)setTimeout(()=>needAccount(`Вы уже оценили ${mine.swipes.size} фильмов — сохраните их`),500);if(night){night.mine.set(it.k,row.v);setTimeout(nightUpd,0)}hist.push({it,mega:v==="mega",seen:v==="seen"});
   const rc=recsIn.get(it.k);if(rc&&!rc.seen){rc.seen=true;sb.from("km_recs").update({seen:true}).eq("id",rc.id).then(()=>{})}if(hist.length>30)hist.shift();
@@ -1170,20 +1198,20 @@ function renderLikes(){const l=likes(mine);
     ${l.length?`<div class="list">${l.map(r=>rowHTML(r,{rm:true,mark:true})).join("")}</div>`:`<div class="empty"><strong>Пока пусто</strong>Свайпайте вправо — фильмы появятся здесь, и отсюда можно положить их на полку.</div>`}</div></div>`;
   wireList(k=>mine.swipes.get(k));fixRows()}
 function renderMatches(){const l=matchesList();
-  $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Мэтчи",partner?`Что понравилось вам с ${esc(ptName())}`:"")}
+  $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Мэтчи",partner?`Что понравилось вам с ${esc(ptName())}`:"")}<div id="roomsBox"></div>
     ${!partner?`<div class="empty"><strong>Нужна пара</strong>Мэтчи появятся, когда вы позовёте партнёра.<button class="btn red" id="inv">Позвать пару</button></div>`
       :l.length?`<div class="pgrid">${l.map(r=>{const d=r.data||{},pp=d.poster||PC[r.tmdb];return `<button class="pcard gold lrow" style="display:block;padding:0" data-k="${esc(r.tmdb)}" ${d.poster?"":`data-fix="${esc(r.tmdb)}"`}>${pp?`<img src="${IMG}w342${pp}" alt="" loading="lazy">`:`<img alt="">`}<span class="ps">💞 мэтч</span><span class="pt">${esc(d.t||"")}</span></button>`}).join("")}</div>`:`<div class="empty"><strong>Пока нет мэтчей</strong>Свайпайте оба — когда фильм понравится вам двоим, он появится тут.</div>`}</div></div>`;
-  const inv=$("#inv");if(inv)inv.onclick=openProfile;wireList(k=>mine.swipes.get(k));fixRows()}
+  const inv=$("#inv");if(inv)inv.onclick=openProfile;wireList(k=>mine.swipes.get(k));fixRows();if(!me.guest)roomsSection()}
 let sh3d=ls.get("sh3d",false);let shelfType="",shelfWho="me",shelfQ="",shelfSort=ls.get("shsort","upd");
 const SORTS={upd:["Недавние",(a,b)=>(b.updated_at||"").localeCompare(a.updated_at||"")],my:["Моя оценка",(a,b)=>(b.rating||0)-(a.rating||0)],tmdb:["Рейтинг TMDB",(a,b)=>(b.data?.r||0)-(a.data?.r||0)],
-  year:["Год",(a,b)=>String(b.data?.y||"").localeCompare(String(a.data?.y||""))],abc:["Название",(a,b)=>(a.data?.t||"").localeCompare(b.data?.t||"","ru")]};
+  year:["Год",(a,b)=>String(b.data?.y||"").localeCompare(String(a.data?.y||""))],seen:["Дата просмотра",(a,b)=>String(b.watched_at||"").localeCompare(String(a.watched_at||""))],abc:["Название",(a,b)=>(a.data?.t||"").localeCompare(b.data?.t||"","ru")]};
 const pcardHTML=(r,attr)=>{const d=r.data||{},pp=d.poster||PC[r.tmdb],pg=r.progress?.s?`S${r.progress.s} · E${r.progress.e||0}`:"";
   return `<button class="pcard" ${attr} ${d.poster?"":`data-fix="${esc(r.tmdb)}"`}>${pp?`<img src="${IMG}w342${pp}" alt="" loading="lazy">`:`<img alt="">`}
     ${pg?`<span class="pp">${pg}</span>`:""}${r.rating?`<span class="pr">★ ${r.rating}</span>`:""}<span class="pt">${esc(d.t||d.title||"")}</span></button>`};
 function renderShelf(){
   const side=shelfWho==="me"?mine:theirs;
   const head=`<div class="view"><div class="wrap pad">${topBar("Полка","")}
-    <div class="row"><button class="pill ${shelfWho==="me"?"act":""}" data-w="me">Моя</button>${partner?`<button class="pill ${shelfWho==="pt"?"act":""}" data-w="pt">${esc(ptName())}</button>`:""}<button class="pill ${shelfWho==="lists"?"act":""}" data-w="lists">📁 Мои списки${lists.length?` <b>${lists.length}</b>`:""}</button><button class="pill ${sh3d?"act":""}" id="d3">🧊 3D</button><button class="pill" id="imp">⬆ Импорт</button><button class="pill" id="exp">⬇ Экспорт</button></div>`;
+    <div class="row"><button class="pill ${shelfWho==="me"?"act":""}" data-w="me">Моя</button>${partner?`<button class="pill ${shelfWho==="pt"?"act":""}" data-w="pt">${esc(ptName())}</button>`:""}<button class="pill ${shelfWho==="lists"?"act":""}" data-w="lists">📁 Мои списки${lists.length?` <b>${lists.length}</b>`:""}</button><button class="pill" id="roul">🎲 Что посмотреть</button><button class="pill ${sh3d?"act":""}" id="d3">🧊 3D</button><button class="pill" id="imp">⬆ Импорт</button><button class="pill" id="exp">⬇ Экспорт</button></div>`;
   if(shelfWho==="lists"){
     $("#main").innerHTML=head+`<div class="shtools"><input type="text" id="nl" maxlength="40" placeholder="Новый список, например «На Новый год»"><button class="btn red" id="nlB">Создать</button></div>
       ${lists.length?lists.map(l=>{const its=[...(listItems.get(l.id)||new Map()).values()];return `<div class="sh"><h2>${esc(l.name)}</h2><span class="sub">${its.length}</span><button class="btn ghost sm" data-dl="${l.id}" style="margin-left:auto">Удалить</button></div>
@@ -1202,7 +1230,7 @@ function renderShelf(){
   }
   const nlB=$("#nlB");if(nlB)nlB.onclick=async()=>{const n=$("#nl").value.trim();if(!n)return;const {data,error}=await sb.from("km_lists").insert({user_id:me.user_id,name:n}).select().single();if(error)return toast("Не получилось");lists.push(data);listItems.set(data.id,new Map());renderShelf()};
   $("#main").onclick=async e=>{const w=e.target.closest("[data-w]");if(w){shelfWho=w.dataset.w;return renderShelf()}
-    if(e.target.closest("#exp"))return exportShelf();if(e.target.closest("#imp"))return openImport();if(e.target.closest("#d3")){sh3d=!sh3d;ls.set("sh3d",sh3d);return renderShelf()}
+    if(e.target.closest("#exp"))return exportShelf();if(e.target.closest("#imp"))return openImport();if(e.target.closest("#roul"))return shelfRoulette();if(e.target.closest("#d3")){sh3d=!sh3d;ls.set("sh3d",sh3d);return renderShelf()}
     const dl=e.target.closest("[data-dl]");if(dl){if(!dl.dataset.c){dl.dataset.c=1;dl.textContent="Точно?";return}await sb.from("km_lists").delete().eq("id",dl.dataset.dl);lists=lists.filter(l=>l.id!==dl.dataset.dl);listItems.delete(dl.dataset.dl);return renderShelf()}
     const t=e.target.closest("#stt [data-k]");if(t){shelfType=t.dataset.k;return renderShelf()}
     const li=e.target.closest("[data-li]");if(li){const d=listItems.get(li.dataset.l)?.get(li.dataset.li)?.data;if(d?.kind)openDetail(d);return}
@@ -1264,17 +1292,21 @@ async function openDetail(it){
   const L=$("#layer");
   L.innerHTML=`<div class="detail" id="det"><div class="dhero">${(it.backdrop||it.poster)?`<img src="${IMG}w780${it.backdrop||it.poster}" alt="">`:""}<button class="dback" id="dBack">${backSvg} Назад</button></div>
     <div class="dbody pad"><div><div class="sub">${esc(TYPES[it.ty]||"")}${it.y?" · "+esc(it.y):""}${it.g?.length?" · "+esc(it.g.join(", ")):""}</div><h2 class="dtitle">${esc(it.t)}</h2></div>
-    <div id="dAct"></div><div id="dSoc"></div><div class="gal" id="dGal"></div>
-    <div class="sect"><span class="label">О чём</span><p class="desc">${esc(it.d||"")}</p></div><div id="dX"><div class="spin"></div></div></div></div>`;
+    <div id="dAct"></div><div id="dSoc"></div><div id="dChat"></div><div class="gal" id="dGal"></div>
+    <div class="sect"><span class="label">О чём</span><p class="desc">${esc(it.d||"")}</p></div><div id="dX"><div class="spin"></div></div><div id="dRev"></div></div></div>`;
+  renderReviews(it);renderChat(it);
   $("#dBack").onclick=()=>{L.innerHTML="";if(me)go(view);if(/[?&]m=/.test(location.search))history.replaceState(null,"",location.pathname)};
   const act=()=>{const r=me&&mine.shelf.get(it.k);if(!me){$("#dAct").innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn red" id="dTr">▶ Трейлер</button><button class="btn" id="dLog">Войти и сохранить на полку</button></div>`;
       $("#dTr").onclick=async()=>playTrailer(it,trailerOf(await details(it)));$("#dLog").onclick=()=>openLogin("up");return}$("#dAct").innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn red" id="dTr">▶ Трейлер</button>${r?"":`<button class="btn" id="dAdd">На мою полку</button>`}</div>
       ${r?`<div class="sect" style="margin-top:12px"><span class="label">Статус</span><div class="acts">${ST.map(s=>`<button class="act" data-st="${s.k}" style="--c:${s.c}" aria-pressed="${r.status===s.k}">${s.t}</button>`).join("")}</div></div>
       <div class="sect" style="margin-top:12px"><span class="label">Моя оценка</span><div class="stars">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button data-r="${n}" class="${r.rating>=n?"on":""}" aria-label="${n} из 10">★</button>`).join("")}</div></div>
       ${it.kind==="tv"?`<div class="sect" style="margin-top:12px"><span class="label">Где я остановился</span><div class="prog"><button data-pg="-" aria-label="Минус серия">−</button><b>${r.progress?.s?`${r.progress.s} сезон · ${r.progress.e||0} серия`:"не начат"}</b><button data-pg="+" aria-label="Плюс серия">+</button><button class="btn ghost sm" data-pg="s+" style="width:auto;border-radius:999px">След. сезон</button></div></div>`:""}
+      ${r.status==="done"?`<div class="sect" style="margin-top:12px"><span class="label">Когда смотрел</span><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input type="date" id="dWd" value="${esc(r.watched_at||"")}" max="${new Date().toISOString().slice(0,10)}" style="max-width:180px"><button class="btn sm" id="dRw">🔁 Пересмотрел${r.rewatch?` · ${r.rewatch}`:""}</button></div></div>`:""}
       <button class="btn ghost sm" id="dDel" style="margin-top:8px">Убрать с полки</button>`:""}`;
+    const wd=$("#dWd");if(wd)wd.onchange=async()=>{r.watched_at=wd.value||null;await sb.from("km_shelf").update({watched_at:r.watched_at}).match({user_id:me.user_id,tmdb:it.k});toast("Дата сохранена")};
+    const rw=$("#dRw");if(rw)rw.onclick=async()=>{r.rewatch=(r.rewatch||0)+1;r.watched_at=new Date().toISOString().slice(0,10);await sb.from("km_shelf").update({rewatch:r.rewatch,watched_at:r.watched_at}).match({user_id:me.user_id,tmdb:it.k});toast("Ещё один просмотр засчитан 🔁");act()};
     const add=$("#dAdd");if(add)add.onclick=async()=>{await addToShelf(it);act()};
-    $("#dAct").querySelectorAll("[data-st]").forEach(b=>b.onclick=async()=>{r.status=b.dataset.st;r.updated_at=new Date().toISOString();await sb.from("km_shelf").update({status:r.status,updated_at:r.updated_at}).match({user_id:me.user_id,tmdb:it.k});act()});
+    $("#dAct").querySelectorAll("[data-st]").forEach(b=>b.onclick=async()=>{r.status=b.dataset.st;r.updated_at=new Date().toISOString();const patch={status:r.status,updated_at:r.updated_at};if(r.status==="done"&&!r.watched_at){r.watched_at=r.updated_at.slice(0,10);patch.watched_at=r.watched_at}await sb.from("km_shelf").update(patch).match({user_id:me.user_id,tmdb:it.k});act()});
     $("#dAct").querySelectorAll("[data-r]").forEach(b=>b.onclick=async()=>{const n=+b.dataset.r;r.rating=r.rating===n?0:n;await sb.from("km_shelf").update({rating:r.rating}).match({user_id:me.user_id,tmdb:it.k});act()});
     const del=$("#dDel");if(del)del.onclick=async()=>{if(!del.dataset.c){del.dataset.c=1;del.textContent="Точно убрать? Нажмите ещё раз";return}mine.shelf.delete(it.k);await sb.from("km_shelf").delete().match({user_id:me.user_id,tmdb:it.k});act()};
     $("#dTr").onclick=async()=>playTrailer(it,trailerOf(await details(it)));
@@ -1354,6 +1386,130 @@ function renderSearch(){
   $("#main").onclick=async e=>{const ci=e.target.closest("[data-coll-i]");if(ci)return openColl(+ci.dataset.collI);const a=e.target.closest("[data-add]");if(a){await addToShelf(sres.find(x=>x.k===a.dataset.add));a.outerHTML='<span class="onsh">На полке ✓</span>';toast("На полке");return}
     const row=e.target.closest("[data-s]");if(row)openDetail(sres.find(x=>x.k===row.dataset.s))};
 }
+/* ---------- reviews by our users ---------- */
+async function renderReviews(it){const box=$("#dRev");if(!box)return;let j=null;try{const r=await REAL_SB.rpc("km_reviews_for",{t:it.k});j=r.data}catch(e){}if(!$("#dRev"))return;j=j||{avg:null,count:0,items:[]};
+  const mineR=me&&!me.guest?(j.items||[]).find(x=>x.user_id===me.user_id):null;let rate=mineR?.rating||0;
+  const draw=()=>{box.innerHTML=`<div class="sect"><span class="label">Отзывы Kinomatch</span>
+    <div class="revhead"><b class="big">${j.avg?`★ ${j.avg}`:"—"}</b><span>${j.count?`оценка наших пользователей · ${RN(j.count,"отзыв","отзыва","отзывов")}`:"Пока нет отзывов — будьте первым"}</span></div>
+    ${me&&!me.guest?`<div class="revform"><div class="stars" id="rvS">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button data-rv="${n}" class="${rate>=n?"on":""}" aria-label="${n} из 10">★</button>`).join("")}</div>
+      <textarea id="rvT" maxlength="1000" rows="3" placeholder="Что думаете? Без спойлеров 🙂">${esc(mineR?.text||"")}</textarea><div style="display:flex;gap:8px"><button class="btn red sm" id="rvGo">${mineR?"Обновить отзыв":"Оставить отзыв"}</button>${mineR?`<button class="btn ghost sm" id="rvDel">Удалить</button>`:""}</div></div>`
+      :`<button class="btn sm" id="rvLog">Войдите, чтобы оставить отзыв</button>`}
+    <div class="revs">${(j.items||[]).map(x=>`<div class="rev"><span class="av">${x.avatar_url?`<img src="${esc(x.avatar_url)}" alt="">`:esc((x.name||"?")[0].toUpperCase())}</span><div><b>${esc(x.name||"Зритель")}</b> <span class="rt">★ ${x.rating}</span><span class="dt">${fdate(x.updated_at)}</span>${x.text?`<p>${esc(x.text)}</p>`:""}</div></div>`).join("")}</div></div>`;
+    const S=$("#rvS");if(S)S.onclick=e=>{const b=e.target.closest("[data-rv]");if(!b)return;rate=+b.dataset.rv;S.querySelectorAll("[data-rv]").forEach(x=>x.classList.toggle("on",+x.dataset.rv<=rate))};
+    const go=$("#rvGo");if(go)go.onclick=async()=>{if(!rate)return toast("Поставьте оценку звёздами");const row={user_id:me.user_id,tmdb:it.k,rating:rate,text:$("#rvT").value.trim(),updated_at:new Date().toISOString()};
+      const {error}=await REAL_SB.from("km_reviews").upsert(row);if(error)return toast(/rate_limit/.test(error.message)?"Слишком много отзывов за час":"Не сохранилось");toast("Спасибо за отзыв!");renderReviews(it)};
+    const del=$("#rvDel");if(del)del.onclick=async()=>{await REAL_SB.from("km_reviews").delete().match({user_id:me.user_id,tmdb:it.k});renderReviews(it)};
+    const lg=$("#rvLog");if(lg)lg.onclick=()=>openLogin("up")};draw()}
+
+/* ---------- chat under a match ---------- */
+let chatFor=null;
+async function renderChat(it){const box=$("#dChat");if(!box||!me||me.guest||!partner)return;const isM=mine.swipes.get(it.k)?.v==="like"&&theirs.swipes.get(it.k)?.v==="like";if(!isM){box.innerHTML="";return}
+  chatFor=it.k;const {data}=await sb.from("km_msgs").select("*").eq("tmdb",it.k).order("at");if(!$("#dChat"))return;
+  box.innerHTML=`<div class="sect chat"><span class="label">💬 Обсудить с ${esc(ptName())}</span><div class="msgs" id="msgs">${(data||[]).map(msgHTML).join("")||`<p class="sub" style="margin:0">Это мэтч! Договоритесь, когда смотрите 🍿</p>`}</div>
+    <div class="quick">${["Го сегодня? 🍿","В выходные?","После 21:00","Уже скачал(а) 😎"].map(q=>`<button class="chip" data-q="${esc(q)}">${esc(q)}</button>`).join("")}</div>
+    <form id="msgF" class="msgf"><input id="msgI" maxlength="500" placeholder="Сообщение…" autocomplete="off"><button class="btn red sm">Отправить</button></form></div>`;
+  const m=$("#msgs");m.scrollTop=m.scrollHeight;
+  const send=async t=>{t=t.trim();if(!t)return;const {data:row,error}=await sb.from("km_msgs").insert({from_user:me.user_id,to_user:partner.user_id,tmdb:it.k,text:t}).select().single();if(error)return toast("Не отправилось");addMsg(row);tgCall({action:"notify",kind:"msg",tmdb:it.k})};
+  $("#msgF").onsubmit=e=>{e.preventDefault();const i=$("#msgI");send(i.value);i.value=""};box.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>send(b.dataset.q))}
+const msgHTML=x=>`<div class="msg ${x.from_user===me?.user_id?"me":""}" data-id="${x.id}">${esc(x.text)}<small>${new Date(x.at).toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"})}</small></div>`;
+function addMsg(x){const m=$("#msgs");if(!m||chatFor!==x.tmdb||m.querySelector(`[data-id="${x.id}"]`))return;const p=m.querySelector("p.sub");if(p)p.remove();m.insertAdjacentHTML("beforeend",msgHTML(x));m.scrollTop=m.scrollHeight}
+
+/* ---------- rooms for 2–8 friends ---------- */
+let roomCh=null;
+async function loadRooms(){if(!me||me.guest)return[];const {data}=await sb.from("km_rooms").select("*").order("created_at",{ascending:false});myRooms=data||[];return myRooms}
+async function createRoom(){if(needAccount("Комнаты с друзьями"))return;sheet(`<h2>👥 Новая комната</h2><p class="sub" style="margin:-6px 0 0">Все свайпают одну колоду из 36 фильмов по вашим фильтрам. В итогах — что понравилось всем или большинству.</p>
+    <input id="rmN" maxlength="40" placeholder="Название, например «Пятница у Димы»"><div class="sticky"><button class="btn red" id="rmGo" style="flex:1">Создать и позвать друзей</button></div>`);
+  $("#rmGo").onclick=async()=>{const b=$("#rmGo");b.disabled=true;toast("Собираю колоду…");const keep=night;night=null;await fill(36);night=keep;
+    const d=deck.filter(x=>!mine.swipes.has(x.k)).slice(0,36).map(slim);const {data,error}=await sb.rpc("km_room_create",{n:$("#rmN").value,d});
+    if(error||!data){b.disabled=false;return toast("Не получилось создать")}closeSheet();await enterRoom(data);shareRoom(data)}}
+function roomLink(r){return SITE+"?room="+r.code}
+async function shareRoom(r){const url=roomLink(r),text=`Залетай в комнату «${r.name}» в Kinomatch — выберем фильм вместе 🍿`;if(navigator.share){try{await navigator.share({title:"Kinomatch",text,url});return}catch(e){}}copy(text+" "+url)}
+async function joinRoom(code){if(needAccount("Комнаты с друзьями"))return;const {data,error}=await sb.rpc("km_room_join",{c:code});if(error||!data||data.error)return toast(data?.error==="full"?"Комната заполнена (макс. 8)":data?.error==="not_found"?"Комната не найдена":"Не получилось войти");await enterRoom(data);toast("Вы в комнате «"+data.name+"»")}
+async function enterRoom(r){room={...r,people:[],votes:new Map()};const [pp,vs]=await Promise.all([sb.rpc("km_room_people",{r:r.id}),sb.from("km_room_swipes").select("*").eq("room_id",r.id)]);
+  room.people=pp.data||[];(vs.data||[]).forEach(v=>{if(!room.votes.has(v.tmdb))room.votes.set(v.tmdb,new Map());room.votes.get(v.tmdb).set(v.user_id,v.v)});
+  const done=new Set([...room.votes.entries()].filter(([,m])=>m.has(me.user_id)).map(([k])=>k));deck=(r.deck||[]).filter(x=>!done.has(x.k));hist=[];
+  try{roomCh&&REAL_SB.removeChannel(roomCh)}catch(e){}
+  roomCh=REAL_SB.channel("room:"+r.id).on("postgres_changes",{event:"*",schema:"public",table:"km_room_swipes",filter:"room_id=eq."+r.id},pl=>{const v=pl.new;if(!v?.tmdb)return;if(!room.votes.has(v.tmdb))room.votes.set(v.tmdb,new Map());room.votes.get(v.tmdb).set(v.user_id,v.v);roomUpd()})
+    .on("postgres_changes",{event:"INSERT",schema:"public",table:"km_room_members",filter:"room_id=eq."+r.id},async()=>{const {data}=await sb.rpc("km_room_people",{r:r.id});room.people=data||room.people;roomUpd();toast("👋 В комнату зашёл новый человек")}).subscribe();
+  go("swipe")}
+function roomInfo(){if(!room)return"";const n=room.people.length,t=(room.deck||[]).length,mineN=[...room.votes.values()].filter(m=>m.has(me.user_id)).length;
+  const all=[...room.votes.values()].filter(m=>[...m.values()].filter(v=>v==="like").length>=Math.max(2,Math.ceil(n*.6))).length;return `${RN(n,"человек","человека","человек")} · вы: ${mineN}/${t} · совпадений: ${all}`}
+function roomUpd(){const el=$("#roomInfo");if(el)el.textContent=roomInfo()}
+async function roomVote(it,v){if(!room)return;if(!room.votes.has(it.k))room.votes.set(it.k,new Map());room.votes.get(it.k).set(me.user_id,v);roomUpd();
+  await sb.from("km_room_swipes").upsert({room_id:room.id,user_id:me.user_id,tmdb:it.k,v,at:new Date().toISOString()})}
+function roomSummary(){if(!room)return;const n=room.people.length,list=(room.deck||[]).map(x=>{const m=room.votes.get(x.k)||new Map();const yes=[...m.entries()].filter(([,v])=>v==="like").map(([u])=>u);return{x,yes,seen:m.size}}).filter(o=>o.yes.length).sort((a,b)=>b.yes.length-a.yes.length);
+  const nm=u=>room.people.find(p=>p.user_id===u)?.name||"?";
+  sheet(`<h2>👥 «${esc(room.name)}» — итоги</h2><p class="sub" style="margin:-6px 0 0">${RN(n,"участник","участника","участников")} · код комнаты <b>${esc(room.code)}</b></p>
+    <div class="list">${list.slice(0,20).map(o=>`<div class="lrow" data-rk="${esc(o.x.k)}">${thumb(o.x)}<div class="lt"><b>${esc(o.x.t)}</b><span>${o.yes.length===n?"🔥 Хотят все":`👍 ${o.yes.length} из ${n}`}</span><span class="clamp">${esc(o.yes.map(nm).join(", "))}</span></div></div>`).join("")||`<p class="sub">Пока никто ничего не лайкнул.</p>`}</div>
+    <div class="sticky">${list.length?`<button class="btn red" id="rmRoll" style="flex:1">🎲 Выбрать за нас</button>`:""}<button class="btn" id="rmInv">Позвать ещё</button><button class="btn ghost" id="rmOut">Выйти</button></div>`);
+  document.querySelectorAll("[data-rk]").forEach(b=>b.onclick=()=>{closeSheet();openDetail(list.find(o=>o.x.k===b.dataset.rk).x)});
+  const rl=$("#rmRoll");if(rl)rl.onclick=()=>{const top=list.filter(o=>o.yes.length===list[0].yes.length),w=top[Math.floor(Math.random()*top.length)].x;closeSheet();confetti();snd("match");toast("🎲 Смотрим: «"+w.t+"»");openDetail(w)};
+  $("#rmInv").onclick=()=>shareRoom(room);$("#rmOut").onclick=()=>{try{REAL_SB.removeChannel(roomCh)}catch(e){}room=null;closeSheet();resetDeck();go("swipe")}}
+async function roomsSection(){const el=$("#roomsBox");if(!el)return;const rs=await loadRooms();if(!$("#roomsBox"))return;
+  el.innerHTML=`<div class="sh"><h2>👥 Комнаты с друзьями</h2><span class="sub">2–8 человек</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><button class="btn red sm" id="rmNew">Создать комнату</button><button class="btn sm" id="rmCode">Войти по коду</button></div>
+    ${rs.map(r=>`<button class="lrow" style="width:100%;text-align:left" data-room="${r.id}"><div class="lt"><b>${esc(r.name)}</b><span>код ${esc(r.code)} · ${fdate(r.created_at)}</span></div></button>`).join("")}`;
+  $("#rmNew").onclick=createRoom;$("#rmCode").onclick=()=>{sheet(`<h2>Войти в комнату</h2><input id="rmC" maxlength="6" placeholder="Код из 6 символов" style="text-transform:uppercase"><div class="sticky"><button class="btn red" id="rmJ" style="flex:1">Войти</button></div>`);$("#rmJ").onclick=()=>{const c=$("#rmC").value.trim();if(c){closeSheet();joinRoom(c)}}};
+  el.querySelectorAll("[data-room]").forEach(b=>b.onclick=()=>enterRoom(rs.find(r=>r.id===b.dataset.room)))}
+
+/* ---------- public profile ---------- */
+async function openPublic(u){let j=null;try{j=(await REAL_SB.rpc("km_public",{u})).data}catch(e){}const L=$("#layer");
+  if(!j){L.innerHTML=`<div class="detail" id="det"><div class="dbody pad"><button class="dback" id="dBack" style="position:static">${backSvg} Назад</button><div class="empty"><strong>Профиль скрыт или не найден</strong></div></div></div>`;$("#dBack").onclick=()=>{L.innerHTML="";history.replaceState(null,"",location.pathname);if(me)go(view)};return}
+  const sh=j.shelf||[],done=sh.filter(r=>r.status==="done"),g={};done.forEach(r=>(r.data?.g||[]).forEach(x=>g[x]=(g[x]||0)+1));const topG=Object.entries(g).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]);
+  document.title=`${j.name} — полка в Kinomatch`;
+  L.innerHTML=`<div class="detail" id="det"><div class="dbody pad" style="padding-top:20px"><button class="dback" id="dBack" style="position:static;margin-bottom:12px">${backSvg} Назад</button>
+    <div style="display:flex;gap:14px;align-items:center"><span class="av" style="width:64px;height:64px;font-size:1.6rem">${j.avatar_url?`<img src="${esc(j.avatar_url)}" alt="">`:esc((j.name||"?")[0])}</span><div><h2 class="dtitle" style="margin:0">${esc(j.name)}</h2><span class="sub">${RN(done.length,"фильм","фильма","фильмов")} посмотрено${topG.length?" · любит "+esc(topG.join(", ")):""}</span></div></div>
+    ${!me?`<button class="btn red" style="margin-top:14px" data-guest2>Свайпать свои фильмы в Kinomatch</button>`:""}
+    ${["watching","done"].map(st=>{const l=sh.filter(r=>r.status===st);return l.length?`<div class="sh"><h2>${st==="done"?"Посмотрено":"Смотрит сейчас"}</h2><span class="sub">${l.length}</span></div><div class="pgrid">${l.map(r=>pcardHTML(r,`data-pub="${esc(r.tmdb)}"`)).join("")}</div>`:""}).join("")}</div></div>`;
+  $("#dBack").onclick=()=>{L.innerHTML="";history.replaceState(null,"",location.pathname);if(me)go(view)};const g2=L.querySelector("[data-guest2]");if(g2)g2.onclick=()=>{L.innerHTML="";startGuest()};
+  L.querySelectorAll("[data-pub]").forEach(b=>b.onclick=()=>{const d=sh.find(r=>r.tmdb===b.dataset.pub)?.data;if(d?.kind)openDetail(d)})}
+
+/* ---------- my movie year ---------- */
+async function openYear(){const y=new Date().getFullYear(),done=[...mine.shelf.values()].filter(r=>r.status==="done"&&String(r.watched_at||r.updated_at||"").startsWith(String(y)));
+  sheet(`<h2>🎬 Мой кино-${y}</h2><div class="swempty"><div class="spin"></div></div>`);let mins=0;
+  await Promise.all(done.slice(0,80).map(async r=>{if(!r.data?.kind)return;try{const d=await details(r.data);const rt=r.data.kind==="tv"?((d.episode_run_time||[])[0]||40)*(d.number_of_episodes||8):d.runtime||110;mins+=rt*(1+(r.rewatch||0))}catch(e){}}));
+  const g={};done.forEach(r=>(r.data?.g||[]).forEach(x=>g[x]=(g[x]||0)+1));const topG=Object.entries(g).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  const best=done.filter(r=>r.rating).sort((a,b)=>b.rating-a.rating)[0],hours=Math.round(mins/60),sw=[...mine.swipes.values()].filter(r=>String(r.at||"").startsWith(String(y))).length,mt=matchesList().length;
+  const Y={y,n:done.length,hours,sw,mt,topG:topG.map(x=>x[0]),best:best?.data?.t,bestP:best?.data?.poster};
+  const s=$(".sheet");if(!s)return;s.innerHTML=`<h2>🎬 Мой кино-${y}</h2><div class="year">
+    <div><b>${done.length}</b>${RN(done.length,"фильм и сериал","фильма и сериала","фильмов и сериалов").replace(/^\d+ /,"")}</div><div><b>${hours}</b>${RN(hours,"час","часа","часов").replace(/^\d+ /,"")} перед экраном</div>
+    <div><b>${sw}</b>свайпов</div><div><b>${mt}</b>мэтчей с парой</div></div>
+    ${topG.length?`<p class="sub" style="margin:4px 0">Любимые жанры: <b style="color:var(--ink)">${esc(topG.map(x=>x[0]).join(", "))}</b></p>`:""}${best?`<p class="sub" style="margin:0">Лучший фильм года: <b style="color:var(--ink)">${esc(best.data?.t||"")}</b> — ★ ${best.rating}</p>`:""}
+    ${done.length?"":`<p class="sub">Отмечайте просмотренное на полке — и тут появится ваша статистика.</p>`}
+    <div class="sticky"><button class="btn red" id="yrImg" style="flex:1">📸 Картинка для сторис</button></div>`;
+  $("#yrImg").onclick=()=>yearImage(Y)}
+async function yearImage(Y){const c=document.createElement("canvas");c.width=1080;c.height=1920;const g=c.getContext("2d");
+  const bg=g.createLinearGradient(0,0,1080,1920);bg.addColorStop(0,"#1a0508");bg.addColorStop(.5,"#0b0b0d");bg.addColorStop(1,"#22060c");g.fillStyle=bg;g.fillRect(0,0,1080,1920);
+  const load=src=>new Promise(ok=>{const i=new Image();i.crossOrigin="anonymous";i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=src});
+  if(Y.bestP){const im=await load(IMG+"w500"+Y.bestP);if(im){g.save();g.globalAlpha=.9;const w=520,h=780,x=(1080-w)/2,yy=980;g.beginPath();g.roundRect(x,yy,w,h,36);g.clip();g.drawImage(im,x,yy,w,h);g.restore()}}
+  g.fillStyle="#ff2d3f";g.font="800 44px Unbounded, Manrope, sans-serif";g.fillText("KINOMATCH",80,140);g.fillStyle="#fff";g.font="900 120px Unbounded, Manrope, sans-serif";g.fillText("Мой кино-",80,330);g.fillText(String(Y.y),80,470);
+  const st=[[Y.n,"просмотрено"],[Y.hours,"часов кино"],[Y.sw,"свайпов"],[Y.mt,"мэтчей"]];st.forEach(([v,l],i)=>{const x=80+(i%2)*480,y=620+Math.floor(i/2)*170;g.fillStyle="#ffc93c";g.font="900 96px Unbounded, Manrope, sans-serif";g.fillText(String(v),x,y);g.fillStyle="#c9c7cf";g.font="700 38px Manrope, sans-serif";g.fillText(l,x,y+52)});
+  if(Y.topG.length){g.fillStyle="#fff";g.font="800 40px Manrope, sans-serif";g.fillText("Любимое: "+Y.topG.join(", "),80,930)}
+  if(Y.best){g.fillStyle="#fff";g.font="800 42px Manrope, sans-serif";g.fillText("Фильм года: "+Y.best,80,1840)}
+  c.toBlob(async b=>{const f=new File([b],`kinomatch-${Y.y}.png`,{type:"image/png"});if(navigator.canShare?.({files:[f]})){try{await navigator.share({files:[f],title:"Мой кино-год"});return}catch(e){}}
+    const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=f.name;document.body.appendChild(a);a.click();a.remove();toast("Картинка сохранена")},"image/png")}
+
+/* ---------- "you wanted to watch this" ---------- */
+function remindWant(){if(!me||ls.get("remindAt",0)>Date.now()-6*864e5)return;const old=[...mine.shelf.values()].filter(r=>r.status==="want"&&r.data?.kind&&Date.now()-Date.parse(r.added_at||r.updated_at||0)>21*864e5);if(!old.length)return;
+  ls.set("remindAt",Date.now());const pick=()=>old[Math.floor(Math.random()*old.length)];let r=pick();
+  const show=()=>{const days=Math.round((Date.now()-Date.parse(r.added_at||r.updated_at))/864e5);sheet(`<h2>🍿 Может, сегодня?</h2><div class="lrow">${thumb(r.data)}<div class="lt"><b>${esc(r.data.t)}</b><span>Вы хотели посмотреть это ${RN(days,"день","дня","дней")} назад</span></div></div>
+    <div class="sticky"><button class="btn red" id="rmY" style="flex:1">Смотрим сегодня</button>${old.length>1?`<button class="btn" id="rmR">🎲 Другой</button>`:""}<button class="btn ghost" id="rmL">Позже</button></div>`);
+    $("#rmY").onclick=async()=>{r.status="watching";await sb.from("km_shelf").update({status:"watching",updated_at:new Date().toISOString()}).match({user_id:me.user_id,tmdb:r.tmdb});closeSheet();openDetail(r.data)};
+    const rr=$("#rmR");if(rr)rr.onclick=()=>{r=pick();show()};$("#rmL").onclick=closeSheet};setTimeout(show,2500)}
+function shelfRoulette(){const l=[...mine.shelf.values()].filter(r=>r.status==="want"&&r.data?.kind);if(!l.length)return toast("В «Хочу» пока пусто");const r=l[Math.floor(Math.random()*l.length)];confetti();toast("🎲 С полки: «"+r.data.t+"»");openDetail(r.data)}
+
+/* ---------- wow onboarding: pick genres by picture ---------- */
+const ONB=[["боевик","💥"],["комедия","😂"],["ужасы","😱"],["мелодрама","💘"],["фантастика","🚀"],["триллер","🔪"],["драма","🎭"],["детектив","🕵️"],["мультфильм","🧸"],["приключения","🗺️"],["фэнтези","🐉"],["криминал","🚔"]];
+async function openOnboarding(force){if(!force&&(ls.get("onbDone",false)||mine.swipes.size>4))return false;const L=$("#sheetRoot")||$("#layer");
+  L.innerHTML=`<div class="onb" id="onb"><div class="onbin"><h2>Что вы любите смотреть?</h2><p>Выберите хотя бы 3 жанра — первая колода сразу будет под вас</p><div class="onbg" id="onbg">${ONB.map(([g,e],i)=>`<button class="ot" data-g="${g}" style="animation-delay:${i*45}ms"><i></i><span>${e}</span><b>${cap1(g)}</b></button>`).join("")}</div>
+    <div class="onbbar"><span id="onbN">Выбрано 0</span><button class="btn ghost" id="onbSkip">Пропустить</button><button class="btn red big" id="onbGo" disabled>Поехали!</button></div></div></div>`;
+  const sel=new Set();
+  ONB.forEach(async([g])=>{try{const ids=genreIds(g,"movie");if(!ids.length)return;const r=await tmdb("/discover/movie",{with_genres:String(ids[0]),sort_by:"popularity.desc","vote_count.gte":"3000"});const x=(r.results||[]).find(z=>z.backdrop_path)||{};
+    const t=L.querySelector(`[data-g="${g}"] i`);if(t&&x.backdrop_path){t.style.backgroundImage=`url(${IMG}w500${x.backdrop_path})`;t.classList.add("on")}}catch(e){}});
+  const upd=()=>{$("#onbN").textContent=`Выбрано ${sel.size}`;$("#onbGo").disabled=sel.size<3;$("#onbGo").textContent=sel.size<3?`Ещё ${3-sel.size}`:"Поехали!"};upd();
+  $("#onbg").onclick=e=>{const b=e.target.closest("[data-g]");if(!b)return;const g=b.dataset.g;sel.has(g)?sel.delete(g):sel.add(g);b.classList.toggle("sel",sel.has(g));snd("tap");try{navigator.vibrate&&navigator.vibrate(6)}catch(_){}upd()};
+  return new Promise(done=>{const fin=async ok=>{ls.set("onbDone",true);if(ok){const p={...DEF_PREFS(),...(prefs||{}),yes:[...sel],person:null,fresh:false};confetti();await savePrefs(p)}L.innerHTML="";done(true)};
+    $("#onbGo").onclick=()=>fin(true);$("#onbSkip").onclick=()=>fin(false)})}
+
 /* ---------- guest mode ---------- */
 const GKEY={km_swipes:r=>r.tmdb,km_shelf:r=>r.tmdb,km_prefs:()=>"p",km_reactions:r=>r.tmdb,km_lists:r=>r.id,km_list_items:r=>r.list_id+"|"+r.tmdb,km_watch:r=>r.tmdb};
 function gdb(){try{return JSON.parse(localStorage.getItem("km_guest")||"{}")}catch(e){return{}}}
@@ -1380,7 +1536,7 @@ function guestClient(real){
 const REAL_SB=sb;
 async function startGuest(){if(started)return;sb=guestClient(REAL_SB);ls.set("guest",true);started=true;
   $("#land").hidden=true;closeModal();$("#app").hidden=false;document.body.classList.add("inapp");$("#main").innerHTML=`<div class="swempty"><div class="spin"></div></div>`;
-  me={user_id:"guest",name:"Гость",pair_code:"",guest:true};await Promise.all([loadAll(),loadGenres()]);buildSources();go("swipe");openFromLink();setTimeout(()=>startTour(false),900)}
+  me={user_id:"guest",name:"Гость",pair_code:"",guest:true};await Promise.all([loadAll(),loadGenres()]);buildSources();go("swipe");openFromLink();setTimeout(async()=>{await openOnboarding(false);startTour(false)},700)}
 function needAccount(what){if(!me?.guest)return false;sheet(`<h2>Нужен аккаунт</h2><p class="sub" style="margin:-6px 0 0">${esc(what||"Эта функция работает после регистрации")}. Регистрация занимает 20 секунд — всё, что вы уже налайкали, переедет в аккаунт.</p>
   <div class="sticky"><button class="btn red" id="gReg" style="flex:1">Создать аккаунт</button><button class="btn" id="gLog">Войти</button></div>`);
   $("#gReg").onclick=()=>{closeSheet();openLogin("up")};$("#gLog").onclick=()=>{closeSheet();openLogin()};return true}
@@ -1428,10 +1584,13 @@ async function start(session){
   await Promise.all([loadAll(),loadGenres()]);await importFirstVersion();
   const pair=new URLSearchParams(location.search).get("pair");
   if(pair){history.replaceState(null,"",location.pathname);if(!partner&&pair.toUpperCase()!==me.pair_code)await pairWith(pair)}
-  buildSources();go("swipe");nightListen();openFromLink();showWatchNews();if(!new URLSearchParams(location.search).get("m"))setTimeout(()=>startTour(false),900);
+  buildSources();go("swipe");nightListen();openFromLink();showWatchNews();
+  const qs=new URLSearchParams(location.search);if(qs.get("room")){history.replaceState(null,"",location.pathname);joinRoom(qs.get("room"))}if(qs.get("u"))openPublic(qs.get("u"));
+  if(!qs.get("m")&&!qs.get("u"))setTimeout(async()=>{await openOnboarding(false);startTour(false)},700);remindWant();
   const nr=[...recsIn.values()].filter(r=>!r.seen&&!mine.swipes.has(r.tmdb)).length;if(nr)setTimeout(()=>toast(`💌 ${ptName()} посоветовал(а) ${RN(nr,"фильм","фильма","фильмов")} — они первые в свайпе`),900);
   sb.channel("km").on("postgres_changes",{event:"*",schema:"public",table:"km_swipes"},pl=>{const r=pl.new?.user_id?pl.new:pl.old;if(!r?.user_id||r.user_id===me.user_id)return;
       if(pl.eventType==="DELETE")theirs.swipes.delete(r.tmdb);else{theirs.swipes.set(r.tmdb,pl.new);const my=mine.swipes.get(pl.new.tmdb);if(pl.new.v==="like"&&my?.v==="like"&&pl.new.data)showMatch(pl.new.data,pl.new.mega&&my.mega)}counts()})
+    .on("postgres_changes",{event:"INSERT",schema:"public",table:"km_msgs"},pl=>{const x=pl.new;if(!x||x.to_user!==me.user_id)return;if(chatFor===x.tmdb&&$("#msgs"))addMsg(x);else{const t=mine.swipes.get(x.tmdb)?.data?.t;toast(`💬 ${ptName()}: ${x.text}${t?` · «${t}»`:""}`);snd("tap")}})
     .on("postgres_changes",{event:"INSERT",schema:"public",table:"km_recs"},pl=>{const r=pl.new;if(r?.to_user!==me.user_id)return;recsIn.set(r.tmdb,r);
       if(r.data?.kind&&!mine.swipes.has(r.tmdb)){deck=deck.filter(x=>x.k!==r.tmdb);deck.splice(1,0,r.data)}toast(`💌 ${ptName()} советует «${r.data?.t||"фильм"}» — он следующий в свайпе`)})
     .on("postgres_changes",{event:"*",schema:"public",table:"km_reactions"},pl=>{const r=pl.new?.user_id?pl.new:pl.old;if(!r?.user_id||r.user_id===me.user_id)return;if(pl.eventType==="DELETE")theirs.rx.delete(r.tmdb);else theirs.rx.set(r.tmdb,r.emoji)})
