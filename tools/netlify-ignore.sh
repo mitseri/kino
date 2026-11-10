@@ -3,6 +3,8 @@
 # Waits for the GitHub "smoke" test of this commit; a failed test keeps the broken version off the site.
 REF="${COMMIT_REF}"
 [ -z "$REF" ] && exit 1
+# weekly page refresh from the bot: no code changed, deploy right away
+git log -1 --format=%s "$REF" 2>/dev/null | grep -q "^seo:" && { echo "seo refresh — deploying"; exit 1; }
 for i in $(seq 1 40); do
   J=$(curl -s "https://api.github.com/repos/mitseri/kino/commits/$REF/check-runs?check_name=smoke")
   ST=$(echo "$J" | grep -o '"status": *"[a-z_]*"' | head -1 | sed 's/.*"\([a-z_]*\)"$/\1/')

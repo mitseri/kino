@@ -9,6 +9,7 @@ const PROXY = "https://ebswykhozbzobrypderu.supabase.co/functions/v1/kino-tmdb";
 const KEY = "sb_publishable_gUTbeq9JD9WOfaVDL5oPIA_8tt__0Us";
 const IMG = "https://image.tmdb.org/t/p/";
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const MAXF = Number(process.env.MAXF || 3200);
 const LANGS = {ru: {tmdb: "ru-RU", dir: "", name: "Русский"}, uk: {tmdb: "uk-UA", dir: "uk/", name: "Українська"}};
 
 const COLLS = [
@@ -28,8 +29,8 @@ const COLLS = [
   {s: "novinki", ru: ["Новинки в хорошем качестве", "Фильмы, которые недавно вышли в цифровом релизе."], uk: ["Новинки в хорошій якості", "Фільми, що нещодавно вийшли в цифровому релізі."], p: "/discover/movie", q: {sort_by: "popularity.desc", "vote_count.gte": "15", with_release_type: "4|5", "release_date.gte": daysAgo(150), "release_date.lte": daysAgo(0)}}];
 
 const T = {
-  ru: {home: "Главная", colls: "Подборки", cta: "Свайпать в Kinomatch", ctaFilm: "Добавить на полку в Kinomatch", where: "Где смотреть в Украине", none: "Пока не найдено в украинских сервисах", plot: "О чём", cast: "В ролях", dir: "Режиссёр", creators: "Создатели", genres: "Жанры", year: "Год", runtime: "Длительность", seasons: "Сезоны", rating: "Рейтинг TMDB", trailer: "Смотреть трейлер на YouTube", similar: "Похожие", film: "Фильм", series: "Сериал", min: "мин", allColls: "Все подборки", about: "Kinomatch — тиндер для фильмов: свайпайте фильмы и сериалы вдвоём, а когда понравится обоим — мэтч.", hubT: "Подборки фильмов и сериалов — Kinomatch", hubD: "Готовые подборки: что посмотреть вдвоём, лучшие сериалы, аниме, дорамы, хорроры и комедии. Свайпайте их вместе в Kinomatch.", lang: "Українською", subscr: "подписка", buy: "покупка или аренда", watch: "смотреть", tmdb: "Данные о фильмах — TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB."},
-  uk: {home: "Головна", colls: "Добірки", cta: "Свайпати в Kinomatch", ctaFilm: "Додати на полицю в Kinomatch", where: "Де дивитися в Україні", none: "Поки не знайдено в українських сервісах", plot: "Про що", cast: "У ролях", dir: "Режисер", creators: "Творці", genres: "Жанри", year: "Рік", runtime: "Тривалість", seasons: "Сезони", rating: "Рейтинг TMDB", trailer: "Дивитися трейлер на YouTube", similar: "Схожі", film: "Фільм", series: "Серіал", min: "хв", allColls: "Усі добірки", about: "Kinomatch — тіндер для фільмів: свайпайте фільми й серіали удвох, а коли сподобається обом — метч.", hubT: "Добірки фільмів і серіалів — Kinomatch", hubD: "Готові добірки: що подивитися удвох, найкращі серіали, аніме, дорами, жахи й комедії. Свайпайте їх разом у Kinomatch.", lang: "По-русски", subscr: "підписка", buy: "купівля або оренда", watch: "дивитися", tmdb: "Дані про фільми — TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB."}};
+  ru: {home: "Главная", colls: "Подборки", cta: "Свайпать в Kinomatch", ctaFilm: "Добавить на полку в Kinomatch", where: "Где смотреть в Украине", none: "Пока не найдено в украинских сервисах", plot: "О чём", cast: "В ролях", dir: "Режиссёр", creators: "Создатели", genres: "Жанры", year: "Год", runtime: "Длительность", seasons: "Сезоны", rating: "Рейтинг TMDB", trailer: "Смотреть трейлер на YouTube", similar: "Похожие", film: "Фильм", series: "Сериал", min: "мин", allColls: "Все подборки", about: "Kinomatch — тиндер для фильмов: свайпайте фильмы и сериалы вдвоём, а когда понравится обоим — мэтч.", hubT: "Подборки фильмов и сериалов — Kinomatch", hubD: "Готовые подборки: что посмотреть вдвоём, лучшие сериалы, аниме, дорамы, хорроры и комедии. Свайпайте их вместе в Kinomatch.", lang: "Українською", simT: "Похожие на", simL: "Если понравился этот фильм, посмотрите и эти — подобрано по оценкам зрителей.", allSim: "Все похожие", actors: "Актёры", actorFilms: "Фильмы и сериалы", bio: "Биография", born: "Родился(ась)", actHubT: "Популярные актёры — фильмы и сериалы | Kinomatch", actHubD: "Актёры и актрисы с лучшими фильмами и сериалами: биография и где смотреть в Украине.", subscr: "подписка", buy: "покупка или аренда", watch: "смотреть", tmdb: "Данные о фильмах — TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB."},
+  uk: {home: "Головна", colls: "Добірки", cta: "Свайпати в Kinomatch", ctaFilm: "Додати на полицю в Kinomatch", where: "Де дивитися в Україні", none: "Поки не знайдено в українських сервісах", plot: "Про що", cast: "У ролях", dir: "Режисер", creators: "Творці", genres: "Жанри", year: "Рік", runtime: "Тривалість", seasons: "Сезони", rating: "Рейтинг TMDB", trailer: "Дивитися трейлер на YouTube", similar: "Схожі", film: "Фільм", series: "Серіал", min: "хв", allColls: "Усі добірки", about: "Kinomatch — тіндер для фільмів: свайпайте фільми й серіали удвох, а коли сподобається обом — метч.", hubT: "Добірки фільмів і серіалів — Kinomatch", hubD: "Готові добірки: що подивитися удвох, найкращі серіали, аніме, дорами, жахи й комедії. Свайпайте їх разом у Kinomatch.", lang: "По-русски", simT: "Схожі на", simL: "Якщо сподобався цей фільм, подивіться й ці — дібрано за оцінками глядачів.", allSim: "Усі схожі", actors: "Актори", actorFilms: "Фільми та серіали", bio: "Біографія", born: "Народився(лася)", actHubT: "Популярні актори — фільми та серіали | Kinomatch", actHubD: "Актори й акторки з найкращими фільмами та серіалами: біографія і де дивитися в Україні.", subscr: "підписка", buy: "купівля або оренда", watch: "дивитися", tmdb: "Дані про фільми — TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB."}};
 
 function daysAgo(n) { return new Date(Date.now() - n * 864e5).toISOString().slice(0, 10); }
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
@@ -76,13 +77,14 @@ h1{font:800 clamp(1.6rem,5vw,2.6rem)/1.12 Unbounded,system-ui;margin:12px 0 10px
 footer{border-top:1px solid var(--line);margin-top:40px;padding:22px 0 40px;color:var(--mu);font-size:.82rem}footer a{color:var(--mu)}
 .film img.p,.card img{height:auto}header .cta{white-space:nowrap;padding:10px 15px;font-size:.85rem;margin-left:auto}header nav+.cta{margin-left:0}
 @media(max-width:700px){.film{grid-template-columns:1fr}.film img.p{max-width:220px}header nav{display:none}}</style></head>
-<body><div class="w"><header><a class="logo" href="/"><img src="/logo.svg" alt="" width="28" height="28">Kinomatch</a><nav><a href="/${LANGS[lang].dir}podborki/">${t.colls}</a><a href="${alt ? (lang === "ru" ? alt.uk : alt.ru) : "/"}">${t.lang}</a></nav><a class="cta" href="/">${t.cta}</a></header>
+<body><div class="w"><header><a class="logo" href="/"><img src="/logo.svg" alt="" width="28" height="28">Kinomatch</a><nav><a href="/${LANGS[lang].dir}podborki/">${t.colls}</a><a href="/${LANGS[lang].dir}aktery/">${t.actors}</a><a href="${alt ? (lang === "ru" ? alt.uk : alt.ru) : "/"}">${t.lang}</a></nav><a class="cta" href="/">${t.cta}</a></header>
 ${body}
 <footer><p>${t.about}</p><p><a href="/${LANGS[lang].dir}podborki/">${t.allColls}</a> · <a href="/privacy.html">Privacy</a></p><p>${t.tmdb}</p></footer></div></body></html>`;
 }
 
+const BUILT = new Set();
 function cardHTML(lang, f) {
-  return `<a class="card" href="${filmUrl(lang, f)}"><img src="${IMG}w342${f.poster}" alt="${esc(f.title)}" loading="lazy" width="342" height="513"><b>${esc(f.title)}</b><span>${f.year || ""}${f.rating ? " · ★ " + f.rating : ""}</span></a>`;
+  return `<a class="card" href="${BUILT.has(f.kind + "-" + f.id) ? filmUrl(lang, f) : appUrl(f)}"><img src="${IMG}w342${f.poster}" alt="${esc(f.title)}" loading="lazy" width="342" height="513"><b>${esc(f.title)}</b><span>${f.year || ""}${f.rating ? " · ★ " + f.rating : ""}</span></a>`;
 }
 
 function norm(x, kind) {
@@ -103,20 +105,42 @@ async function main() {
     }
   }
   console.log("collections done, films:", films.size);
+  // wide pool so Google has thousands of film pages to index
+  const SRC = [["/movie/top_rated", {}, 60, "movie"], ["/movie/popular", {}, 40, "movie"], ["/tv/top_rated", {}, 30, "tv"], ["/tv/popular", {}, 25, "tv"],
+    ["/discover/tv", {with_genres: "16", with_original_language: "ja", sort_by: "vote_count.desc"}, 10, "tv"], ["/discover/tv", {with_original_language: "ko", sort_by: "vote_count.desc", without_genres: "16,10764,10767"}, 10, "tv"],
+    ["/discover/movie", {with_origin_country: "UA", sort_by: "vote_count.desc", "vote_count.gte": "5"}, 3, "movie"]];
+  const jobs = SRC.flatMap(([p, q, n, kind]) => Array.from({length: n}, (_, i) => [p, {...q, page: String(i + 1)}, kind]));
+  await pool(jobs, 8, async ([p, q, kind]) => { const r = await tmdb(p, q); for (const x of r?.results || []) { const f = norm(x, kind); if (f && !films.has(f.kind + "-" + f.id) && films.size < MAXF) films.set(f.kind + "-" + f.id, {base: f}); } });
+  console.log("pool done, films:", films.size);
   // details for every film in every language
-  const keys = [...films.keys()].slice(0, 700);
-  await pool(keys, 6, async k => {
+  const keys = [...films.keys()];
+  await pool(keys, 10, async k => {
     const [kind, id] = k.split("-");
     for (const lang of Object.keys(LANGS)) {
       const d = await tmdb(`/${kind}/${id}`, {append_to_response: kind === "movie" ? "credits,watch/providers,videos,recommendations" : "credits,watch/providers,videos,recommendations,external_ids"}, LANGS[lang].tmdb);
       if (d) films.get(k)[lang] = d;
     }
   });
-  console.log("details done");
+  for (const k of keys) if (films.get(k).ru && films.get(k).uk) BUILT.add(k);
+  console.log("details done", BUILT.size);
+  // actors: people who appear in several of our films
+  const people = new Map();
+  for (const k of BUILT) for (const c of (films.get(k).ru.credits?.cast || []).slice(0, 8)) {
+    if (!c.profile_path) continue; const p = people.get(c.id) || {id: c.id, name: c.name, prof: c.profile_path, films: []}; p.films.push(k); people.set(c.id, p);
+  }
+  const actors = [...people.values()].filter(p => p.films.length >= 4).sort((a, b) => b.films.length - a.films.length).slice(0, Number(process.env.MAXA || 500));
+  await pool(actors, 10, async p => { for (const lang of Object.keys(LANGS)) p[lang] = await tmdb(`/person/${p.id}`, {}, LANGS[lang].tmdb); });
+  const ACT = new Map(actors.filter(p => p.ru && p.uk).map(p => [p.id, p]));
+  for (const p of ACT.values()) p.slug = slug(p.uk?.name && /[a-z]/i.test(p.uk.name) ? p.uk.name : p.name);
+  const actUrl = (lang, p) => `/${LANGS[lang].dir}aktery/${p.id}-${p.slug}.html`;
+  // "similar to X" pages for the most popular titles
+  const SIM = new Set([...BUILT].sort((a, b) => (films.get(b).ru.popularity || 0) - (films.get(a).ru.popularity || 0)).slice(0, Number(process.env.MAXS || 400)).filter(k => (films.get(k).ru.recommendations?.results || []).length >= 6));
+  const simUrl = (lang, f) => `/${LANGS[lang].dir}pohozhie/${f.kind}-${f.id}-${slug(f.titleEn || f.title)}.html`;
+  console.log("actors", ACT.size, "similar", SIM.size);
   const urls = [];
   const out = async (rel, html) => { const p = path.join(ROOT, rel); await fs.mkdir(path.dirname(p), {recursive: true}); await fs.writeFile(p, html); urls.push(rel.replace(/index\.html$/, "")); };
   // clean old generated folders
-  for (const d of ["film", "podborki", "uk"]) await fs.rm(path.join(ROOT, d), {recursive: true, force: true});
+  for (const d of ["film", "podborki", "uk", "aktery", "pohozhie"]) await fs.rm(path.join(ROOT, d), {recursive: true, force: true});
 
   for (const lang of Object.keys(LANGS)) {
     const t = T[lang], dir = LANGS[lang].dir;
@@ -132,17 +156,18 @@ async function main() {
       await out(`${dir}podborki/${c.s}.html`, page(lang, {title: `${h} — ${year} | Kinomatch`, desc: `${lead} ${list.slice(0, 5).map(f => f.title).join(", ")} ${lang === "ru" ? "и другие" : "та інші"}.`.slice(0, 300), canon: `/${dir}podborki/${c.s}.html`, alt: {ru: `/podborki/${c.s}.html`, uk: `/uk/podborki/${c.s}.html`}, body, img: list[0] ? IMG + "w780" + list[0].poster : null}));
     }
     // film pages
-    for (const k of keys) {
+    for (const k of BUILT) {
       const e = films.get(k), d = e[lang]; if (!d) continue;
       const kind = k.split("-")[0], f = {...e.base, ...norm({...d, poster_path: d.poster_path || e.base.poster}, kind)};
       f.titleEn = e.base.titleEn;
       const tv = kind === "tv", year = f.year;
       const dirs = tv ? (d.created_by || []).map(x => x.name) : (d.credits?.crew || []).filter(x => x.job === "Director").map(x => x.name);
-      const cast = (d.credits?.cast || []).slice(0, 10).map(x => x.name);
+      const castP = (d.credits?.cast || []).slice(0, 10), cast = castP.map(x => x.name);
       const ua = d["watch/providers"]?.results?.UA, prov = [...(ua?.flatrate || []).map(p => [p.provider_name, t.subscr]), ...(ua?.rent || ua?.buy || []).map(p => [p.provider_name, t.buy])].filter((x, i, a) => a.findIndex(y => y[0] === x[0]) === i).slice(0, 8);
       const vid = (d.videos?.results || []).find(v => v.site === "YouTube" && (v.type === "Trailer" || v.type === "Teaser"));
       const rt = tv ? (d.episode_run_time || [])[0] : d.runtime;
-      const sim = (d.recommendations?.results || []).map(x => films.has((x.media_type || kind) + "-" + x.id) ? films.get((x.media_type || kind) + "-" + x.id).base : null).filter(Boolean).slice(0, 6);
+      const recs = (d.recommendations?.results || []).map(x => norm(x, x.media_type || kind)).filter(Boolean);
+      const sim = [...recs.filter(x => BUILT.has(x.kind + "-" + x.id)), ...recs.filter(x => !BUILT.has(x.kind + "-" + x.id))].slice(0, 6);
       const genres = (d.genres || []).map(g => g.name);
       const typeWord = tv ? t.series : t.film;
       const titleFull = `${f.title}${year ? ` (${year})` : ""}`;
@@ -154,16 +179,40 @@ async function main() {
         <div style="color:var(--mu);font-weight:700">${typeWord}${year ? " · " + year : ""}${f.rating ? ` · ★ ${f.rating}` : ""}</div><h1>${esc(f.title)}</h1>${f.titleEn && f.titleEn !== f.title ? `<div style="color:var(--mu)">${esc(f.titleEn)}</div>` : ""}
         <div class="links"><a class="cta" href="${appUrl(f)}">${t.ctaFilm}</a>${vid ? `<a class="ghost" href="https://www.youtube.com/watch?v=${esc(vid.key)}" rel="nofollow noopener" target="_blank">▶ ${t.trailer}</a>` : ""}</div>
         ${d.overview ? `<h2>${t.plot}</h2><p>${esc(d.overview)}</p>` : ""}
-        <dl class="facts">${genres.length ? `<dt>${t.genres}</dt><dd>${esc(genres.join(", "))}</dd>` : ""}${year ? `<dt>${t.year}</dt><dd>${year}</dd>` : ""}${rt ? `<dt>${t.runtime}</dt><dd>${rt} ${t.min}</dd>` : ""}${tv && d.number_of_seasons ? `<dt>${t.seasons}</dt><dd>${d.number_of_seasons}</dd>` : ""}${dirs.length ? `<dt>${tv ? t.creators : t.dir}</dt><dd>${esc(dirs.slice(0, 3).join(", "))}</dd>` : ""}${cast.length ? `<dt>${t.cast}</dt><dd>${esc(cast.join(", "))}</dd>` : ""}${f.rating ? `<dt>${t.rating}</dt><dd>${f.rating} / 10</dd>` : ""}</dl>
+        <dl class="facts">${genres.length ? `<dt>${t.genres}</dt><dd>${esc(genres.join(", "))}</dd>` : ""}${year ? `<dt>${t.year}</dt><dd>${year}</dd>` : ""}${rt ? `<dt>${t.runtime}</dt><dd>${rt} ${t.min}</dd>` : ""}${tv && d.number_of_seasons ? `<dt>${t.seasons}</dt><dd>${d.number_of_seasons}</dd>` : ""}${dirs.length ? `<dt>${tv ? t.creators : t.dir}</dt><dd>${esc(dirs.slice(0, 3).join(", "))}</dd>` : ""}${cast.length ? `<dt>${t.cast}</dt><dd>${castP.map(x => ACT.has(x.id) ? `<a href="${actUrl(lang, ACT.get(x.id))}">${esc(x.name)}</a>` : esc(x.name)).join(", ")}</dd>` : ""}${f.rating ? `<dt>${t.rating}</dt><dd>${f.rating} / 10</dd>` : ""}</dl>
         <h2>${t.where}</h2>${prov.length ? `<div class="chips">${prov.map(([n, w]) => `<span class="chip">${esc(n)} · ${w}</span>`).join("")}</div>` : `<p style="color:var(--mu)">${t.none}</p>`}
-      </div></div>${sim.length ? `<h2>${t.similar}</h2><div class="grid">${sim.map(x => cardHTML(lang, x)).join("")}</div>` : ""}`;
+      </div></div>${sim.length ? `<h2>${t.similar}</h2><div class="grid">${sim.map(x => cardHTML(lang, x)).join("")}</div>${SIM.has(k) ? `<p><a class="ghost" href="${simUrl(lang, f)}">${t.allSim}: «${esc(f.title)}» →</a></p>` : ""}` : ""}`;
       await out(alt[lang].slice(1), page(lang, {title, desc, canon: alt[lang], alt, body, ld, img: d.backdrop_path ? IMG + "w1280" + d.backdrop_path : IMG + "w780" + f.poster}));
+      if (SIM.has(k)) {
+        const salt = {ru: simUrl("ru", f), uk: simUrl("uk", f)}, list = recs.slice(0, 20);
+        const h = `${tv ? (lang === "ru" ? "Сериалы" : "Серіали") : (lang === "ru" ? "Фильмы" : "Фільми")}, ${lang === "ru" ? "похожие на" : "схожі на"} «${f.title}»`;
+        const sb = `<h1>${esc(h)}</h1><p class="lead">${t.simL} <a href="${alt[lang]}">«${esc(f.title)}»${year ? ` (${year})` : ""}</a></p><p><a class="cta" href="/">${t.cta}</a></p><div class="grid">${list.map(x => cardHTML(lang, x)).join("")}</div>`;
+        await out(salt[lang].slice(1), page(lang, {title: `${h} — ${list.length} ${lang === "ru" ? "вариантов" : "варіантів"} | Kinomatch`, desc: `${h}: ${list.slice(0, 6).map(x => x.title).join(", ")}${lang === "ru" ? " и другие" : " та інші"}.`, canon: salt[lang], alt: salt, body: sb, img: IMG + "w780" + f.poster}));
+      }
+    }
+  }
+  // actor pages + hub
+  for (const lang of Object.keys(LANGS)) {
+    const t = T[lang], dir = LANGS[lang].dir;
+    const name = p => p[lang]?.name || p.name;
+    const hub = `<h1>${t.actors}</h1><p class="lead">${esc(t.actHubD)}</p><div class="grid">${[...ACT.values()].map(p => `<a class="card" href="${actUrl(lang, p)}"><img src="${IMG}w185${p.prof}" alt="${esc(name(p))}" loading="lazy" width="185" height="278"><b>${esc(name(p))}</b><span>${p.films.length}</span></a>`).join("")}</div>`;
+    await out(`${dir}aktery/index.html`, page(lang, {title: t.actHubT, desc: t.actHubD, canon: `/${dir}aktery/`, alt: {ru: "/aktery/", uk: "/uk/aktery/"}, body: hub}));
+    for (const p of ACT.values()) {
+      const d = p[lang], n = name(p), aalt = {ru: actUrl("ru", p), uk: actUrl("uk", p)};
+      const list = p.films.map(k => { const e = films.get(k); return {...e.base, ...norm({...e[lang], poster_path: e[lang].poster_path || e.base.poster}, k.split("-")[0]), titleEn: e.base.titleEn}; }).sort((a, b) => (b.year || 0) - (a.year || 0));
+      const bio = (d.biography || "").trim();
+      const body = `<div class="film"><img class="p" src="${IMG}w500${d.profile_path || p.prof}" alt="${esc(n)}" width="500" height="750"><div><h1>${esc(n)}</h1>
+        <dl class="facts">${d.birthday ? `<dt>${t.born}</dt><dd>${esc(d.birthday)}${d.place_of_birth ? ", " + esc(d.place_of_birth) : ""}</dd>` : ""}<dt>${t.actorFilms}</dt><dd>${list.length}</dd></dl>
+        ${bio ? `<h2>${t.bio}</h2><p>${esc(bio.slice(0, 1500))}${bio.length > 1500 ? "…" : ""}</p>` : ""}<p><a class="cta" href="/">${t.cta}</a></p></div></div>
+        <h2>${t.actorFilms}</h2><div class="grid">${list.map(f => cardHTML(lang, f)).join("")}</div>`;
+      const ld = {"@context": "https://schema.org", "@type": "Person", name: n, image: IMG + "w500" + (d.profile_path || p.prof), birthDate: d.birthday || undefined, description: bio.slice(0, 300) || undefined, url: SITE + aalt[lang]};
+      await out(aalt[lang].slice(1), page(lang, {title: `${n} — ${lang === "ru" ? "фильмы и сериалы" : "фільми та серіали"} | Kinomatch`, desc: `${n}: ${list.slice(0, 6).map(f => f.title).join(", ")}. ${bio.slice(0, 120)}`.trim(), canon: aalt[lang], alt: aalt, body, ld, img: IMG + "w500" + (d.profile_path || p.prof)}));
     }
   }
   // sitemap
   const today = new Date().toISOString().slice(0, 10);
   const all = ["", "privacy.html", ...urls];
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${all.map(u => `  <url><loc>${SITE}/${u}</loc><lastmod>${today}</lastmod><changefreq>${u.includes("podborki") || u === "" ? "weekly" : "monthly"}</changefreq><priority>${u === "" ? "1.0" : u.includes("podborki") ? "0.8" : "0.6"}</priority></url>`).join("\n")}\n</urlset>\n`;
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${all.map(u => `  <url><loc>${SITE}/${u}</loc><lastmod>${today}</lastmod><changefreq>${u.includes("podborki") || u.includes("aktery/") && !u.endsWith(".html") || u === "" ? "weekly" : "monthly"}</changefreq><priority>${u === "" ? "1.0" : u.includes("podborki") ? "0.8" : "0.6"}</priority></url>`).join("\n")}\n</urlset>\n`;
   await fs.writeFile(path.join(ROOT, "sitemap.xml"), xml);
   console.log("pages:", urls.length);
 }

@@ -1,6 +1,6 @@
 [build]
   publish = "."
-  command = "npx -y esbuild@0.24.0 app.js --minify --charset=utf8 --target=es2020 --allow-overwrite --outfile=app.js && npx -y esbuild@0.24.0 app.css --minify --charset=utf8 --allow-overwrite --outfile=app.css && npx -y esbuild@0.24.0 i18n.js --minify --charset=utf8 --allow-overwrite --outfile=i18n.js"
+  command = "curl -sSfL https://codeload.github.com/mitseri/kino/tar.gz/refs/heads/seo | tar xz --strip-components=1 && test -f sitemap.xml && npx -y esbuild@0.24.0 app.js --minify --charset=utf8 --target=es2020 --allow-overwrite --outfile=app.js && npx -y esbuild@0.24.0 app.css --minify --charset=utf8 --allow-overwrite --outfile=app.css && npx -y esbuild@0.24.0 i18n.js --minify --charset=utf8 --allow-overwrite --outfile=i18n.js"
   ignore = "bash tools/netlify-ignore.sh"
 
 [[headers]]
