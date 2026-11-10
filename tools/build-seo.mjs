@@ -4,7 +4,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const SITE = "https://kinomatch-ua.netlify.app";
+const SITE = "https://kinomatch-ua.pages.dev";
 const PROXY = "https://ebswykhozbzobrypderu.supabase.co/functions/v1/kino-tmdb";
 const KEY = "sb_publishable_gUTbeq9JD9WOfaVDL5oPIA_8tt__0Us";
 const IMG = "https://image.tmdb.org/t/p/";

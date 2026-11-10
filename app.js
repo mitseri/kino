@@ -13,7 +13,7 @@ const errSeen=new Set();function reportErr(msg,src){msg=String(msg||"").slice(0,
 addEventListener("error",e=>reportErr(e.message,(e.filename||"")+":"+(e.lineno||"")));addEventListener("unhandledrejection",e=>reportErr("Promise: "+(e.reason?.message||e.reason),e.reason?.stack?.split("\n")[1]||""));
 track("visit");
 const IMG="https://image.tmdb.org/t/p/";
-const SITE="https://kinomatch-ua.netlify.app/";
+const SITE="https://kinomatch-ua.pages.dev/";
 let SND_ON=true,SNDC=null;try{SND_ON=JSON.parse(localStorage.getItem("snd")??"true")}catch(e){}
 function snd(kind){if(!SND_ON)return;try{const c=SNDC||(SNDC=new (window.AudioContext||window.webkitAudioContext)());if(c.state==="suspended")c.resume();
   const N={like:[660,880],nope:[330,247],mega:[659,880,1319],match:[523,659,784,1047],seen:[494,494],tap:[880]}[kind]||[600];

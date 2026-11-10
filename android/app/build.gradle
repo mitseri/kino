@@ -1,4 +1,4 @@
-// Kinomatch Android app: a Trusted Web Activity around https://kinomatch-ua.netlify.app/
+// Kinomatch Android app: a Trusted Web Activity around https://kinomatch-ua.pages.dev/
 // Falls back to a WebView on phones without Chrome (e.g. Huawei without Google services).
 plugins { id "com.android.application" }
 android {
@@ -10,7 +10,7 @@ android {
     targetSdk 34
     versionCode Integer.parseInt(System.getenv("VERSION_CODE") ?: "1")
     versionName System.getenv("VERSION_NAME") ?: "1.0"
-    manifestPlaceholders = [host: "kinomatch-ua.netlify.app", url: "https://kinomatch-ua.netlify.app/?src=android"]
+    manifestPlaceholders = [host: "kinomatch-ua.pages.dev", url: "https://kinomatch-ua.pages.dev/?src=android"]
   }
   signingConfigs { release { storeFile file(System.getenv("KS_FILE") ?: "none.jks"); storePassword System.getenv("KS_PASS"); keyAlias "kinomatch"; keyPassword System.getenv("KS_PASS") } }
   buildTypes { release { minifyEnabled false; signingConfig signingConfigs.release } }
