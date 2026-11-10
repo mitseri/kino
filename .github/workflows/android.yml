@@ -1,0 +1,32 @@
+name: Android app (APK + AAB)
+on:
+  workflow_dispatch:
+  push:
+    paths: ["android/**", ".github/workflows/android.yml"]
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: 17}
+      - uses: gradle/actions/setup-gradle@v4
+        with: {gradle-version: "8.7"}
+      - name: Build signed APK and AAB
+        working-directory: android
+        env:
+          KS_PASS: ${{ secrets.ANDROID_KEY_PASS }}
+          VERSION_CODE: ${{ github.run_number }}
+          VERSION_NAME: "1.${{ github.run_number }}"
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 -d > /tmp/k.jks
+          export KS_FILE=/tmp/k.jks
+          gradle --no-daemon :app:assembleRelease :app:bundleRelease
+          mkdir -p ../out && cp app/build/outputs/apk/release/*.apk ../out/kinomatch.apk && cp app/build/outputs/bundle/release/*.aab ../out/kinomatch.aab
+      - uses: actions/upload-artifact@v4
+        with: {name: kinomatch-android, path: out/}
+      - name: Publish as a GitHub release
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: gh release create "android-${{ github.run_number }}" out/kinomatch.apk out/kinomatch.aab -t "Kinomatch Android 1.${{ github.run_number }}" -n "APK for Samsung Galaxy Store / Huawei AppGallery / direct install, AAB for Google Play." -R ${{ github.repository }}
