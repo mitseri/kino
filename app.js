@@ -78,9 +78,16 @@ function framesOf(it,d){const out=[];if(it.poster)out.push({u:IMG+"w500"+it.post
   // the "main" backdrop is usually the same key art as the poster — skip it and show real stills from the film
   const main=d?.backdrop_path||it.backdrop,all=(d?.images?.backdrops||[]).filter(b=>b.file_path!==main),seen=new Set();
   const pick=all.filter(b=>!b.iso_639_1).sort((a,b)=>b.vote_average-a.vote_average||b.vote_count-a.vote_count)
-    .filter(b=>{if(seen.has(b.file_path))return false;seen.add(b.file_path);return true}).slice(0,8);
+    .filter(b=>{if(seen.has(b.file_path))return false;seen.add(b.file_path);return true}).slice(0,14);
   pick.forEach(b=>out.push({u:IMG+"w780"+b.file_path,still:true}));
   if(out.length<2&&main)out.push({u:IMG+"w780"+main,still:true});return out}
+const HASH=new Map();
+function dhash(u){if(HASH.has(u))return HASH.get(u);const pr=new Promise(r=>{const im=new Image();im.crossOrigin="anonymous";
+  im.onload=()=>{try{const c=document.createElement("canvas");c.width=9;c.height=8;const x=c.getContext("2d",{willReadFrequently:true});x.drawImage(im,0,0,9,8);const p=x.getImageData(0,0,9,8).data,L=i=>p[i]*.3+p[i+1]*.59+p[i+2]*.11,h=[];
+    for(let y=0;y<8;y++)for(let i=0;i<8;i++){const a=(y*9+i)*4;h.push(L(a)>L(a+4)?1:0)}r(h)}catch(e){r(null)}};im.onerror=()=>r(null);im.src=u.replace(/\/w\d+\//,"/w92/")});HASH.set(u,pr);return pr}
+async function uniqFrames(fr,main){const hs=await Promise.all(fr.map(f=>f.still?dhash(f.u):null)),ref=[];if(main){const m=await dhash(IMG+"w92"+main);if(m)ref.push(m)}
+  const near=(a,b)=>a.reduce((s,v,i)=>s+(v!==b[i]),0)<=12,out=[];
+  fr.forEach((f,i)=>{const h=hs[i];if(!f.still){out.push(f);return}if(h&&ref.some(r=>near(r,h)))return;if(h)ref.push(h);out.push(f)});return out.slice(0,9)}
 function videosOf(d){const order=["ru","uk","en"],nm={Trailer:"Трейлер",Teaser:"Тизер",Clip:"Отрывок",Featurette:"О съёмках"},ln={ru:"рус",uk:"укр",en:"англ"};
   return (d?.videos?.results||[]).filter(v=>v.site==="YouTube"&&nm[v.type]).sort((a,b)=>Object.keys(nm).indexOf(a.type)-Object.keys(nm).indexOf(b.type)||order.indexOf(a.iso_639_1)-order.indexOf(b.iso_639_1))
     .slice(0,6).map(v=>({key:v.key,label:nm[v.type]+(ln[v.iso_639_1]?" · "+ln[v.iso_639_1]:"")}))}
@@ -467,7 +474,7 @@ const TOUR=[
   ["#bS","Уже смотрел","Фильм уйдёт в «Посмотрено» на полке, и его можно оценить. Больше в свайпе не появится."],
   ["#bU","Вернуть","Свайпнули случайно? Эта кнопка возвращает последнюю карточку."],
   ["#bI","Подробнее","Описание, актёры, все трейлеры, рейтинг IMDb, возраст и где смотреть в Украине. Ещё можно просто пролистать карточку вниз."],
-  ["#kinds","Что показывать","Фильмы, сериалы, аниме или дорамы. «🆕 Новинки» — то, что недавно вышло в хорошем качестве."],
+  ["#kinds","Что показывать","Нажмите, чтобы выбрать: всё, новинки, фильмы, сериалы, аниме или дорамы."],
   ["#flt","Фильтры","Настроение, жанры, годы, страна, рейтинг и сколько у вас времени."],
   ["#nightGo,#pairBanner","Вдвоём веселее","Позовите пару по ссылке — и ловите общие мэтчи. А «Вечер кино» — свайпаете одни и те же фильмы одновременно."],
   ['#nav [data-v="likes"]',"Лайки","Всё, что вы свайпнули вправо. Отсюда удобно класть фильмы на полку."],
@@ -511,11 +518,10 @@ function tilt(el){if(!matchMedia("(hover:hover)").matches)return;const g=el.quer
 function renderSwipeView(){
   const p=prefs||DEF_PREFS(),nf=(p.yes?.length||0)+(p.no?.length||0)+(p.eras?.length||0)+(p.minR?1:0)+(p.mood?1:0)+(p.len?1:0)+(p.cc?.length||0)+(p.prov?.length||0),kk=p.fresh?"fresh":p.kinds?.length===1?p.kinds[0]:"";
   $("#main").innerHTML=`<div class="view swv" style="overflow:hidden"><div class="wrap pad" style="width:100%">${topBar("Свайп",partner?`Вы с ${esc(ptName())} в паре`:"")}
-    ${partner?"":`<button class="banner" id="pairBanner"><span class="duo">${myAv()}<span class="av pt">+</span></span><span><b>Позовите пару</b><span>Чтобы ловить общие мэтчи</span></span></button>`}
     ${room?`<div class="nightbar"><span style="font-size:1.5rem">👥</span><span class="grow"><b>Комната «${esc(room.name)}»</b><span id="roomInfo">${roomInfo()}</span></span><button class="btn sm" id="roomEnd">Итоги</button></div>`:night?`<div class="nightbar"><span style="font-size:1.5rem">🍿</span><span class="grow"><b>Вечер кино с ${esc(ptName())}</b><span id="nightInfo">${nightInfo()}</span></span><button class="btn sm" id="nightEnd">Итоги</button></div>`
-      :`<div class="row">${partner?`<button class="pill" id="nightGo">🍿 Вечер кино вдвоём</button>`:""}<button class="pill" id="roomGo">👥 С друзьями</button></div>`}
+      :""}
     ${night||room?"":p.person?`<div class="row"><button class="pill act" id="noPerson">🎭 ${esc(p.person.name)} <b>✕</b></button></div>`:""}
-    <div class="row" id="kinds" ${night||room?"hidden":""}>${[{k:"",t:"Всё"},{k:"fresh",t:"🆕 Новинки"},...KINDS].map(x=>`<button class="pill ${x.k===kk&&!p.person?"act":""}" data-k="${x.k}">${x.t}</button>`).join("")}
+    <div class="row" id="kinds" ${night||room?"hidden":""}><label class="pill sel ${kk&&!p.person?"act":""}"><select id="kindSel" aria-label="Что показывать">${[{k:"",t:"Всё"},{k:"fresh",t:"🆕 Новинки"},...KINDS].map(x=>`<option value="${x.k}" ${x.k===kk&&!p.person?"selected":""}>${x.t}</option>`).join("")}</select><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg></label>
       <button class="pill ${nf?"act":""}" id="flt"><svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Фильтры${nf?` <b>${nf}</b>`:""}</button></div></div>
     <div class="stage"><div class="stack" id="stack"></div></div>
     <div class="ctrl2 pad">
@@ -529,7 +535,7 @@ function renderSwipeView(){
         <button class="mb info" id="bI" aria-label="Подробнее"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v5.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="12" cy="7.6" r="1.5" fill="currentColor"/></svg>Инфо</button>
       </div>
     </div></div>`;
-  $("#kinds").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;const p={...DEF_PREFS(),...(prefs||{})};p.person=null;p.fresh=b.dataset.k==="fresh";p.kinds=b.dataset.k&&!p.fresh?[b.dataset.k]:[];savePrefs(p)};
+  $("#kindSel").onchange=e=>{const v=e.target.value,p={...DEF_PREFS(),...(prefs||{})};p.person=null;p.fresh=v==="fresh";p.kinds=v&&!p.fresh?[v]:[];savePrefs(p)};
   const ng=$("#nightGo");if(ng)ng.onclick=startNight;const rg=$("#roomGo");if(rg)rg.onclick=()=>{if(needAccount("Комнаты с друзьями"))return;go("matches")};const re=$("#roomEnd");if(re)re.onclick=roomSummary;const ne=$("#nightEnd");if(ne)ne.onclick=nightSummary;
   const np=$("#noPerson");if(np)np.onclick=()=>savePrefs({...DEF_PREFS(),...prefs,person:null});$("#bS").onclick=()=>decide("seen");
   $("#flt").onclick=openPrefs;$("#bN").onclick=()=>decide("nope");$("#bY").onclick=()=>decide("like");$("#bM").onclick=()=>decide("mega");$("#bU").onclick=undo;
@@ -560,8 +566,9 @@ function detailsHTML(it,d){const x=d||{},w=whereOf(it,d),q=qualOf(it,d),vids=vid
 async function hydrateCard(el,it){
   const d=await details(it);if(!el.isConnected)return;
   if(d&&!d.overview&&window.LANG!=="ru"){try{const en=await tmdb(`/${it.kind}/${it.id}`,{language:"en-US"});if(en?.overview){d.overview=en.overview;it.d=en.overview;const dd=el.querySelector(".desc,.clamp");if(dd&&!dd.textContent.trim())dd.textContent=en.overview}}catch(e){}}
-  el._frames=framesOf(it,d);el._i=0;
-  el.querySelector(".bars").innerHTML=el._frames.length>1?el._frames.map((_,j)=>`<span class="${j?"":"on"}"></span>`).join(""):"";
+  el._frames=framesOf(it,d).slice(0,9);el._i=0;
+  const bars=()=>{el.querySelector(".bars").innerHTML=el._frames.length>1?el._frames.map((_,j)=>`<span class="${j===el._i?"on":""}"></span>`).join(""):""};bars();
+  uniqFrames(framesOf(it,d),d?.backdrop_path||it.backdrop).then(fr=>{if(!el.isConnected)return;const cur=el._frames[el._i]?.u;el._frames=fr;const j=fr.findIndex(f=>f.u===cur);el._i=j<0?0:j;bars();if(j<0)showFrame(el,0)});
   const dx=el.querySelector(".dx");if(dx){dx.outerHTML=detailsHTML(it,d);loadColl(el);loadImdb(el)}
   keyFacts(el,it,d);
   const tr=trailerOf(d),b=el.querySelector("[data-tr]");b.onclick=e=>{e.stopPropagation();playTrailer(it,tr)};
@@ -697,10 +704,10 @@ function renderLikes(){const l=likes(mine);
     ${l.length?`<div class="list">${l.map(r=>rowHTML(r,{rm:true,mark:true})).join("")}</div>`:`<div class="empty"><strong>Пока пусто</strong>Свайпайте вправо — фильмы появятся здесь, и отсюда можно положить их на полку.</div>`}</div></div>`;
   wireList(k=>mine.swipes.get(k));fixRows()}
 function renderMatches(){const l=matchesList();
-  $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Мэтчи",partner?`Что понравилось вам с ${esc(ptName())}`:"")}<div id="roomsBox"></div>
+  $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Мэтчи",partner?`Что понравилось вам с ${esc(ptName())}`:"")}${partner?`<div class="row"><button class="pill" id="nightGo">🍿 Вечер кино вдвоём</button></div>`:""}<div id="roomsBox"></div>
     ${!partner?`<div class="empty"><strong>Нужна пара</strong>Мэтчи появятся, когда вы позовёте партнёра.<button class="btn red" id="inv">Позвать пару</button></div>`
       :l.length?`<div class="pgrid">${l.map(r=>{const d=r.data||{},pp=d.poster||PC[r.tmdb];return `<button class="pcard gold lrow" style="display:block;padding:0" data-k="${esc(r.tmdb)}" ${d.poster?"":`data-fix="${esc(r.tmdb)}"`}>${pp?`<img src="${IMG}w342${pp}" alt="" loading="lazy">`:`<img alt="">`}<span class="ps">💞 мэтч</span><span class="pt">${esc(d.t||"")}</span></button>`}).join("")}</div>`:`<div class="empty"><strong>Пока нет мэтчей</strong>Свайпайте оба — когда фильм понравится вам двоим, он появится тут.</div>`}</div></div>`;
-  const inv=$("#inv");if(inv)inv.onclick=openProfile;wireList(k=>mine.swipes.get(k));fixRows();if(!me.guest)roomsSection()}
+  const inv=$("#inv");if(inv)inv.onclick=openProfile;const ng=$("#nightGo");if(ng)ng.onclick=startNight;wireList(k=>mine.swipes.get(k));fixRows();if(!me.guest)roomsSection()}
 let sh3d=ls.get("sh3d",false);let shelfType="",shelfWho="me",shelfQ="",shelfSort=ls.get("shsort","upd");
 const SORTS={upd:["Недавние",(a,b)=>(b.updated_at||"").localeCompare(a.updated_at||"")],my:["Моя оценка",(a,b)=>(b.rating||0)-(a.rating||0)],tmdb:["Рейтинг TMDB",(a,b)=>(b.data?.r||0)-(a.data?.r||0)],
   year:["Год",(a,b)=>String(b.data?.y||"").localeCompare(String(a.data?.y||""))],seen:["Дата просмотра",(a,b)=>String(b.watched_at||"").localeCompare(String(a.watched_at||""))],abc:["Название",(a,b)=>(a.data?.t||"").localeCompare(b.data?.t||"","ru")]};
@@ -831,7 +838,7 @@ async function openDetail(it){
   soc();
   if(!it.kind){$("#dX").innerHTML="";return}
   const d=await details(it);if(!$("#det"))return;if(d?.seasons)DET_SEASONS.set(it.k,d.seasons.filter(x=>x.season_number>0));
-  $("#dGal").innerHTML=framesOf(it,d).slice(1).map(f=>`<img src="${f.u}" alt="" loading="lazy">`).join("");
+  const gal=fr=>{const g=$("#dGal");if(g)g.innerHTML=fr.slice(1).map(f=>`<img src="${f.u}" alt="" loading="lazy">`).join("")};gal(framesOf(it,d).slice(0,9));uniqFrames(framesOf(it,d),d?.backdrop_path||it.backdrop).then(gal);
   $("#dX").innerHTML=detailsHTML(it,d);loadColl($("#dX"));loadImdb($("#dX"));
 }
 const RX=["🔥","😂","😱","❤️","🤔","👎"],DET_SEASONS=new Map();

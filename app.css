@@ -385,3 +385,7 @@ html.km-authed #land{display:none}
 :root[data-theme=light] .lt em{color:#b7791f}
 :root[data-theme=light] .dhero::after{background:linear-gradient(to bottom,rgb(0 0 0/.25),transparent 30%,transparent 55%,var(--bg))}
 :root[data-theme=light] .rev,:root[data-theme=light] .chat,:root[data-theme=light] .msg:not(.mine){background:var(--surface);border-color:var(--line)}
+.pill.sel{position:relative;padding-right:34px;cursor:pointer}
+.pill.sel select{appearance:none;-webkit-appearance:none;background:transparent;border:0;color:inherit;font:inherit;padding:0;margin:0;outline:none;cursor:pointer}
+.pill.sel select option{color:#111}
+.pill.sel svg{position:absolute;right:12px;top:50%;width:16px;height:16px;transform:translateY(-50%);pointer-events:none}
