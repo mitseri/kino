@@ -10,7 +10,13 @@ export async function onRequest(context) {
   const m = url.searchParams.get("m") || "";
   const res = await context.next();
   if (url.pathname !== "/" && url.pathname !== "/index.html") return res;
-  if (!/^(movie|tv)-\d+$/.test(m)) return res;
+  // tell the app the visitor's country (for "where to watch")
+  const cc = /^[A-Z]{2}$/.test(req.cf?.country || "") ? req.cf.country : "";
+  if (!/^(movie|tv)-\d+$/.test(m)) {
+    if (!cc) return res;
+    const h0 = new Headers(res.headers); h0.delete("content-length");
+    return new Response((await res.text()).replace("<head>", `<head><script>window.KM_CC="${cc}"</script>`), {status: res.status, headers: h0});
+  }
   try {
     const [kind, id] = m.split("-");
     const lang = (req.headers.get("accept-language") || "").startsWith("uk") ? "uk-UA" : "ru-RU";
@@ -23,6 +29,7 @@ export async function onRequest(context) {
     const desc = (d.overview || "Свайпайте фильмы вдвоём — когда понравится обоим, мэтч.").slice(0, 200);
     const img = d.backdrop_path ? `https://image.tmdb.org/t/p/w1280${d.backdrop_path}` : d.poster_path ? `https://image.tmdb.org/t/p/w780${d.poster_path}` : "";
     let html = await res.text();
+    if (cc) html = html.replace("<head>", `<head><script>window.KM_CC="${cc}"</script>`);
     html = html.replace(/<title>[^<]*<\/title>/, `<title>${esc(t)}</title>`)
       .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${esc(t)}">`)
       .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${esc(desc)}">`)
