@@ -1,17 +1,28 @@
 name: smoke
+# Changes land on the "dev" branch first. This runs the browser tests (Android Chrome + iPhone Safari)
+# and only if they pass moves the code to "main", which Cloudflare publishes to the live site.
 on:
   push:
-    branches: [main]
+    branches: [dev]
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with: {ref: dev, fetch-depth: 0}
+      - name: Rebase on main (keeps the daily SEO commits)
+        run: |
+          git config user.name kinomatch-bot && git config user.email kinomatch-bot@users.noreply.github.com
+          git fetch origin main && git rebase origin/main
       - uses: actions/setup-node@v4
-        with:
-          node-version: 20
+        with: {node-version: 20}
       - run: npm i --no-save playwright@1.48.2
       - run: npx playwright install --with-deps chromium webkit
+      - run: node --check app.js && node --check i18n.js && node --check rare.js
       - run: node tools/smoke.mjs
+      - name: Promote to main (live site)
+        run: git push origin HEAD:main && git push -f origin HEAD:dev
