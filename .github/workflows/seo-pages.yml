@@ -1,0 +1,24 @@
+name: SEO pages (podborki + film)
+on:
+  schedule:
+    - cron: "17 3 * * 1"   # every Monday 03:17 UTC
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node tools/build-seo.mjs
+      - name: Commit pages
+        run: |
+          git config user.name "kinomatch-bot"
+          git config user.email "kinomatch-bot@users.noreply.github.com"
+          git add -A film uk podborki sitemap.xml
+          if git diff --cached --quiet; then echo "no changes"; exit 0; fi
+          git commit -m "Обновлены SEO-страницы: подборки и фильмы"
+          git push

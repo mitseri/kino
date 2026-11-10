@@ -4,6 +4,7 @@
 <script>if(location.hostname==="mitseri.github.io")location.replace("https://kinomatch-ua.netlify.app/"+location.pathname.replace(/^\/kino\/?/,"")+location.search+location.hash)</script>
 <meta charset="utf-8">
 <script>try{var t=JSON.parse(localStorage.getItem("theme")||'"dark"');if(t==="auto")t=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";document.documentElement.dataset.theme=t}catch(e){}</script>
+<script>try{for(var i=0;i<localStorage.length;i++){if(/^sb-.*-auth-token$/.test(localStorage.key(i))){document.documentElement.classList.add("km-authed");break}}}catch(e){}</script>
 <script src="i18n.js"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0b0d">
@@ -26,6 +27,9 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Kinomatch","url":"https://kinomatch-ua.netlify.app/","applicationCategory":"EntertainmentApplication","operatingSystem":"Web","inLanguage":["ru","uk","en"],"description":"Тиндер для фильмов для пар: свайпайте фильмы, сериалы, аниме и дорамы вдвоём. Когда понравится обоим — мэтч. Трейлеры, рейтинги IMDb и где смотреть в Украине.","offers":{"@type":"Offer","price":"0","priceCurrency":"UAH"}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://image.tmdb.org">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://ebswykhozbzobrypderu.supabase.co" crossorigin>
+<link rel="dns-prefetch" href="https://www.youtube-nocookie.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@600;800;900&display=swap">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23ff2d3f'/%3E%3Crect x='14' y='16' width='22' height='32' rx='5' fill='%23fff' opacity='.55' transform='rotate(-10 25 32)'/%3E%3Crect x='28' y='16' width='22' height='32' rx='5' fill='%23fff' transform='rotate(10 39 32)'/%3E%3Cpath d='M39 39s-6-3.6-7.5-7c-1-2.4.6-5 3-5 1.5 0 2.5.8 4.5 2.5 2-1.7 3-2.5 4.5-2.5 2.4 0 4 2.6 3 5-1.5 3.4-7.5 7-7.5 7z' fill='%23ff2d3f'/%3E%3C/svg%3E">
 <style>
@@ -376,13 +380,14 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .mb.undo{color:var(--gold)}.mb.mega{color:var(--mega)}.mb.seen{color:#b48cff}.mb.info{color:var(--want)}
 .mb:disabled{opacity:.35}
 :root[data-theme=light] body.inapp .bigb.no{background:rgb(255 45 63/.08)}
+html.km-authed #land{display:none}
 </style>
 </head>
 <body>
 
 <!-- ================= LANDING ================= -->
 <canvas id="world" aria-hidden="true"></canvas>
-<div class="land" id="land" hidden>
+<div class="land" id="land">
   <header class="lnav"><div class="in pad">
     <a class="logo" href="#top"><svg viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#ff2d3f"/><rect x="14" y="16" width="22" height="32" rx="5" fill="#fff" opacity=".55" transform="rotate(-10 25 32)"/><rect x="28" y="16" width="22" height="32" rx="5" fill="#fff" transform="rotate(10 39 32)"/><path d="M39 39s-6-3.6-7.5-7c-1-2.4.6-5 3-5 1.5 0 2.5.8 4.5 2.5 2-1.7 3-2.5 4.5-2.5 2.4 0 4 2.6 3 5-1.5 3.4-7.5 7-7.5 7z" fill="#ff2d3f"/></svg>Kinomatch</a>
     <select id="langSel" aria-label="Язык" style="background:transparent;color:inherit;border:1px solid rgb(255 255 255/.2);border-radius:10px;padding:6px 8px;font:700 .8rem var(--font)"><option value="ru">RU</option><option value="uk">UA</option><option value="en">EN</option></select>
@@ -455,6 +460,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
   <footer class="lfoot"><div class="in pad">
     <div class="tmdb"><span class="tw">TMDB</span><span>Данные о фильмах и сериалах — The Movie Database. This product uses the TMDB API but is not endorsed or certified by TMDB.</span></div>
+    <nav aria-label="Подборки" style="display:flex;gap:8px 16px;flex-wrap:wrap;font-size:.85rem"><a href="/podborki/">Подборки фильмов</a><a href="/podborki/chto-posmotret-vdvoem.html">Что посмотреть вдвоём</a><a href="/podborki/luchshie-serialy.html">Лучшие сериалы</a><a href="/podborki/anime-dlya-novichkov.html">Аниме для новичков</a><a href="/podborki/luchshie-doramy.html">Лучшие дорамы</a><a href="/podborki/novinki.html">Новинки</a><a href="/uk/podborki/">Добірки українською</a></nav>
     <div style="display:flex;gap:18px;flex-wrap:wrap"><a href="#privacy" data-privacy>Конфиденциальность</a><a href="https://www.themoviedb.org/" target="_blank" rel="noopener">themoviedb.org</a><span>© 2026 Kinomatch</span></div>
   </div></footer>
 </div>
@@ -477,7 +483,6 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
 const BRAND="Kinomatch";
 const SB_URL="https://ebswykhozbzobrypderu.supabase.co";
@@ -574,7 +579,7 @@ function qualOf(it,d){if(!d)return null;const now=Date.now();
 const slim=it=>({k:it.k,kind:it.kind,id:it.id,t:it.t,o:it.o,y:it.y,r:it.r,d:it.d,poster:it.poster,backdrop:it.backdrop,ty:it.ty,g:it.g});
 
 /* ================= LANDING ================= */
-async function initLanding(){
+async function initLanding(){document.documentElement.classList.remove("km-authed");
   const lsel=$("#langSel");if(lsel){lsel.value=window.LANG||"ru";lsel.onchange=()=>{ls.set("lang",lsel.value);location.reload()}}
   $("#land").hidden=false;document.body.classList.remove("inapp");setTimeout(()=>loadGenres().then(openFromLink).catch(()=>{}),300);
   document.querySelectorAll("[data-login]").forEach(b=>b.onclick=openLogin);
@@ -588,17 +593,19 @@ async function initLanding(){
     const row=arr=>{if(!arr.length)arr=ps;let a=[...arr];while(a.length<24)a=a.concat(arr);return a.concat(a).map(p=>`<img src="${IMG}w185${p}" alt="">`).join("")};
     const half=Math.max(8,Math.floor((ps.length-3)/2));
     $("#mq1").innerHTML=row(ps.slice(3,3+half));$("#mq2").innerHTML=row(ps.slice(3+half));
-    world(ps);
+    const go3d=()=>loadScript("https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js").then(()=>{if(!$("#land").hidden)world(ps)}).catch(()=>{});
+    (window.requestIdleCallback||setTimeout)(go3d,{timeout:1500});
   }catch(e){}
 }
+function loadScript(src){return new Promise((ok,no)=>{if([...document.scripts].some(x=>x.src===src))return ok();const sc=document.createElement("script");sc.src=src;sc.async=true;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)})}
 /* Scroll-driven 3D world: the camera flies down a spiral tunnel of floating posters as you scroll. */
 function world(posters){
   if(!window.THREE)return;const calm=matchMedia("(prefers-reduced-motion: reduce)").matches;
   const cv=$("#world");let r;try{r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true,powerPreference:"high-performance"})}catch(e){return}
-  const mobile=innerWidth<760;r.setPixelRatio(Math.min(devicePixelRatio,mobile?1.5:2));
+  const mobile=innerWidth<760,low=(navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=4;r.setPixelRatio(Math.min(devicePixelRatio,low?1:mobile?1.5:2));
   const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x0b0b0d,mobile?.018:.014);
   const cam=new THREE.PerspectiveCamera(mobile?72:60,1,.1,600);
-  const N=mobile?42:70,DEPTH=520,loader=new THREE.TextureLoader();loader.setCrossOrigin("anonymous");
+  const N=low?26:mobile?42:70,DEPTH=520,loader=new THREE.TextureLoader();loader.setCrossOrigin("anonymous");
   const geo=new THREE.PlaneGeometry(2,3),cards=[];
   const glowTex=(()=>{const c=document.createElement("canvas");c.width=c.height=64;const g=c.getContext("2d"),gr=g.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,"rgba(255,255,255,1)");gr.addColorStop(1,"rgba(255,255,255,0)");g.fillStyle=gr;g.fillRect(0,0,64,64);return new THREE.CanvasTexture(c)})();
   for(let i=0;i<N;i++){
@@ -838,6 +845,7 @@ function openProfile(){
     ${(()=>{const st=stats(),lv=levelOf(xpOf(st)),got=new Set(ACH.filter(a=>a[3](st)).map(a=>a[0]));const pct=lv.to?Math.round((lv.xp-lv.from)/(lv.to-lv.from)*100):100;
       return `<div class="sect lvl"><span class="label">Уровень ${lv.i} · ${esc(lv.name)}</span><div class="bar"><i style="width:${pct}%"></i></div><span class="sub" style="font-size:.76rem">${lv.xp} XP${lv.to?` · до следующего уровня ${lv.to-lv.xp}`:" · максимум!"}</span></div>
         <div class="sect"><span class="label">Ачивки · ${got.size} из ${ACH.length}</span><div class="ach">${ACH.map(a=>`<div class="${got.has(a[0])?"":"off"}"><b>${a[1]}</b>${esc(a[2])}</div>`).join("")}</div></div>`})()}
+    <button class="btn red" id="instBtn" ${installEvt?"":"hidden"}>📲 Установить приложение на телефон</button>
     <button class="btn" id="tourAgain">🎓 Пройти обучение заново</button>
     <div class="sect"><span class="label">Язык</span><div class="seg" id="lngT">${[["ru","Русский"],["uk","Українська"],["en","English"]].map(([k,t])=>`<button data-l="${k}" aria-pressed="${window.LANG===k}">${t}</button>`).join("")}</div></div>
     <div class="sect"><span class="label">Оформление</span><div class="seg" id="thm">${[["dark","🌙 Тёмная"],["light","☀️ Светлая"],["auto","Как в системе"]].map(([k,t])=>`<button data-t="${k}" aria-pressed="${ls.get("theme","dark")===k}">${t}</button>`).join("")}</div>
@@ -849,6 +857,7 @@ function openProfile(){
   $("#nmB").onclick=async()=>{const n=$("#nm").value.trim().slice(0,30);await sb.from("km_profiles").update({name:n}).eq("user_id",me.user_id);me.name=n;toast("Сохранено");closeSheet();go(view)};
   const tgOn=$("#tgOn");if(tgOn)tgOn.onclick=async()=>{const w=window.open("","_blank");const r=await tgCall({action:"link"});if(r?.url){if(w)w.location=r.url;else location.href=r.url;toast("Нажмите «Start» в Telegram — и готово")}else{w&&w.close();toast("Не получилось, попробуйте ещё раз")}};
   const tgOff=$("#tgOff");if(tgOff)tgOff.onclick=async()=>{await tgCall({action:"unlink"});me.tg_chat_id=null;closeSheet();toast("Уведомления отключены")};
+  $("#instBtn").onclick=async()=>{if(!installEvt)return;installEvt.prompt();const r=await installEvt.userChoice.catch(()=>null);if(r?.outcome==="accepted")toast("Kinomatch на главном экране 🎉");installEvt=null;$("#instBtn").hidden=true};
   $("#tourAgain").onclick=()=>{closeSheet();startTour(true)};
   $("#lngT").onclick=e=>{const b=e.target.closest("[data-l]");if(b&&b.dataset.l!==window.LANG){ls.set("lang",b.dataset.l);location.reload()}};
   $("#thm").onclick=e=>{const b=e.target.closest("[data-t]");if(!b)return;ls.set("theme",b.dataset.t);let t=b.dataset.t;if(t==="auto")t=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";document.documentElement.dataset.theme=t;
@@ -1318,6 +1327,8 @@ function renderSearch(){
     const row=e.target.closest("[data-s]");if(row)openDetail(sres.find(x=>x.k===row.dataset.s))};
 }
 /* ---------- boot ---------- */
+if("serviceWorker" in navigator&&location.protocol==="https:")addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+let installEvt=null;addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEvt=e;const b=$("#instBtn");if(b)b.hidden=false});
 async function ensureProfile(user){
   for(let i=0;i<5;i++){const {data}=await sb.from("km_profiles").select("*").eq("user_id",user.id).maybeSingle();if(data)return data;await new Promise(r=>setTimeout(r,600))}
   return {user_id:user.id,name:"",pair_code:"——"};
