@@ -1,6 +1,10 @@
 #!/bin/bash
 # Cloudflare Pages build: pulls the generated SEO pages (seo branch), minifies code, copies the site into dist/.
 set -e
+# guard: never publish a broken or truncated app
+node --check app.js && node --check i18n.js
+test "$(wc -c < app.js)" -gt 100000 || { echo "app.js looks truncated"; exit 1; }
+grep -q "function startGuest" app.js
 curl -sSfL https://codeload.github.com/mitseri/kino/tar.gz/refs/heads/seo | tar xz --strip-components=1
 test -f sitemap.xml
 rm -rf dist && mkdir dist
