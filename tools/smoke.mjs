@@ -46,7 +46,9 @@ async function run(name, launcher, device) {
   await must("#stack .sc.front .kf span", "факты на постере");
   await page.click('#nav [data-v="likes"]'); await must(".view", "вкладка «Лайки»");
   await page.click('#nav [data-v="shelf"]'); await must("#stt", "вкладка «Полка»");
-  await page.click('#nav [data-v="search"]'); await must(".colls button", "подборки в поиске");
+  await page.click('#nav [data-v="search"]'); await must("[data-coll-i]", "подборки в поиске"); await must(".ctrack .ccard[data-ck]", "карусель подборки");
+  await page.click('#nav [data-v="swipe"]'); await page.click("#trBtn"); await must(".t3 .t3c", "карусель трендов"); await page.click("#t3x");
+  await page.click('#nav [data-v="search"]');
   await page.click('#nav [data-v="swipe"]'); await page.click("#flt"); await must("#pP", "фильтр по сервисам");
   await page.evaluate(() => closeSheet());
   await page.evaluate(() => openDetail(deck[0])); await must("#dRev", "карточка фильма с отзывами");

@@ -897,7 +897,7 @@ function renderSearch(){
 /* ---------- glassy carousels: collections (tilted shelves) and trends (3D coverflow) ---------- */
 const ROWS=new Map(),ROWIT=new Map();
 async function rowItems(c){if(ROWS.has(c.t))return ROWS.get(c.t);const kind=c.p.includes("/tv")?"tv":c.p.includes("/movie")?"movie":null;let r=[];
-  try{const j=await tmdb(c.p,{...(c.q||{}),page:"1"});r=(j.results||[]).filter(x=>x.poster_path&&(kind||x.media_type==="movie"||x.media_type==="tv")).map(x=>itemFrom(x,kind||x.media_type)).slice(0,14)}catch(e){}
+  try{const j=await tmdb(c.p,{...(c.q||{}),page:"1"});r=(j.results||[]).filter(x=>x.poster_path&&(kind||x.media_type!=="person")).map(x=>itemFrom(x,kind||x.media_type||"movie")).slice(0,14)}catch(e){}
   r.forEach(it=>ROWIT.set(it.k,it));ROWS.set(c.t,r);return r}
 function tiltTrack(tr){const box=tr.getBoundingClientRect(),cx=box.left+box.width/2;
   tr.querySelectorAll(".ccard").forEach(c=>{const b=c.getBoundingClientRect(),d=Math.max(-1,Math.min(1,(b.left+b.width/2-cx)/(box.width/1.6)));c.style.transform=`perspective(700px) rotateY(${-d*16}deg) scale(${1-Math.abs(d)*.08})`})}
