@@ -532,7 +532,7 @@ function renderSwipeView(){
     ${room?`<div class="nightbar"><span style="font-size:1.5rem">👥</span><span class="grow"><b>Комната «${esc(room.name)}»</b><span id="roomInfo">${roomInfo()}</span></span><button class="btn sm" id="roomEnd">Итоги</button></div>`:night?`<div class="nightbar"><span style="font-size:1.5rem">🍿</span><span class="grow"><b>Вечер кино с ${esc(ptName())}</b><span id="nightInfo">${nightInfo()}</span></span><button class="btn sm" id="nightEnd">Итоги</button></div>`
       :""}
     ${night||room?"":p.person?`<div class="row"><button class="pill act" id="noPerson">🎭 ${esc(p.person.name)} <b>✕</b></button></div>`:""}
-    <div class="row" id="kinds" ${night||room?"hidden":""}><button class="pill sel ${kk&&!p.person?"act":""}" id="kindBtn" aria-haspopup="true">${esc(([{k:"",t:"Всё"},{k:"fresh",t:"🆕 Новинки"},...KINDS].find(x=>x.k===kk&&!p.person)||{t:"Всё"}).t)}<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg></button>
+    <div class="row" id="kinds" ${night||room?"hidden":""}><button class="pill sel ${kk&&!p.person?"act":""}" id="kindBtn" aria-haspopup="true">${esc(([{k:"",t:"Всё"},{k:"fresh",t:"🆕 Новинки"},...KINDS].find(x=>x.k===kk&&!p.person)||{t:"Всё"}).t)}<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg></button><button class="pill" id="trBtn">🔥 Тренды</button>
       <button class="pill ${nf?"act":""}" id="flt"><svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Фильтры${nf?` <b>${nf}</b>`:""}</button></div></div>
     <div class="stage"><div class="stack" id="stack"></div></div>
     <div class="ctrl2 pad">
@@ -546,6 +546,7 @@ function renderSwipeView(){
         
       </div>
     </div></div>`;
+  $("#trBtn").onclick=()=>openTrends();
   $("#kindBtn").onclick=e=>{e.stopPropagation();const old=$(".kmenu");if(old){old.remove();return}const p0=prefs||DEF_PREFS(),cur=p0.person?"-":p0.fresh?"fresh":p0.kinds?.length===1?p0.kinds[0]:"";
     const r=e.currentTarget.getBoundingClientRect(),mn=document.createElement("div");mn.className="kmenu";mn.style.top=(r.bottom+6)+"px";mn.style.left=r.left+"px";
     mn.innerHTML=[{k:"",t:"Всё"},{k:"fresh",t:"🆕 Новинки"},...KINDS].map(x=>`<button data-k="${x.k}" class="${x.k===cur?"on":""}">${x.t}</button>`).join("");document.body.appendChild(mn);
@@ -881,15 +882,49 @@ function renderSearch(){
     <div class="list" id="sr" style="margin-top:12px"></div></div></div>`;
   const draw=()=>{$("#sr").innerHTML=(speople.length&&sq?`<span class="label">Люди</span><div class="cast" style="margin-bottom:10px">${speople.map(c=>`<button type="button" data-person="${c.id}" data-pname="${esc(c.name)}"><img src="${IMG}w185${c.profile_path}" alt="" loading="lazy">${esc(c.name)}<small>${esc((c.known_for||[]).map(k=>k.title||k.name).slice(0,2).join(", "))}</small></button>`).join("")}</div>`:"")+(sres.length?sres.map(it=>`<div class="lrow" data-s="${esc(it.k)}">${thumb(it)}<div class="lt"><b>${esc(it.t)}</b><span>${esc(metaOf(it))}</span><span class="clamp">${esc(it.d)}</span>
       <div class="la">${mine.shelf.has(it.k)?`<span class="onsh">На полке ✓</span>`:`<button class="btn red sm" data-add="${esc(it.k)}">На полку</button>`}</div></div></div>`).join(""):sq?`<div class="empty">Ничего не нашлось</div>`
-      :`<span class="label">Подборки</span><div class="colls">${COLLS.map((x,i)=>`<button data-coll-i="${i}">${esc(x.t)}</button>`).join("")}</div>`)};
+      :`<div class="shelfs">${COLLS.map((x,i)=>`<section class="cshelf"><div class="csh"><b>${esc(x.t)}</b><button class="pill sm" data-coll-i="${i}">Все →</button></div><div class="ctrack" data-track="${i}">${'<div class="ccard ph"></div>'.repeat(4)}</div></section>`).join("")}</div>`);
+    if(!sq&&!sres.length)fillShelves()};
   draw();let t;$("#sq").oninput=e=>{clearTimeout(t);t=setTimeout(async()=>{sq=e.target.value.trim();if(collOpen!=null&&sq){collOpen=null;$("#cBack")?.parentElement.nextElementSibling?.remove();$("#cBack")?.parentElement.remove()}if(!sq){sres=[];return draw()}
     try{const r=await tmdb("/search/multi",{query:sq,include_adult:"false"});speople=(r.results||[]).filter(x=>x.media_type==="person"&&x.profile_path).slice(0,8);
       sres=(r.results||[]).filter(x=>(x.media_type==="movie"||x.media_type==="tv")&&x.poster_path).map(x=>itemFrom(x)).slice(0,20)}catch(err){sres=[];speople=[]}draw()},300)};
   const cb=$("#cBack");if(cb)cb.onclick=()=>{collOpen=null;sres=[];renderSearch()};
   const cs=$("#cSwipe");if(cs)cs.onclick=()=>{const l=sres.filter(x=>!mine.swipes.has(x.k)&&!mine.shelf.has(x.k));if(!l.length)return toast("Всё из подборки вы уже видели");deck=l;hist=[];go("swipe");toast("Свайпаете подборку «"+c.t.replace(/^\S+\s/,"")+"»")};
-  $("#main").onclick=async e=>{const ci=e.target.closest("[data-coll-i]");if(ci)return openColl(+ci.dataset.collI);const a=e.target.closest("[data-add]");if(a){await addToShelf(sres.find(x=>x.k===a.dataset.add));a.outerHTML='<span class="onsh">На полке ✓</span>';toast("На полке");return}
+  $("#main").onclick=async e=>{const ct=e.target.closest("[data-ctr]");if(ct){e.stopPropagation();const it=ROWIT.get(ct.dataset.ctr);if(it)playTrailer(it,trailerOf(await details(it)));return}
+    const ck=e.target.closest("[data-ck]");if(ck){const it=ROWIT.get(ck.dataset.ck);if(it)openDetail(it);return}
+    const ci=e.target.closest("[data-coll-i]");if(ci)return openColl(+ci.dataset.collI);const a=e.target.closest("[data-add]");if(a){await addToShelf(sres.find(x=>x.k===a.dataset.add));a.outerHTML='<span class="onsh">На полке ✓</span>';toast("На полке");return}
     const row=e.target.closest("[data-s]");if(row)openDetail(sres.find(x=>x.k===row.dataset.s))};
 }
+/* ---------- glassy carousels: collections (tilted shelves) and trends (3D coverflow) ---------- */
+const ROWS=new Map(),ROWIT=new Map();
+async function rowItems(c){if(ROWS.has(c.t))return ROWS.get(c.t);const kind=c.p.includes("/tv")?"tv":c.p.includes("/movie")?"movie":null;let r=[];
+  try{const j=await tmdb(c.p,{...(c.q||{}),page:"1"});r=(j.results||[]).filter(x=>x.poster_path&&(kind||x.media_type==="movie"||x.media_type==="tv")).map(x=>itemFrom(x,kind||x.media_type)).slice(0,14)}catch(e){}
+  r.forEach(it=>ROWIT.set(it.k,it));ROWS.set(c.t,r);return r}
+function tiltTrack(tr){const box=tr.getBoundingClientRect(),cx=box.left+box.width/2;
+  tr.querySelectorAll(".ccard").forEach(c=>{const b=c.getBoundingClientRect(),d=Math.max(-1,Math.min(1,(b.left+b.width/2-cx)/(box.width/1.6)));c.style.transform=`perspective(700px) rotateY(${-d*16}deg) scale(${1-Math.abs(d)*.08})`})}
+function fillShelves(){const io=new IntersectionObserver(es=>es.forEach(async en=>{if(!en.isIntersecting)return;io.unobserve(en.target);const tr=en.target,c=COLLS[+tr.dataset.track],items=await rowItems(c);
+    tr.innerHTML=items.map(it=>`<div class="ccard" data-ck="${esc(it.k)}"><img src="${IMG}w342${it.poster}" alt="${esc(it.t)}" loading="lazy"><button class="ctr" data-ctr="${esc(it.k)}" aria-label="Трейлер">▶</button><div class="cglass"><b>${esc(it.t)}</b><span>${esc([it.y,it.r?"★ "+it.r:""].filter(Boolean).join(" · "))}</span></div></div>`).join("")||`<div class="empty">Пусто</div>`;
+    let raf=0;tr.onscroll=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>tiltTrack(tr))};tiltTrack(tr)}),{rootMargin:"200px"});
+  document.querySelectorAll("[data-track]").forEach(t=>io.observe(t))}
+async function openTrends(){const L=$("#modalRoot");
+  L.innerHTML=`<div class="t3" id="t3"><div class="t3bg" id="t3bg"></div><div class="t3top"><h2>🔥 Тренды недели</h2><button class="x" id="t3x" aria-label="Закрыть">✕</button></div><div class="t3s" id="t3s"><div class="spin"></div></div><div class="t3i glass" id="t3i"></div><div class="t3d" id="t3d"></div></div>`;
+  $("#t3x").onclick=()=>{L.innerHTML="";document.removeEventListener("keydown",key)};
+  const items=(await rowItems(COLLS[0])).slice(0,12);if(!$("#t3"))return;let i=0;const S=$("#t3s");
+  if(!items.length){S.innerHTML=`<div class="empty">Не удалось загрузить</div>`;return}
+  S.innerHTML=items.map((it,j)=>`<div class="t3c" data-j="${j}"><img src="${IMG}w500${it.poster}" alt="${esc(it.t)}"></div>`).join("");
+  $("#t3d").innerHTML=items.map((_,j)=>`<span data-j="${j}"></span>`).join("");
+  const show=n=>{i=(n+items.length)%items.length;const it=items[i];
+    S.querySelectorAll(".t3c").forEach((c,j)=>{let o=j-i;if(o>items.length/2)o-=items.length;if(o<-items.length/2)o+=items.length;const a=Math.abs(o);
+      c.style.transform=`translateX(${o*58}%) translateZ(${-a*150}px) rotateY(${-o*32}deg)`;c.style.opacity=a>2?0:1-a*.22;c.style.zIndex=10-a;c.classList.toggle("on",!o)});
+    $("#t3d").querySelectorAll("span").forEach((d,j)=>d.classList.toggle("on",j===i));
+    $("#t3bg").style.backgroundImage=it.backdrop?`url(${IMG}w780${it.backdrop})`:`url(${IMG}w500${it.poster})`;
+    $("#t3i").innerHTML=`<b>${esc(it.t)}</b><span>${esc([it.y,it.ty,it.r?"★ "+it.r:""].filter(Boolean).join(" · "))}</span><div class="t3b"><button class="btn red" id="t3tr">▶ Трейлер</button><button class="btn" id="t3more">Подробнее</button><button class="btn ghost" id="t3add">${mine.shelf.has(it.k)?"На полке ✓":"♥ На полку"}</button></div>`;
+    $("#t3tr").onclick=async()=>playTrailer(it,trailerOf(await details(it)));$("#t3more").onclick=()=>{L.innerHTML="";openDetail(it)};
+    $("#t3add").onclick=async e=>{if(mine.shelf.has(it.k))return;await addToShelf(it);e.target.textContent="На полке ✓";toast("На полке")}};
+  S.onclick=e=>{const c=e.target.closest(".t3c");if(!c||Date.now()-(S._sw||0)<350)return;const j=+c.dataset.j;if(j===i){L.innerHTML="";openDetail(items[i])}else show(j)};
+  $("#t3d").onclick=e=>{const d=e.target.closest("[data-j]");if(d)show(+d.dataset.j)};
+  let x0=null;S.onpointerdown=e=>{x0=e.clientX};S.onpointerup=e=>{if(x0==null)return;const dx=e.clientX-x0;x0=null;if(Math.abs(dx)>40){S._sw=Date.now();show(i+(dx<0?1:-1))}};
+  function key(e){if(!$("#t3"))return document.removeEventListener("keydown",key);if(e.key==="ArrowRight")show(i+1);if(e.key==="ArrowLeft")show(i-1);if(e.key==="Escape")$("#t3x").click()}
+  document.addEventListener("keydown",key);show(0)}
 /* ---------- reviews by our users ---------- */
 async function renderReviews(it){const box=$("#dRev");if(!box)return;let j=null;try{const r=await REAL_SB.rpc("km_reviews_for",{t:it.k});j=r.data}catch(e){}if(!$("#dRev"))return;j=j||{avg:null,count:0,items:[]};
   const mineR=me&&!me.guest?(j.items||[]).find(x=>x.user_id===me.user_id):null;let rate=mineR?.rating||0;
@@ -1053,7 +1088,7 @@ async function ensureProfile(user){
 }
 async function importFirstVersion(){
   // the first private version lived elsewhere; bring its shelf over once for its owner
-  if(mine.shelf.size||ls.get("imported1",false)||(me.email||"").toLowerCase()!=="legionerpropro@gmail.com")return;
+  if(mine.shelf.size||ls.get("imported1",false)||me.user_id!=="0f23906d-a9bb-4906-a064-1b7b1165e0b1")return;
   try{const m=await fetch("migrate.json").then(r=>r.ok?r.json():null);if(!m)return;
     if(m.shelf?.length)await sb.from("km_shelf").upsert(m.shelf.map(r=>({user_id:me.user_id,tmdb:r.tmdb,data:r.data,status:r.status,rating:r.rating,note:r.note||"",added_at:r.added_at||new Date().toISOString()})),{ignoreDuplicates:true});
     if(m.swipes?.length)await sb.from("km_swipes").upsert(m.swipes.map(r=>({user_id:me.user_id,tmdb:r.tmdb,v:r.v})),{ignoreDuplicates:true});
