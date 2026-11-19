@@ -422,3 +422,14 @@ html.km-authed #land{display:none}
 .t3i b{font:900 1.2rem var(--font)}.t3i span{opacity:.8;font-size:.86rem}.t3b{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.t3b .btn{flex:1;min-width:0;white-space:nowrap}
 .t3d{display:flex;gap:6px;margin-top:12px}.t3d span{width:7px;height:7px;border-radius:9px;background:rgb(255 255 255/.3);cursor:pointer;transition:width .3s}.t3d span.on{width:22px;background:#fff}
 .cshelf{min-width:0}.shelfs{grid-template-columns:minmax(0,1fr)}
+
+/* desktop: не оставляем чёрные полосы по бокам */
+@media(min-width:900px){
+.amb img{filter:blur(36px) saturate(1.7) brightness(.8)}
+.amb::after{background:radial-gradient(95% 85% at 50% 40%,transparent,rgb(11 11 13/.5)),linear-gradient(to bottom,rgb(11 11 13/.08),rgb(11 11 13/.45))}
+.wrap{max-width:900px}
+.stage,.ctrl2,.t3top,.t3s{max-width:680px}
+.dbody{max-width:760px}
+.sheet{max-width:680px}
+}
+@media(min-width:1200px){.pgrid{grid-template-columns:repeat(6,1fr)}}

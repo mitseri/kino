@@ -793,13 +793,21 @@ function openShelfItem(k,side){const r=side.shelf.get(k);if(!r)return;const d=r.
   const it=d.kind?d:(/^(movie|tv)-\d+$/.test(k)?{...d,k,kind:k.split("-")[0],id:+k.split("-")[1],t:d.title||d.t,y:d.year,d:d.description,poster:PC[k]}:null);
   if(it)openDetail(it)}
 /* ---------- detail page ---------- */
+async function renderSimilar(it){const box=$("#dSim");if(!box||!it?.kind)return;
+  try{let r=(await tmdb(`/${it.kind}/${it.id}/recommendations`)).results||[];
+    if(r.length<10){const s2=(await tmdb(`/${it.kind}/${it.id}/similar`)).results||[];r=r.concat(s2.filter(x=>!r.some(y=>y.id===x.id)))}
+    const items=r.filter(x=>x.poster_path&&x.id!==it.id).map(x=>itemFrom(x,x.media_type||it.kind)).filter(x=>x.kind==="movie"||x.kind==="tv").slice(0,10);
+    if(!$("#dSim")||!items.length)return;const M=new Map(items.map(x=>[x.k,x]));
+    box.innerHTML=`<div class="sect"><span class="label">Похожие фильмы</span><div class="row" style="gap:10px;align-items:flex-start">${items.map(x=>`<button data-sim="${esc(x.k)}" style="all:unset;cursor:pointer;width:112px;flex:none"><img src="${IMG}w342${x.poster}" alt="${esc(x.t)}" loading="lazy" style="width:112px;aspect-ratio:2/3;object-fit:cover;border-radius:12px;display:block;background:#222"><span style="display:block;font:600 .78rem/1.2 Manrope,sans-serif;margin-top:6px;white-space:normal">${esc(x.t)}</span><span style="display:block;font-size:.7rem;opacity:.6">${esc(x.y||"")}</span></button>`).join("")}</div></div>`;
+    box.onclick=e=>{const b=e.target.closest("[data-sim]");if(b){const n=M.get(b.dataset.sim);if(n){openDetail(n);const d=$("#det");if(d)d.scrollTop=0;window.scrollTo(0,0)}}}
+  }catch{}}
 async function openDetail(it){
   const L=$("#layer");
   L.innerHTML=`<div class="detail" id="det"><div class="dhero">${(it.backdrop||it.poster)?`<img src="${IMG}w780${it.backdrop||it.poster}" alt="">`:""}<button class="dback" id="dBack">${backSvg} Назад</button></div>
     <div class="dbody pad"><div><div class="sub">${esc(TYPES[it.ty]||"")}${it.y?" · "+esc(it.y):""}${it.g?.length?" · "+esc(it.g.join(", ")):""}</div><h2 class="dtitle">${esc(it.t)}</h2></div>
     <div id="dAct"></div><div id="dSoc"></div><div id="dChat"></div><div class="gal" id="dGal"></div>
-    <div class="sect"><span class="label">О чём</span><p class="desc">${esc(it.d||"")}</p></div><div id="dX"><div class="spin"></div></div><div id="dRev"></div></div></div>`;
-  renderReviews(it);renderChat(it);
+    <div class="sect"><span class="label">О чём</span><p class="desc">${esc(it.d||"")}</p></div><div id="dX"><div class="spin"></div></div><div id="dSim"></div><div id="dRev"></div></div></div>`;
+  renderReviews(it);renderChat(it);renderSimilar(it);
   $("#dBack").onclick=()=>{L.innerHTML="";if(me)go(view);if(/[?&]m=/.test(location.search))history.replaceState(null,"",location.pathname)};
   const act=()=>{const r=me&&mine.shelf.get(it.k);if(!me){$("#dAct").innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn red" id="dTr">▶ Трейлер</button><button class="btn" id="dLog">Войти и сохранить на полку</button></div>`;
       $("#dTr").onclick=async()=>playTrailer(it,trailerOf(await details(it)));$("#dLog").onclick=()=>openLogin("up");return}$("#dAct").innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn red" id="dTr">▶ Трейлер</button>${r?"":`<button class="btn" id="dAdd">На мою полку</button>`}</div>
