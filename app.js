@@ -830,7 +830,8 @@ async function openDetail(it){
       r.progress={s,e:ep};const patch={progress:r.progress,updated_at:new Date().toISOString()};if(r.status==="want"&&ep>0){r.status="watching";patch.status="watching"}
       await sb.from("km_shelf").update(patch).match({user_id:me.user_id,tmdb:it.k});act()};
   };act();
-  const soc=()=>{if(!me)return;const my=mine.rx.get(it.k),their=partner&&theirs.rx.get(it.k),rcIn=recsIn.get(it.k),rcOut=recsOut.get(it.k),inL=lists.filter(l=>listItems.get(l.id)?.has(it.k)).map(l=>l.name);
+  const shareIt=async()=>{const url=SITE+"?m="+it.k,text=`Глянь «${it.t}»${it.y?" ("+it.y+")":""} — нашёл в ${BRAND}`;if(navigator.share){try{await navigator.share({title:it.t,text,url})}catch(e){}}else copy(text+" "+url)};
+  const soc=()=>{if(!me){$("#dSoc").innerHTML=`<div style="margin-top:12px"><button class="btn sm" id="dShare">🔗 Поделиться</button></div>`;$("#dShare").onclick=shareIt;return}const my=mine.rx.get(it.k),their=partner&&theirs.rx.get(it.k),rcIn=recsIn.get(it.k),rcOut=recsOut.get(it.k),inL=lists.filter(l=>listItems.get(l.id)?.has(it.k)).map(l=>l.name);
     $("#dSoc").innerHTML=`<div class="sect" style="margin-top:12px">${rcIn?`<span class="recn">💌 <b>${esc(ptName())}</b> советует${rcIn.note?`: «${esc(rcIn.note)}»`:""}</span>`:""}
       <span class="label">Реакция</span><div class="rx">${RX.map(x=>`<button data-rx="${x}" aria-pressed="${my===x}">${x}</button>`).join("")}${their?`<span class="ptx">${esc(ptName())}: ${their}</span>`:""}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">${partner?`<button class="btn sm" id="dRec">${rcOut?"💌 Уже посоветовано":"💌 Посоветовать "+esc(ptName())}</button>`:""}<button class="btn sm" id="dList">📁 В список${inL.length?" · "+esc(inL.join(", ")):""}</button><button class="btn sm" id="dShare">🔗 Поделиться</button><button class="btn sm" id="dWatch">${watchSet.has(it.k)?"🔔 Напомню, когда выйдет ✓":"🔔 Сказать, когда выйдет"}</button></div></div>`;
