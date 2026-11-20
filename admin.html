@@ -160,7 +160,9 @@ load(true);
  };
  const sched=()=>{if(!raf)raf=requestAnimationFrame(frame)};
  addEventListener("mousemove",e=>{px=(e.clientX/innerWidth)*2-1;py=(e.clientY/innerHeight)*2-1;chartEv=e;sched();
-  const c=e.target.closest&&!e.target.closest(".chart")&&e.target.closest(".card,.row,.ur");
+  let c=e.target.closest&&!e.target.closest(".chart")&&e.target.closest(".card");
+  /* только небольшие карточки; большие списки (активность, люди) и строки без кнопок не трогаем */
+  if(c){const b=c.getBoundingClientRect();if(b.width>460||b.height>300||c.matches(".full,.chartc"))c=null}
   if(last&&last!==c){last.style.transform="";last.classList.remove("hot","t3")}
   if(c){const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
    c.classList.add("t3","hot");c.style.setProperty("--gx",((x+.5)*100).toFixed(0)+"%");c.style.setProperty("--gy",((y+.5)*100).toFixed(0)+"%");
