@@ -1,0 +1,1 @@
+{"name":"Kinomatch админка","short_name":"KM админка","start_url":"/admin","scope":"/admin","display":"standalone","background_color":"#d9cbb8","theme_color":"#d9cbb8","lang":"ru","icons":[{"src":"/admin-icon-192.png","sizes":"192x192","type":"image/png"},{"src":"/admin-icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}
