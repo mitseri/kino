@@ -333,7 +333,19 @@ function buildSources(){
     if(k==="series")q.without_genres=[...no,10764,10767,10763,10766].join(",");else if(no.length)q.without_genres=no.join(",");
     src.push({kind,q,page:0,done:false});
   }
+  // свой каталог km_catalog (сотни тысяч названий): половина колоды идёт оттуда, фильтры len/cc/prov он не знает
+  if(!p.len&&!p.cc?.length&&!p.prov?.length)for(const k of kinds)for(const e of eras){
+    const kd=k==="film"?["movie"]:k==="anime"?["tv","movie"]:["tv"],gs=g=>[...new Set(kd.flatMap(x=>genreIds(g,x)))];
+    const yes=[...new Set([...(p.yes||[]),...moodG].flatMap(gs))],no=(p.no||[]).flatMap(gs);
+    src.push({cat:{tag:k,a:e.a?+e.a.slice(0,4):null,b:e.b?+e.b.slice(0,4):null,minR:p.minR||0,yes,no},done:false});
+  }
 }
+async function catPull(c){
+  let q=TSB.from("km_catalog").select("id,kind,title,orig,year,poster,rating,genres,lang").eq("tag",c.tag).gte("r",Math.random()).order("r").limit(40);
+  if(c.a)q=q.gte("year",c.a);if(c.b)q=q.lte("year",c.b);q=q.gte("votes",c.minR?5:3);if(c.minR)q=q.gte("rating",c.minR);
+  if(c.yes.length)q=q.overlaps("genres",c.yes);if(c.no.length)q=q.not("genres","ov","{"+c.no.join(",")+"}");
+  const {data,error}=await q;if(error)throw error;
+  return (data||[]).filter(x=>x.poster).map(x=>itemFrom({id:x.id,title:x.title,original_title:x.orig,release_date:x.year+"-01-01",vote_average:x.rating,overview:"",poster_path:x.poster,genre_ids:x.genres||[],original_language:x.lang},x.kind))}
 function seenK(k){return mine.swipes.has(k)||mine.shelf.has(k)||deck.some(x=>x.k===k)}
 function taste(){const w={};for(const r of mine.swipes.values()){const s=r.v==="like"?(r.mega?3:1.5):r.v==="nope"?-1:.6;(r.data?.g||[]).forEach(g=>w[g]=(w[g]||0)+s)}return w}
 function smartSort(items){if(mine.swipes.size<12)return items;const w=taste(),sc=it=>{const g=it.g||[];return g.reduce((a,x)=>a+(w[x]||0),0)/Math.max(1,g.length)/Math.max(1,mine.swipes.size/40)+(it.r||0)/4+Math.random()*1.6};
@@ -351,6 +363,9 @@ async function fill(min=8){
       if(s.person){s.done=true;const r=await tmdb(`/person/${s.person}/combined_credits`);const seenId=new Set();
         const items=[...(r.cast||[]),...(r.crew||[]).filter(c=>c.job==="Director"||c.job==="Creator")].filter(x=>(x.media_type==="movie"||x.media_type==="tv")&&x.poster_path&&!seenId.has(x.id)&&seenId.add(x.id))
           .sort((a,b)=>(b.vote_count||0)-(a.vote_count||0)).map(x=>itemFrom(x,x.media_type)).filter(x=>!seenK(x.k));deck.push(...items);continue}
+      if(s.cat){let items=[];try{items=(await catPull(s.cat)).filter(x=>!seenK(x.k))}catch(e){s.fails=(s.fails||0)+1;if(s.fails>2)s.done=true}
+        for(let i=items.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[items[i],items[j]]=[items[j],items[i]]}
+        deck.push(...smartSort(items));continue}
       const r=await tmdb("/discover/"+s.kind,{...s.q,page:String(s.page)});
       if(!r.results?.length||s.page>=r.total_pages)s.done=true;
       const items=(r.results||[]).filter(x=>x.poster_path&&(x.overview||window.LANG!=="ru")).map(x=>itemFrom(x,s.kind)).filter(x=>!seenK(x.k));
@@ -581,6 +596,7 @@ function detailsHTML(it,d){const x=d||{},w=whereOf(it,d),q=qualOf(it,d),vids=vid
     <div class="sect"><span class="label">Где смотреть <span>· ${esc(CCN())}</span></span><div class="chips">${w.length?w.map(p=>`<a class="chip ${p.sub?"free":""}" href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)} · ${p.sub?"подписка":"купить"} ›</a>`).join(""):`<a class="chip" href="${JW()}${encodeURIComponent(it.t)}" target="_blank" rel="noopener">В Украине не найдено · искать ›</a>`}</div></div>`}
 async function hydrateCard(el,it){
   const d=await details(it);if(!el.isConnected)return;
+  if(d?.overview&&!it.d){it.d=d.overview;const dd=el.querySelector(".desc,.clamp");if(dd&&!dd.textContent.trim())dd.textContent=d.overview}
   if(d&&!d.overview&&window.LANG!=="ru"){try{const en=await tmdb(`/${it.kind}/${it.id}`,{language:"en-US"});if(en?.overview){d.overview=en.overview;it.d=en.overview;const dd=el.querySelector(".desc,.clamp");if(dd&&!dd.textContent.trim())dd.textContent=en.overview}}catch(e){}}
   el._frames=framesOf(it,d).slice(0,9);el._i=0;
   const bars=()=>{el.querySelector(".bars").innerHTML=el._frames.length>1?el._frames.map((_,j)=>`<span class="${j===el._i?"on":""}"></span>`).join(""):""};bars();
