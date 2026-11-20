@@ -416,7 +416,7 @@ function openProfile(){if(needAccount("Профиль, пара, фото и у�
     <button class="btn" id="tourAgain">🎓 Пройти обучение заново</button>
     <div class="sect"><span class="label">Язык</span><div class="seg" id="lngT">${[["ru","Русский"],["uk","Українська"],["en","English"]].map(([k,t])=>`<button data-l="${k}" aria-pressed="${window.LANG===k}">${t}</button>`).join("")}</div></div>
     <div class="sect"><span class="label">Страна для «Где смотреть»</span><select id="ccSel"><option value="">Определять автоматически (${esc(CCN())})</option>${["UA", "PL", "DE", "GB", "US", "CA", "FR", "IT", "ES", "CZ", "LT", "LV", "EE", "MD", "GE", "KZ", "TR", "RU", "BY"].map(c=>{let n=c;try{n=new Intl.DisplayNames([window.LANG==="en"?"en":window.LANG==="uk"?"uk":"ru"],{type:"region"}).of(c)}catch(e){}return `<option value="${c}" ${ls.get("cc_set","")===c?"selected":""}>${esc(n)}</option>`}).join("")}</select></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="rpBtn">🛠 Что-то не работает?</button><a class="btn ghost" href="/about.html" target="_blank" rel="noopener">О Kinomatch</a></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="rpBtn">🛠 Что-то не работает?</button><button class="btn ghost" id="blkBtn">🚫 Заблокированные</button><a class="btn ghost" href="/about.html" target="_blank" rel="noopener">О Kinomatch</a></div>
     <div class="sect"><span class="label">Оформление</span><div class="seg" id="thm">${[["dark","🌙 Тёмная"],["light","☀️ Светлая"],["auto","Как в системе"]].map(([k,t])=>`<button data-t="${k}" aria-pressed="${ls.get("theme","dark")===k}">${t}</button>`).join("")}</div>
       <div class="seg" id="sndT"><button data-s="1" aria-pressed="${SND_ON}">🔊 Звуки вкл</button><button data-s="0" aria-pressed="${!SND_ON}">🔇 Без звука</button></div></div>
     <div class="sect"><span class="label">Уведомления в Telegram</span><p class="sub" style="margin:0">Бот напишет, когда у вас мэтч или ${partner?esc(ptName()):"пара"} советует фильм.</p>
@@ -434,7 +434,7 @@ function openProfile(){if(needAccount("Профиль, пара, фото и у�
     const {error}=await sb.from("km_profiles").update({username:u}).eq("user_id",me.user_id);if(error)return toast(/duplicate|unique/.test(error.message)?"Такой логин уже занят":"Не получилось");me.username=u;closeSheet();openProfile()};
   $("#tourAgain").onclick=()=>{closeSheet();startTour(true)};
   $("#ccSel").onchange=e=>{const v=e.target.value;try{v?localStorage.setItem("km_cc",v):localStorage.removeItem("km_cc")}catch(_){}ls.set("cc_set",v);location.reload()};
-  $("#rpBtn").onclick=()=>{closeSheet();reportProblem()};
+  $("#rpBtn").onclick=()=>{closeSheet();reportProblem()};$("#blkBtn").onclick=()=>{closeSheet();openBlocked()};
   $("#lngT").onclick=e=>{const b=e.target.closest("[data-l]");if(b&&b.dataset.l!==window.LANG){ls.set("lang",b.dataset.l);location.reload()}};
   $("#thm").onclick=e=>{const b=e.target.closest("[data-t]");if(!b)return;ls.set("theme",b.dataset.t);let t=b.dataset.t;if(t==="auto")t=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";document.documentElement.dataset.theme=t;
     document.querySelector('meta[name=theme-color]').content=t==="light"?"#f5f3ef":"#0b0b0d";$("#thm").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b))};
@@ -988,13 +988,13 @@ async function renderReviews(it){const box=$("#dRev");if(!box)return;let j=null;
     ${me&&!me.guest?`<div class="revform"><div class="stars" id="rvS">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button data-rv="${n}" class="${rate>=n?"on":""}" aria-label="${n} из 10">★</button>`).join("")}</div>
       <textarea id="rvT" maxlength="1000" rows="3" placeholder="Что думаете? Без спойлеров 🙂">${esc(mineR?.text||"")}</textarea><div style="display:flex;gap:8px"><button class="btn red sm" id="rvGo">${mineR?"Обновить отзыв":"Оставить отзыв"}</button>${mineR?`<button class="btn ghost sm" id="rvDel">Удалить</button>`:""}</div></div>`
       :`<button class="btn sm" id="rvLog">Войдите, чтобы оставить отзыв</button>`}
-    <div class="revs">${(j.items||[]).map(x=>`<div class="rev"><span class="av">${x.avatar_url?`<img src="${esc(x.avatar_url)}" alt="">`:esc((x.name||"?")[0].toUpperCase())}</span><div><b>${esc(x.name||"Зритель")}</b> <span class="rt">★ ${x.rating}</span><span class="dt">${fdate(x.updated_at)}</span>${me&&!me.guest&&x.user_id!==me.user_id?`<button class="rvr" data-rep="${esc(x.user_id)}" title="Пожаловаться" aria-label="Пожаловаться">⚑</button>`:""}${x.text?`<p>${esc(x.text)}</p>`:""}</div></div>`).join("")}</div></div>`;
+    <div class="revs">${(j.items||[]).filter(x=>!BLK.has(x.user_id)).map(x=>`<div class="rev"><span class="av">${x.avatar_url?`<img src="${esc(x.avatar_url)}" alt="">`:esc((x.name||"?")[0].toUpperCase())}</span><div><b>${esc(x.name||"Зритель")}</b> <span class="rt">★ ${x.rating}</span><span class="dt">${fdate(x.updated_at)}</span>${me&&!me.guest&&x.user_id!==me.user_id?`<button class="rvr" data-rep="${esc(x.user_id)}" data-nm="${esc(x.name||"")}" title="Пожаловаться" aria-label="Пожаловаться">⚑</button>`:""}${x.text?`<p>${esc(x.text)}</p>`:""}</div></div>`).join("")}</div></div>`;
     const S=$("#rvS");if(S)S.onclick=e=>{const b=e.target.closest("[data-rv]");if(!b)return;rate=+b.dataset.rv;S.querySelectorAll("[data-rv]").forEach(x=>x.classList.toggle("on",+x.dataset.rv<=rate))};
     const go=$("#rvGo");if(go)go.onclick=async()=>{if(!rate)return toast("Поставьте оценку звёздами");const row={user_id:me.user_id,tmdb:it.k,rating:rate,text:$("#rvT").value.trim(),updated_at:new Date().toISOString()};
       const {error}=await REAL_SB.from("km_reviews").upsert(row);if(error)return toast(/rate_limit/.test(error.message)?"Слишком много отзывов за час":/bad_words/.test(error.message)?"Без мата, пожалуйста 🙂":"Не сохранилось");toast("Спасибо за отзыв!");renderReviews(it)};
     const del=$("#rvDel");if(del)del.onclick=async()=>{await REAL_SB.from("km_reviews").delete().match({user_id:me.user_id,tmdb:it.k});renderReviews(it)};
     const lg=$("#rvLog");if(lg)lg.onclick=()=>openLogin("up");
-    box.querySelectorAll("[data-rep]").forEach(b=>b.onclick=async()=>{const {error}=await REAL_SB.from("km_review_reports").insert({author:b.dataset.rep,tmdb:it.k});b.disabled=true;toast(error&&!/duplicate/.test(error.message)?"Не отправилось":"Спасибо, мы проверим этот отзыв")})};draw()}
+    box.querySelectorAll("[data-rep]").forEach(b=>b.onclick=()=>userMenu(b.dataset.rep,b.dataset.nm,{tmdb:it.k,after:()=>renderReviews(it)}))};draw()}
 
 /* ---------- chat under a match ---------- */
 let chatFor=null;
@@ -1048,14 +1048,14 @@ async function roomsSection(){const el=$("#roomsBox");if(!el)return;const rs=awa
 
 /* ---------- public profile ---------- */
 async function openPublic(u){let j=null;try{j=(await REAL_SB.rpc("km_public",{u})).data}catch(e){}const L=$("#layer");
-  if(!j){L.innerHTML=`<div class="detail" id="det"><div class="dbody pad"><button class="dback" id="dBack" style="position:static">${backSvg} Назад</button><div class="empty"><strong>Профиль скрыт или не найден</strong></div></div></div>`;$("#dBack").onclick=()=>{L.innerHTML="";history.replaceState(null,"",location.pathname);if(me)go(view)};return}
+  if(!j||(j.user_id&&BLK.has(j.user_id))){L.innerHTML=`<div class="detail" id="det"><div class="dbody pad"><button class="dback" id="dBack" style="position:static">${backSvg} Назад</button><div class="empty"><strong>Профиль скрыт или не найден</strong></div></div></div>`;$("#dBack").onclick=()=>{L.innerHTML="";history.replaceState(null,"",location.pathname);if(me)go(view)};return}
   const sh=j.shelf||[],done=sh.filter(r=>r.status==="done"),g={};done.forEach(r=>(r.data?.g||[]).forEach(x=>g[x]=(g[x]||0)+1));const topG=Object.entries(g).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]);
   document.title=`${j.name} — полка в Kinomatch`;
   L.innerHTML=`<div class="detail" id="det"><div class="dbody pad" style="padding-top:20px"><button class="dback" id="dBack" style="position:static;margin-bottom:12px">${backSvg} Назад</button>
     <div style="display:flex;gap:14px;align-items:center"><span class="av" style="width:64px;height:64px;font-size:1.6rem">${j.avatar_url?`<img src="${esc(j.avatar_url)}" alt="">`:esc((j.name||"?")[0])}</span><div><h2 class="dtitle" style="margin:0">${esc(j.name)}</h2><span class="sub">${RN(done.length,"фильм","фильма","фильмов")} посмотрено${topG.length?" · любит "+esc(topG.join(", ")):""}</span></div></div>
-    ${!me?`<button class="btn red" style="margin-top:14px" data-guest2>Свайпать свои фильмы в Kinomatch</button>`:""}
+    ${me&&!me.guest&&j.user_id&&j.user_id!==me.user_id?`<button class="btn ghost sm" style="margin-top:12px" data-pubrep>⚑ Пожаловаться / заблокировать</button>`:""}${!me?`<button class="btn red" style="margin-top:14px" data-guest2>Свайпать свои фильмы в Kinomatch</button>`:""}
     ${["watching","done"].map(st=>{const l=sh.filter(r=>r.status===st);return l.length?`<div class="sh"><h2>${st==="done"?"Посмотрено":"Смотрит сейчас"}</h2><span class="sub">${l.length}</span></div><div class="pgrid">${l.map(r=>pcardHTML(r,`data-pub="${esc(r.tmdb)}"`)).join("")}</div>`:""}).join("")}</div></div>`;
-  $("#dBack").onclick=()=>{L.innerHTML="";history.replaceState(null,"",location.pathname);if(me)go(view)};const g2=L.querySelector("[data-guest2]");if(g2)g2.onclick=()=>{L.innerHTML="";startGuest()};
+  $("#dBack").onclick=()=>{L.innerHTML="";history.replaceState(null,"",location.pathname);if(me)go(view)};const pr=L.querySelector("[data-pubrep]");if(pr)pr.onclick=()=>userMenu(j.user_id,j.name,{after:()=>{L.innerHTML="";if(me)go(view)}});const g2=L.querySelector("[data-guest2]");if(g2)g2.onclick=()=>{L.innerHTML="";startGuest()};
   L.querySelectorAll("[data-pub]").forEach(b=>b.onclick=()=>{const d=sh.find(r=>r.tmdb===b.dataset.pub)?.data;if(d?.kind)openDetail(d)})}
 
 /* ---------- my movie year ---------- */
@@ -1079,6 +1079,18 @@ async function openOnboarding(force){if(!force&&(ls.get("onbDone",false)||mine.s
   return new Promise(done=>{const fin=async ok=>{ls.set("onbDone",true);if(ok){const p={...DEF_PREFS(),...(prefs||{}),yes:[...sel],person:null,fresh:false};confetti();await savePrefs(p)}L.innerHTML="";done(true)};
     $("#onbGo").onclick=()=>fin(true);$("#onbSkip").onclick=()=>fin(false)})}
 
+/* ---------- жалобы и блокировка ---------- */
+var BLK=new Set(),BLKN={};
+async function loadBlocks(){if(!me||me.guest)return;try{const {data}=await REAL_SB.from("km_blocks").select("blocked,name");BLK=new Set((data||[]).map(x=>x.blocked));BLKN={};(data||[]).forEach(x=>BLKN[x.blocked]=x.name||"")}catch(e){}}
+function userMenu(uid,name,o){o=o||{};sheet(`<h2>${esc(name||"Пользователь")}</h2><p class="sub" style="margin:0 0 12px">Мы проверим жалобу в течение суток. Заблокированного вы больше не увидите.</p>
+  <div style="display:grid;gap:8px">${o.tmdb?`<button class="btn" id="umR">⚑ Пожаловаться на отзыв</button>`:""}<button class="btn" id="umP">⚑ Пожаловаться на имя или фото</button><button class="btn red" id="umB">🚫 Заблокировать</button><button class="btn ghost" id="umC">Отмена</button></div>`);
+  const ok=e=>{closeSheet();toast(e&&!/duplicate/.test(e.message||"")?"Не отправилось":"Спасибо, жалоба отправлена")};
+  const rv=$("#umR");if(rv)rv.onclick=async()=>{const {error}=await REAL_SB.from("km_review_reports").insert({author:uid,tmdb:o.tmdb});ok(error)};
+  $("#umP").onclick=async()=>{const {error}=await REAL_SB.from("km_user_reports").insert({target:uid,reason:"profile"});ok(error)};
+  $("#umB").onclick=async()=>{const {error}=await REAL_SB.from("km_blocks").insert({blocked:uid,name:name||""});if(error&&!/duplicate/.test(error.message))return toast("Не получилось");BLK.add(uid);BLKN[uid]=name||"";closeSheet();toast("Пользователь заблокирован");if(o.after)o.after()};
+  $("#umC").onclick=closeSheet}
+function openBlocked(){const ids=[...BLK];sheet(`<h2>Заблокированные</h2>${ids.length?ids.map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:8px 0"><span>${esc(BLKN[i]||"Пользователь")}</span><button class="btn ghost sm" data-ub="${esc(i)}">Разблокировать</button></div>`).join(""):`<p class="sub">Никого нет.</p>`}`);
+  document.querySelectorAll("[data-ub]").forEach(b=>b.onclick=async()=>{await REAL_SB.from("km_blocks").delete().eq("blocked",b.dataset.ub);BLK.delete(b.dataset.ub);delete BLKN[b.dataset.ub];openBlocked()})}
 /* ---------- guest mode ---------- */
 const GKEY={km_swipes:r=>r.tmdb,km_shelf:r=>r.tmdb,km_prefs:()=>"p",km_reactions:r=>r.tmdb,km_lists:r=>r.id,km_list_items:r=>r.list_id+"|"+r.tmdb,km_watch:r=>r.tmdb};
 function gdb(){try{return JSON.parse(localStorage.getItem("km_guest")||"{}")}catch(e){return{}}}
@@ -1153,7 +1165,7 @@ async function start(session){
   if(started)return;started=true;track("login");
   $("#land").hidden=true;closeModal();$("#app").hidden=false;document.body.classList.add("inapp");
   $("#main").innerHTML=`<div class="swempty"><div class="spin"></div></div>`;
-  sb=REAL_SB;const p=await ensureProfile(session.user);me={...p,email:session.user.email};await migrateGuest();if(window.LANG&&p.lang!==window.LANG)sb.from("km_profiles").update({lang:window.LANG}).eq("user_id",p.user_id).then(()=>{});
+  sb=REAL_SB;const p=await ensureProfile(session.user);me={...p,email:session.user.email};await migrateGuest();loadBlocks();if(window.LANG&&p.lang!==window.LANG)sb.from("km_profiles").update({lang:window.LANG}).eq("user_id",p.user_id).then(()=>{});
   await Promise.all([loadAll(),loadGenres()]);await importFirstVersion();
   const pair=new URLSearchParams(location.search).get("pair");
   if(pair){history.replaceState(null,"",location.pathname);if(!partner&&pair.toUpperCase()!==me.pair_code)await pairWith(pair)}
