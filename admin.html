@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0f1115">
+<title>Kinomatch · админка</title>
+<style>
+:root{--bg:#0f1115;--card:#181b22;--line:#262a34;--tx:#eef0f4;--mut:#8a91a0;--red:#ff3d57;--grn:#3ddc84;--blu:#4da3ff;--yel:#ffc84d}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:0 0 env(safe-area-inset-bottom)}
+header{position:sticky;top:0;z-index:5;background:rgba(15,17,21,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top)) 14px 10px;display:flex;align-items:center;gap:10px}
+header h1{font-size:1.05rem;margin:0;flex:1}header small{color:var(--mut);display:block;font-weight:400;font-size:.72rem}
+button{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 14px;cursor:pointer}
+button.p{background:var(--red);border-color:var(--red);font-weight:700}
+main{padding:12px 12px 40px;max-width:760px;margin:0 auto}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.k{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.k b{display:block;font-size:1.7rem;line-height:1.1}.k span{color:var(--mut);font-size:.78rem}.k i{font-style:normal;font-size:.75rem;color:var(--grn)}
+h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin:22px 4px 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.tabs{display:flex;gap:6px;margin-bottom:10px}.tabs button{flex:1;padding:7px 4px;font-size:.85rem}.tabs button.on{background:var(--tx);color:#111;border-color:var(--tx)}
+.chart{display:flex;align-items:flex-end;gap:4px;height:120px}.chart div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;font-size:.6rem;color:var(--mut)}
+.chart u{display:block;width:100%;border-radius:4px 4px 0 0;background:var(--blu);min-height:2px;text-decoration:none}
+.row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}
+.row .a{min-width:0}.row b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.row small{color:var(--mut)}
+.row .r{text-align:right;white-space:nowrap;color:var(--mut);font-size:.8rem}
+.tag{display:inline-block;font-size:.68rem;padding:1px 7px;border-radius:99px;background:#252a35;color:var(--mut);margin-left:4px}.tag.g{background:#17331f;color:var(--grn)}.tag.r{background:#3a1a20;color:var(--red)}
+.bar{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:.85rem}.bar em{flex:0 0 38%;font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bar s{flex:1;height:8px;background:#232733;border-radius:6px;overflow:hidden}.bar s i{display:block;height:100%;background:var(--blu)}.bar span{width:30px;text-align:right;color:var(--mut)}
+.login{max-width:360px;margin:18vh auto;padding:0 18px;text-align:center}.login input{width:100%;font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin:14px 0 10px}
+.err{color:var(--red);font-size:.85rem;min-height:1.2em}.mut{color:var(--mut);font-size:.8rem}.empty{color:var(--mut);padding:8px 0}
+</style></head><body>
+<div id="app"></div>
+<script>
+const URL_="https://ebswykhozbzobrypderu.supabase.co/functions/v1/kino-admin";
+const $=s=>document.querySelector(s),app=$("#app");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let D=null,tab="visits",timer=null;
+function ago(t){if(!t)return"—";const s=(Date.now()-new Date(t))/1e3;if(s<60)return"только что";if(s<3600)return Math.floor(s/60)+" мин назад";if(s<86400)return Math.floor(s/3600)+" ч назад";return Math.floor(s/86400)+" дн назад"}
+function login(msg=""){clearInterval(timer);app.innerHTML=`<div class="login"><h1 style="margin:0">🎬 Kinomatch</h1><div class="mut">Админка. Введите ключ доступа</div><input id="k" type="password" placeholder="Ключ" autocomplete="current-password"><button class="p" id="go" style="width:100%">Войти</button><div class="err">${esc(msg)}</div></div>`;
+  const go=()=>{const v=$("#k").value.trim();if(!v)return;localStorage.kmAdm=v;load(true)};$("#go").onclick=go;$("#k").onkeydown=e=>e.key==="Enter"&&go()}
+async function load(first){
+  const key=localStorage.kmAdm;if(!key)return login();
+  try{const r=await fetch(URL_,{headers:{"x-admin-key":key}});
+    if(r.status===401){delete localStorage.kmAdm;return login(first?"Неверный ключ":"")}
+    const j=await r.json();if(j.error)throw new Error(j.error);D=j;draw();
+    clearInterval(timer);timer=setInterval(()=>load(false),60000)}
+  catch(e){if(D)return;app.innerHTML=`<div class="login"><div class="err">Не удалось загрузить: ${esc(e.message)}</div><button id="rt">Повторить</button></div>`;$("#rt").onclick=()=>load(true)}}
+function draw(){
+  const t=D.totals,S=D.series,mx=Math.max(1,...S.map(x=>x[tab])),col={visits:"var(--blu)",regs:"var(--grn)",swipes:"var(--yel)"}[tab];
+  const bars=(arr,k=1)=>{const m=Math.max(1,...arr.map(x=>x.n));return arr.map(x=>`<div class="bar"><em>${esc(x[k===1?"ref":"dev"]||x.ref||x.dev)}</em><s><i style="width:${x.n/m*100}%"></i></s><span>${x.n}</span></div>`).join("")||'<div class="empty">Пока пусто</div>'};
+  app.innerHTML=`<header><h1>🎬 Kinomatch<small>обновлено ${ago(D.now)} · авто раз в минуту</small></h1><button id="rf">⟳</button><button id="lo">Выйти</button></header><main>
+  <h2>Сейчас</h2><div class="grid">
+   <div class="k"><span>Визитов за 24 ч</span><b>${t.visits_24h}</b><i>за 7 дн: ${t.visits_7d}</i></div>
+   <div class="k"><span>Регистраций</span><b>${t.regs}</b><i>+${t.regs_24h} за сутки · +${t.regs_7d} за неделю</i></div>
+   <div class="k"><span>Свайпов за 24 ч</span><b>${t.swipes_24h}</b><i>всего: ${t.swipes}</i></div>
+   <div class="k"><span>Свайпали (7 дн)</span><b>${t.swipers_7d}</b><i>всего людей: ${t.swipers}</i></div>
+   <div class="k"><span>Пар создано</span><b>${t.paired}</b></div>
+   <div class="k"><span>Ошибок за 24 ч</span><b style="color:${t.errors_24h?"var(--red)":"inherit"}">${t.errors_24h}</b><i style="color:var(--mut)">гостей 7 дн: ${t.guests_7d}</i></div></div>
+  <h2>Последние 14 дней</h2><div class="card"><div class="tabs">${[["visits","Визиты"],["regs","Регистрации"],["swipes","Свайпы"]].map(([k,n])=>`<button data-t="${k}" class="${tab===k?"on":""}">${n}</button>`).join("")}</div>
+   <div class="chart">${S.map(x=>`<div><span>${x[tab]||""}</span><u style="height:${x[tab]/mx*88}%;background:${col}"></u><span>${x.day.slice(8)}</span></div>`).join("")}</div></div>
+  <h2>Кто зарегистрирован (${D.users.length})</h2><div class="card">${D.users.map(u=>`<div class="row"><div class="a"><b>${esc(u.name||u.username||"без имени")}${u.paired?'<span class="tag g">пара</span>':""}</b><small>${u.username?"@"+esc(u.username)+" · ":""}${esc(u.lang||"")} · рег. ${ago(u.created_at)}</small></div><div class="r">${u.swipes} свайп.<br>${u.last_swipe?"был "+ago(u.last_swipe):"не свайпал"}</div></div>`).join("")||'<div class="empty">Нет</div>'}</div>
+  <h2>Откуда приходят (7 дн)</h2><div class="card">${bars(D.refs,1)}</div>
+  <h2>Устройства (7 дн)</h2><div class="card">${bars(D.devs,2)}</div>
+  <h2>Последние визиты</h2><div class="card">${D.visits.map(v=>`<div class="row"><div class="a"><b>${esc(v.ev)}${v.guest?'<span class="tag">гость</span>':'<span class="tag g">вошёл</span>'}</b><small>${esc(v.dev||"?")} · ${esc(v.lang||"")} · ${esc(v.ref||"прямой")} · #${esc(v.sid)}</small></div><div class="r">${ago(v.at)}</div></div>`).join("")||'<div class="empty">Нет</div>'}</div>
+  <h2>События (7 дн)</h2><div class="card">${bars(D.evs.map(e=>({ref:e.ev,n:e.n})),1)}</div>
+  <h2>Ошибки сайта</h2><div class="card">${D.errors.map(e=>`<div class="row"><div class="a"><b>${esc(e.msg)}</b><small>${esc(e.path)}</small></div><div class="r">${ago(e.at)}</div></div>`).join("")||'<div class="empty">Ошибок нет 🎉</div>'}</div>
+  </main>`;
+  $("#rf").onclick=()=>load(false);$("#lo").onclick=()=>{delete localStorage.kmAdm;D=null;login()};
+  document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw()})}
+load(true);
+</script></body></html>
