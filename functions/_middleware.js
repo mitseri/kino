@@ -4,9 +4,24 @@ const PROXY = "https://ebswykhozbzobrypderu.supabase.co/functions/v1/kino-tmdb";
 const KEY = "sb_publishable_gUTbeq9JD9WOfaVDL5oPIA_8tt__0Us";
 const esc = (s) => String(s || "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
 
+// Admin gate: /admin* answers 404 unless the visitor has the cookie. Open /admin?k=<key> once to get it.
+const ADM_HASH = "b4c61a5dcaaa6504f9b41fb662dd7418b6a3bc905af0e14aa307f3b02cdfdc69";
+const sha = async (t) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)))].map(b => b.toString(16).padStart(2, "0")).join("");
+const isAdm = (p) => /^\/(admin(\.html|\.webmanifest)?|admin-icon-\d+\.png)$/.test(p);
+async function adminGate(req, url, context) {
+  const ck = (req.headers.get("cookie") || "").match(/(?:^|; )kma=([0-9a-f]{64})/);
+  if (ck && ck[1] === ADM_HASH) return context.next();
+  const k = url.searchParams.get("k");
+  if (k && await sha(k) === ADM_HASH) {
+    return new Response(null, {status: 302, headers: {"location": "/admin.html#k=" + encodeURIComponent(k), "set-cookie": `kma=${ADM_HASH}; Path=/; Max-Age=31536000; Secure; HttpOnly; SameSite=Lax`, "cache-control": "no-store"}});
+  }
+  return new Response("Not found", {status: 404, headers: {"content-type": "text/plain", "cache-control": "no-store"}});
+}
+
 export async function onRequest(context) {
   const req = context.request;
   const url = new URL(req.url);
+  if (isAdm(url.pathname)) return adminGate(req, url, context);
   const m = url.searchParams.get("m") || "";
   const res = await context.next();
   if (url.pathname !== "/" && url.pathname !== "/index.html") return res;
