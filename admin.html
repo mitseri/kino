@@ -24,7 +24,7 @@ button{font:inherit;cursor:pointer;color:var(--tx)}
 .nav button{position:relative;display:grid;place-items:center;width:42px;height:42px;background:none;border:0;border-radius:50%;color:var(--mut);transition:.18s}
 .nav button:hover{background:rgba(255,255,255,.55);transform:scale(1.1)}
 .nav button.on{background:var(--dark);box-shadow:0 6px 16px rgba(27,26,24,.3)}
-.nav em{font-style:normal;font-size:1.12rem;line-height:1;filter:grayscale(.2)}.nav button.on em{filter:none}
+.nav button{color:#3a342c}.nav button.on{color:#fff}.nav svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.nav button:hover{background:rgba(255,255,255,.75)}
 .nav b{display:none;font-weight:500}
 .nav sup{position:absolute;top:-2px;right:-2px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--red);color:#fff;font-size:.64rem;line-height:17px;text-align:center;font-weight:700}
 .nav button::after{content:attr(data-l);position:absolute;left:54px;top:50%;transform:translateY(-50%) scale(.9);background:var(--dark);color:#fff;font-size:.76rem;padding:5px 10px;border-radius:10px;white-space:nowrap;opacity:0;pointer-events:none;transition:.15s;z-index:9}
@@ -49,6 +49,13 @@ button{font:inherit;cursor:pointer;color:var(--tx)}
 .chart u{display:block;width:100%;border-radius:8px 8px 3px 3px;min-height:4px;background:linear-gradient(180deg,var(--teal),#0f5f55)}
 .chart div.td u{background:linear-gradient(180deg,#e9b44c,#b27d1b)}
 .full{margin-top:12px}
+.utool{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}.utool input{flex:1;min-width:160px;font:inherit;border:1px solid var(--line);background:var(--glass2);border-radius:99px;padding:9px 16px;outline:0;color:var(--tx)}
+.utab{background:var(--glass2);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.uh,.ur{display:grid;grid-template-columns:minmax(0,2.4fr) 1fr .7fr 1fr;gap:8px;padding:8px 14px;align-items:center;font-size:.82rem}
+.uh{color:var(--mut);font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;background:rgba(255,255,255,.5)}
+.ur{border-top:1px solid rgba(255,255,255,.7);color:var(--mut)}.ur:hover{background:rgba(255,255,255,.6)}
+.ur .n{display:flex;align-items:center;gap:8px;min-width:0;color:var(--tx)}.ur .n b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ur .n small{color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ur .d{flex:0 0 8px;height:8px;border-radius:50%;background:var(--yel)}.ur .d.g{background:var(--grn)}
+@media(max-width:720px){.uh span:nth-child(2),.ur span:nth-child(2){display:none}.uh,.ur{grid-template-columns:minmax(0,2fr) .6fr 1fr}.ur .n small{display:none}}
 .row{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:8px;background:var(--glass2);border:1px solid var(--line);border-radius:18px}
 .row .d{flex:0 0 10px;height:10px;border-radius:50%;background:var(--yel)}.row .d.g{background:var(--grn)}.row .d.r{background:var(--red)}
 .row .a{flex:1;min-width:0}.row b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.row small{color:var(--mut);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -82,13 +89,23 @@ async function load(first){
     const j=await r.json();if(j.error)throw new Error(j.error);D=j;draw();
     clearInterval(timer);timer=setInterval(()=>load(false),60000)}
   catch(e){if(D)return;app.innerHTML=`<div class="login glass"><div class="err">Не удалось загрузить: ${esc(e.message)}</div><button class="btn" id="rt">Повторить</button></div>`;$("#rt").onclick=()=>load(true)}}
+let uq="",uf="all",un=30;
+function usersView(){
+  const q=uq.toLowerCase(),wk=Date.now()-7*864e5;
+  const all=D.users,L=all.filter(u=>(uf==="all"||(uf==="pair"&&u.paired)||(uf==="act"&&u.last_swipe&&new Date(u.last_swipe)>wk)||(uf==="idle"&&!u.swipes))&&(!q||((u.name||"")+" "+(u.username||"")).toLowerCase().includes(q)));
+  const chip=(k,n)=>`<button data-uf="${k}" class="${uf===k?"on":""}">${n}</button>`;
+  return`<h1 class="hello">Люди</h1><p class="sub">Всего: ${all.length}${all.length>=50?" (показаны последние 50)":""} · найдено: ${L.length}</p>
+   <div class="utool"><input id="uq" type="search" placeholder="Поиск по имени или @нику" value="${esc(uq)}"><div class="seg" style="margin:0">${chip("all","Все")}${chip("pair","В паре")}${chip("act","Активные")}${chip("idle","Без свайпов")}</div></div>
+   <div class="utab"><div class="uh"><span>Имя</span><span>Рег.</span><span>Свайпов</span><span>Был</span></div>${L.slice(0,un).map(u=>`<div class="ur"><span class="n"><i class="d ${u.paired?"g":""}"></i><b>${esc(u.name||u.username||"без имени")}</b>${u.username?`<small>@${esc(u.username)}</small>`:""}</span><span>${ago(u.created_at)}</span><span>${u.swipes}</span><span>${u.last_swipe?ago(u.last_swipe):"—"}</span></div>`).join("")||'<div class="empty">Никого не нашлось</div>'}</div>
+   ${L.length>un?`<button class="btn l" id="umore" style="width:100%;margin-top:10px">Показать ещё (${L.length-un})</button>`:""}`}
 function draw(){
   const t=D.totals,S=D.series,mx=Math.max(1,...S.map(x=>x[tab]));
   const bars=(arr,k)=>{const m=Math.max(1,...arr.map(x=>x.n));return arr.map(x=>`<div class="bar"><em>${esc(x[k]||"прямой")}</em><s><i style="width:${x.n/m*100}%"></i></s><span>${x.n}</span></div>`).join("")||'<div class="empty">Пока пусто</div>'};
   const COL=["#14a08a","#e0a53a","#1b1a18","#c9744a","#8a7ee0","#9aa5ad"];
   const donut=arr=>{const tot=arr.reduce((a,x)=>a+x.n,0);if(!tot)return'<div class="empty">Пока пусто</div>';let acc=0;const seg=arr.slice(0,6).map((x,i)=>{const a=acc/tot*360;acc+=x.n;return`${COL[i]} ${a}deg ${acc/tot*360}deg`});if(acc<tot)seg.push(`#d6cbbd ${acc/tot*360}deg 360deg`);
     return`<div class="donut"><div class="ring" style="background:conic-gradient(${seg.join(",")})"><div><span><b>${tot}</b>за 7 дн</span></div></div><div class="leg">${arr.slice(0,6).map((x,i)=>`<p><i style="background:${COL[i]}"></i>${esc(x.dev||"?")}<span>${Math.round(x.n/tot*100)}%</span></p>`).join("")}</div></div>`};
-  const NAV=[["over","Обзор","📊"],["users","Люди","👥"],["src","Источники","🧭"],["vis","Визиты","👀"],["err","Ошибки","⚠️"]];
+  const IC={over:'<rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="4" width="4" height="17" rx="1"/><rect x="17" y="9" width="4" height="12" rx="1"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17.5" cy="9" r="2.6"/><path d="M17 14.2c2.7.2 4.5 2.1 4.5 5"/>',src:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',vis:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',err:'<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.5"/>'};
+  const NAV=[["over","Обзор"],["users","Люди"],["src","Источники"],["vis","Визиты"],["err","Ошибки"]].map(a=>[...a,`<svg viewBox="0 0 24 24">${IC[a[0]]}</svg>`]);
   const h=new Date().getHours(),greet=h<5?"Доброй ночи":h<12?"Доброе утро":h<18?"Добрый день":"Добрый вечер";
   const dt=new Date().toLocaleDateString("ru",{weekday:"long",day:"numeric",month:"long"});
   const visRow=v=>`<div class="row"><i class="d ${v.guest?"":"g"}"></i><div class="a"><b>${esc(v.ev)} · ${v.guest?"гость":"вошёл"}</b><small>${esc(v.dev||"?")} · ${esc(v.lang||"")} · ${esc(v.ref||"прямой")} · #${esc(v.sid)}</small></div><div class="r">${ago(v.at)}</div></div>`;
@@ -107,7 +124,7 @@ function draw(){
        <div class="chart">${S.map(x=>`<div class="${tab==="swipes"?"td":""}"><span>${x[tab]||""}</span><u style="height:${x[tab]/mx*84}%"></u><span>${x.day.slice(8)}</span></div>`).join("")}</div></div>
     </div>
     <div class="card full"><h3>Недавняя активность</h3>${D.visits.slice(0,6).map(visRow).join("")||'<div class="empty">Нет</div>'}</div>`,
-   users:`<h1 class="hello">Люди</h1><p class="sub">Зарегистрировано: ${D.users.length}</p>`+(D.users.map(u=>`<div class="row"><i class="d ${u.paired?"g":""}"></i><div class="a"><b>${esc(u.name||u.username||"без имени")}${u.paired?" · пара":""}</b><small>${u.username?"@"+esc(u.username)+" · ":""}${esc(u.lang||"")} · рег. ${ago(u.created_at)}</small></div><div class="r">${u.swipes} свайп.<br>${u.last_swipe?"был "+ago(u.last_swipe):"не свайпал"}</div></div>`).join("")||'<div class="empty">Нет</div>'),
+   users:usersView(),
    src:`<h1 class="hello">Источники</h1><p class="sub">За последние 7 дней</p><div class="card"><h3>Откуда приходят</h3>${bars(D.refs,"ref")}</div><div class="card full"><h3>Устройства</h3>${donut(D.devs)}</div><div class="card full"><h3>События</h3>${bars(D.evs.map(e=>({ref:e.ev,n:e.n})),"ref")}</div>`,
    vis:`<h1 class="hello">Визиты</h1><p class="sub">Последние заходы на сайт</p>`+(D.visits.map(visRow).join("")||'<div class="empty">Нет</div>'),
    err:`<h1 class="hello">Ошибки</h1><p class="sub">Что ломалось на сайте</p>`+(D.errors.map(e=>`<div class="row"><i class="d r"></i><div class="a"><b>${esc(e.msg)}</b><small>${esc(e.path)}</small></div><div class="r">${ago(e.at)}</div></div>`).join("")||'<div class="empty">Ошибок нет 🎉</div>')};
@@ -116,6 +133,8 @@ function draw(){
   <main class="main glass">${S_[sec]}</main></div></div>`;
   const rf=()=>load(false);$("#rf2").onclick=rf;if($("#rf"))$("#rf").onclick=rf;if($("#open"))$("#open").onclick=()=>window.open("/","_blank");
   $("#lo").onclick=()=>{delete localStorage.kmAdm;D=null;login()};
+  if($("#uq")){const i=$("#uq");i.oninput=()=>{uq=i.value;un=30;const c=i.selectionStart;draw();const j=$("#uq");j.focus();j.setSelectionRange(c,c)}}
+  document.querySelectorAll("[data-uf]").forEach(b=>b.onclick=()=>{uf=b.dataset.uf;un=30;draw()});if($("#umore"))$("#umore").onclick=()=>{un+=50;draw()};
   document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw()});
   document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{sec=b.dataset.s;draw();scrollTo(0,0)})}
 load(true);
