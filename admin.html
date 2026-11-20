@@ -38,6 +38,7 @@ function ago(t){if(!t)return"—";const s=(Date.now()-new Date(t))/1e3;if(s<60)r
 function login(msg=""){clearInterval(timer);app.innerHTML=`<div class="login"><h1 style="margin:0">🎬 Kinomatch</h1><div class="mut">Админка. Введите ключ доступа</div><input id="k" type="password" placeholder="Ключ" autocomplete="current-password"><button class="p" id="go" style="width:100%">Войти</button><div class="err">${esc(msg)}</div></div>`;
   const go=()=>{const v=$("#k").value.trim();if(!v)return;localStorage.kmAdm=v;load(true)};$("#go").onclick=go;$("#k").onkeydown=e=>e.key==="Enter"&&go()}
 async function load(first){
+  if(/^#k=/.test(location.hash)){localStorage.kmAdm=decodeURIComponent(location.hash.slice(3));history.replaceState(null,"",location.pathname)}
   const key=localStorage.kmAdm;if(!key)return login();
   try{const r=await fetch(URL_,{headers:{"x-admin-key":key}});
     if(r.status===401){delete localStorage.kmAdm;return login(first?"Неверный ключ":"")}
