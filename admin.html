@@ -10,14 +10,21 @@ html{background:#9fc3de}
 body{margin:0;min-height:100vh;color:var(--tx);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
  background:radial-gradient(60% 50% at 18% 95%,#4fb3ff 0,transparent 70%),radial-gradient(55% 50% at 80% 70%,#7a7cf0 0,transparent 70%),radial-gradient(50% 40% at 50% 30%,#b9e4ff 0,transparent 70%),linear-gradient(160deg,#b4d0e4,#8fb4e6);
  background-attachment:fixed;padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom))}
-.shell{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:210px minmax(0,1fr) 290px;gap:16px;align-items:start}
+.shell{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:68px minmax(0,1fr) 290px;gap:16px;align-items:start}
 .glass{background:var(--glass);border:1px solid var(--line);border-radius:26px;backdrop-filter:blur(22px) saturate(1.3);-webkit-backdrop-filter:blur(22px) saturate(1.3);box-shadow:0 8px 30px rgba(40,70,130,.12)}
 .side,.info{padding:20px 14px;position:sticky;top:14px}
-.side h1{font-size:1.15rem;margin:0 8px 16px}
-.nav button{display:flex;justify-content:space-between;width:100%;text-align:left;background:none;border:0;border-radius:14px;padding:11px 12px;margin:2px 0;color:var(--mut)}
-.nav button.on{background:var(--glass2);color:var(--tx);box-shadow:0 2px 8px rgba(40,70,130,.1)}
-.nav b{font-weight:500}
-.nav .sep{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:16px 12px 6px}
+.side{padding:12px 11px;border-radius:30px}
+.side h1{font-size:1.5rem;margin:2px 0 12px;text-align:center}
+.nav{display:flex;flex-direction:column;gap:6px;align-items:center}
+.nav button{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;width:46px;height:46px;background:none;border:0;border-radius:16px;color:var(--mut);transition:.18s}
+.nav button:hover{background:rgba(255,255,255,.4);transform:scale(1.08)}
+.nav button.on{background:var(--dark);color:#fff;box-shadow:0 6px 16px rgba(20,28,40,.3)}
+.nav em{font-style:normal;font-size:1.25rem;line-height:1}
+.nav b{display:none;font-weight:500}
+.nav sup{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--red);color:#fff;font-size:.66rem;line-height:18px;text-align:center;font-weight:700}
+.nav sup.z{background:#fff;color:var(--mut)}
+.nav button::after{content:attr(data-l);position:absolute;left:58px;top:50%;transform:translateY(-50%) scale(.9);background:var(--dark);color:#fff;font-size:.78rem;padding:5px 10px;border-radius:10px;white-space:nowrap;opacity:0;pointer-events:none;transition:.15s;z-index:9}
+.nav button:hover::after{opacity:1;transform:translateY(-50%) scale(1)}
 button{font:inherit;cursor:pointer;color:var(--tx)}
 .btn{background:var(--dark);color:#fff;border:0;border-radius:16px;padding:13px 18px;font-weight:600;width:100%}
 .btn.l{background:var(--glass2);color:var(--tx);border:1px solid var(--line)}
@@ -45,8 +52,8 @@ button{font:inherit;cursor:pointer;color:var(--tx)}
 .login{max-width:360px;margin:16vh auto;padding:30px 22px;text-align:center}.login input{width:100%;font:inherit;color:var(--tx);background:var(--glass2);border:1px solid var(--line);border-radius:16px;padding:13px;margin:16px 0 10px;outline:0}
 .err{color:var(--red);font-size:.85rem;min-height:1.2em;margin-top:8px}.mut{color:var(--mut);font-size:.82rem}.empty{color:var(--mut);padding:8px 2px}
 @media(max-width:960px){
- .shell{grid-template-columns:1fr}.side{position:static;padding:12px}.side h1{display:none}
- .nav{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}.nav .sep{display:none}.nav button{width:auto;white-space:nowrap;gap:8px;flex:0 0 auto;background:rgba(255,255,255,.35)}
+ .shell{grid-template-columns:1fr}.side{position:static;padding:8px;border-radius:24px}.side h1{display:none}
+ .nav{flex-direction:row;justify-content:space-around;gap:4px}.nav button{flex:1;width:auto;height:44px;border-radius:14px}.nav button::after{display:none}.nav button.on b{display:inline;font-size:.8rem}
  .info{position:static;order:-1;padding:16px}.info .kvx{display:none}.info .btns{grid-template-columns:1fr 1fr;margin-top:6px}.info .big{margin-bottom:4px}
  .main{min-height:0}.kpis{grid-template-columns:1fr 1fr}
 }
@@ -71,7 +78,7 @@ async function load(first){
 function draw(){
   const t=D.totals,S=D.series,mx=Math.max(1,...S.map(x=>x[tab])),col={visits:"#3b82f6",regs:"#2fbf71",swipes:"#f0b33c"}[tab];
   const bars=(arr,k)=>{const m=Math.max(1,...arr.map(x=>x.n));return arr.map(x=>`<div class="bar"><em>${esc(x[k]||x.ref||x.dev||"прямой")}</em><s><i style="width:${x.n/m*100}%"></i></s><span>${x.n}</span></div>`).join("")||'<div class="empty">Пока пусто</div>'};
-  const NAV=[["over","Обзор",""],["users","Люди",D.users.length],["src","Источники",""],["vis","Визиты",D.visits.length],["err","Ошибки",D.errors.length]];
+  const NAV=[["over","Обзор","",""],["users","Люди",D.users.length,"👥"],["src","Источники","","🧭"],["vis","Визиты",D.visits.length,"👀"],["err","Ошибки",D.errors.length,"⚠️"]];NAV[0][3]="📊";
   const K=(l,v,s,c)=>`<div class="k"><span>${l}</span><b${c?` style="color:${c}"`:""}>${v}</b><i>${s}</i></div>`;
   const S_={
    over:`<div class="kpis">${K("Визитов за 24 ч",t.visits_24h,"за 7 дн: "+t.visits_7d)}${K("Регистраций",t.regs,"+"+t.regs_24h+" за сутки · +"+t.regs_7d+" за нед.")}${K("Свайпов за 24 ч",t.swipes_24h,"всего: "+t.swipes)}${K("Свайпали (7 дн)",t.swipers_7d,"всего людей: "+t.swipers)}${K("Пар создано",t.paired,"&nbsp;")}${K("Ошибок за 24 ч",t.errors_24h,"гостей 7 дн: "+t.guests_7d,t.errors_24h?"var(--red)":"")}</div>
@@ -83,7 +90,7 @@ function draw(){
    err:D.errors.map(e=>`<div class="row"><i class="d r"></i><div class="a"><b>${esc(e.msg)}</b><small>${esc(e.path)}</small></div><div class="r">${ago(e.at)}</div></div>`).join("")||'<div class="empty">Ошибок нет 🎉</div>'};
   const title=NAV.find(n=>n[0]===sec)[1];
   app.innerHTML=`<div class="shell">
-  <aside class="side glass"><h1>🎬 Kinomatch</h1><div class="nav">${NAV.map(([k,n,c])=>`<button data-s="${k}" class="${sec===k?"on":""}"><b>${n}</b>${c!==""?`<span>${c}</span>`:""}</button>`).join("")}</div></aside>
+  <aside class="side glass"><h1>🎬 Kinomatch</h1><div class="nav">${NAV.map(([k,n,c,i])=>`<button data-s="${k}" data-l="${n}" title="${n}" class="${sec===k?"on":""}"><em>${i}</em><b>${n}</b>${k==="err"&&c?`<sup>${c}</sup>`:""}</button>`).join("")}</div></aside>
   <main class="main glass"><div class="top"><div class="t">${title}<small>обновлено ${ago(D.now)} · авто раз в минуту</small></div><button class="btn l" id="rf">⟳ Обновить</button></div>${S_[sec]}</main>
   <aside class="info glass"><h2>Сейчас</h2><div class="big">${t.visits_24h} визитов за сутки</div>
    <div class="kvx"><div class="kv"><span>Регистраций</span><b>${t.regs}</b></div><div class="kv"><span>Свайпов за сутки</span><b>${t.swipes_24h}</b></div><div class="kv"><span>Пар</span><b>${t.paired}</b></div><div class="kv"><span>Ошибок за сутки</span><b style="color:${t.errors_24h?"var(--red)":"inherit"}">${t.errors_24h}</b></div></div>
