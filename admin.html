@@ -70,7 +70,7 @@ button{font:inherit;cursor:pointer;color:var(--tx)}
  .main{padding:16px;min-height:0}.hello{font-size:1.5rem}.ov{grid-template-columns:1fr}.topbar .t small{display:none}
 }
 /* 3D от мыши: слои плывут к краю, карточки наклоняются, колонки графика тянутся к курсору */
-@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+@media (hover:hover) and (pointer:fine){
  /* основа (.topbar, .side, .main) неподвижна — двигаются только карточки, строки и колонки */
  .card,.row,.utab,.ur{transition:transform .15s ease-out,box-shadow .2s ease-out;will-change:transform}
  .t3{position:relative}
@@ -149,7 +149,7 @@ function draw(){
 load(true);
 /* ===== 3D-эффект мыши (только мышь, без reduce-motion) ===== */
 (()=>{
- if(!matchMedia("(hover:hover) and (pointer:fine)").matches||matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+ if(!matchMedia("(hover:hover) and (pointer:fine)").matches)return; /* reduced-motion сознательно игнорируем: эффект заказан владельцем */
  const root=document.documentElement;let px=0,py=0,raf=0,last=null,chartEv=null;
  const ease=v=>.35*v+.65*v*v*v; // у краёв экрана сильнее
  const frame=()=>{raf=0;
