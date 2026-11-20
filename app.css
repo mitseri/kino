@@ -433,3 +433,29 @@ html.km-authed #land{display:none}
 .sheet{max-width:680px}
 }
 @media(min-width:1200px){.pgrid{grid-template-columns:repeat(6,1fr)}}
+
+/* ===== Liquid-glass 3D buttons (20.11) ===== */
+.btn,.bigb,.pill,.act,.chip{
+  --gl:rgb(255 255 255/.07);--gt:rgb(255 255 255/.30);
+  background:linear-gradient(180deg,rgb(255 255 255/.26) 0%,rgb(255 255 255/.05) 46%,rgb(255 255 255/.02) 54%,rgb(255 255 255/.12) 100%),var(--gl);
+  -webkit-backdrop-filter:blur(14px) saturate(1.7);backdrop-filter:blur(14px) saturate(1.7);
+  border:1px solid rgb(255 255 255/.16);border-top-color:var(--gt);border-bottom-color:rgb(255 255 255/.06);
+  box-shadow:inset 0 1px 0 rgb(255 255 255/.55),inset 0 -12px 18px -10px rgb(0 0 0/.45),inset 0 0 14px rgb(255 255 255/.04),0 12px 24px -8px rgb(0 0 0/.55),0 2px 4px rgb(0 0 0/.25);
+  text-shadow:0 1px 2px rgb(0 0 0/.35);
+  transition:transform .15s,box-shadow .2s,filter .2s,background .2s;
+}
+.btn:hover,.bigb:hover,.pill:hover,.act:hover{filter:brightness(1.12) saturate(1.1)}
+.btn:active,.bigb:active,.pill:active,.act:active{transform:translateY(1px) scale(.98);box-shadow:inset 0 1px 0 rgb(255 255 255/.4),inset 0 -6px 12px -8px rgb(0 0 0/.5),0 4px 10px -4px rgb(0 0 0/.5)}
+.btn.red,.pill.act{--gl:rgb(255 45 63/.55);--gt:rgb(255 170 180/.7);border-color:rgb(255 120 135/.45);
+  box-shadow:inset 0 1px 0 rgb(255 255 255/.7),inset 0 -12px 18px -8px rgb(120 0 20/.55),0 14px 30px -8px rgb(255 45 63/.6),0 2px 4px rgb(0 0 0/.25)}
+.bigb.no{--gl:rgb(255 45 63/.20);--gt:rgb(255 150 160/.6);border-color:rgb(255 90 105/.35);color:#ffb3bb;
+  box-shadow:inset 0 1px 0 rgb(255 255 255/.5),inset 0 -12px 18px -10px rgb(120 0 20/.5),0 12px 26px -10px rgb(255 45 63/.45),0 2px 4px rgb(0 0 0/.25)}
+.bigb.yes{--gl:rgb(47 209 127/.55);--gt:rgb(170 255 210/.7);color:#eafff3;border:1px solid rgb(120 255 190/.4);
+  box-shadow:inset 0 1px 0 rgb(255 255 255/.7),inset 0 -12px 18px -8px rgb(0 80 40/.55),0 14px 30px -8px rgb(47 209 127/.6),0 2px 4px rgb(0 0 0/.25)}
+.btn.ghost{background:linear-gradient(180deg,rgb(255 255 255/.14),rgb(255 255 255/.02));color:var(--red)}
+.act[aria-pressed="true"]{background:linear-gradient(180deg,rgb(255 255 255/.3),rgb(255 255 255/.04) 50%,rgb(255 255 255/.14)),var(--c)}
+.btn:disabled,.bigb:disabled{box-shadow:none;filter:grayscale(.4)}
+:root[data-theme=light] .btn,:root[data-theme=light] .pill,:root[data-theme=light] .act,:root[data-theme=light] .chip{--gl:rgb(255 255 255/.45);--gt:rgb(255 255 255/.95);border-color:rgb(0 0 0/.08);text-shadow:none;
+  box-shadow:inset 0 1px 0 rgb(255 255 255/.95),inset 0 -10px 16px -10px rgb(0 0 0/.18),0 10px 22px -10px rgb(0 0 0/.3),0 2px 3px rgb(0 0 0/.08)}
+:root[data-theme=light] .btn.red,:root[data-theme=light] .pill.act,:root[data-theme=light] .bigb.yes{text-shadow:0 1px 2px rgb(0 0 0/.3)}
+@media (prefers-reduced-transparency:reduce){.btn,.bigb,.pill,.act,.chip{-webkit-backdrop-filter:none;backdrop-filter:none}}
