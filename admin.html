@@ -1,41 +1,64 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0f1115">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#9fc3de">
 <title>Kinomatch · админка</title>
 <style>
-:root{--bg:#0f1115;--card:#181b22;--line:#262a34;--tx:#eef0f4;--mut:#8a91a0;--red:#ff3d57;--grn:#3ddc84;--blu:#4da3ff;--yel:#ffc84d}
+:root{--tx:#141c28;--mut:#5d6b80;--line:rgba(255,255,255,.55);--glass:rgba(255,255,255,.42);--glass2:rgba(255,255,255,.62);--dark:#141c28;--grn:#2fbf71;--yel:#f0b33c;--red:#e5566b;--blu:#3b82f6}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:0 0 env(safe-area-inset-bottom)}
-header{position:sticky;top:0;z-index:5;background:rgba(15,17,21,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top)) 14px 10px;display:flex;align-items:center;gap:10px}
-header h1{font-size:1.05rem;margin:0;flex:1}header small{color:var(--mut);display:block;font-weight:400;font-size:.72rem}
-button{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 14px;cursor:pointer}
-button.p{background:var(--red);border-color:var(--red);font-weight:700}
-main{padding:12px 12px 40px;max-width:760px;margin:0 auto}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.k{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
-.k b{display:block;font-size:1.7rem;line-height:1.1}.k span{color:var(--mut);font-size:.78rem}.k i{font-style:normal;font-size:.75rem;color:var(--grn)}
-h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin:22px 4px 8px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
-.tabs{display:flex;gap:6px;margin-bottom:10px}.tabs button{flex:1;padding:7px 4px;font-size:.85rem}.tabs button.on{background:var(--tx);color:#111;border-color:var(--tx)}
-.chart{display:flex;align-items:flex-end;gap:4px;height:120px}.chart div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;font-size:.6rem;color:var(--mut)}
-.chart u{display:block;width:100%;border-radius:4px 4px 0 0;background:var(--blu);min-height:2px;text-decoration:none}
-.row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}
-.row .a{min-width:0}.row b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.row small{color:var(--mut)}
-.row .r{text-align:right;white-space:nowrap;color:var(--mut);font-size:.8rem}
-.tag{display:inline-block;font-size:.68rem;padding:1px 7px;border-radius:99px;background:#252a35;color:var(--mut);margin-left:4px}.tag.g{background:#17331f;color:var(--grn)}.tag.r{background:#3a1a20;color:var(--red)}
-.bar{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:.85rem}.bar em{flex:0 0 38%;font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bar s{flex:1;height:8px;background:#232733;border-radius:6px;overflow:hidden}.bar s i{display:block;height:100%;background:var(--blu)}.bar span{width:30px;text-align:right;color:var(--mut)}
-.login{max-width:360px;margin:18vh auto;padding:0 18px;text-align:center}.login input{width:100%;font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin:14px 0 10px}
-.err{color:var(--red);font-size:.85rem;min-height:1.2em}.mut{color:var(--mut);font-size:.8rem}.empty{color:var(--mut);padding:8px 0}
+html{background:#9fc3de}
+body{margin:0;min-height:100vh;color:var(--tx);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+ background:radial-gradient(60% 50% at 18% 95%,#4fb3ff 0,transparent 70%),radial-gradient(55% 50% at 80% 70%,#7a7cf0 0,transparent 70%),radial-gradient(50% 40% at 50% 30%,#b9e4ff 0,transparent 70%),linear-gradient(160deg,#b4d0e4,#8fb4e6);
+ background-attachment:fixed;padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom))}
+.shell{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:210px minmax(0,1fr) 290px;gap:16px;align-items:start}
+.glass{background:var(--glass);border:1px solid var(--line);border-radius:26px;backdrop-filter:blur(22px) saturate(1.3);-webkit-backdrop-filter:blur(22px) saturate(1.3);box-shadow:0 8px 30px rgba(40,70,130,.12)}
+.side,.info{padding:20px 14px;position:sticky;top:14px}
+.side h1{font-size:1.15rem;margin:0 8px 16px}
+.nav button{display:flex;justify-content:space-between;width:100%;text-align:left;background:none;border:0;border-radius:14px;padding:11px 12px;margin:2px 0;color:var(--mut)}
+.nav button.on{background:var(--glass2);color:var(--tx);box-shadow:0 2px 8px rgba(40,70,130,.1)}
+.nav b{font-weight:500}
+.nav .sep{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:16px 12px 6px}
+button{font:inherit;cursor:pointer;color:var(--tx)}
+.btn{background:var(--dark);color:#fff;border:0;border-radius:16px;padding:13px 18px;font-weight:600;width:100%}
+.btn.l{background:var(--glass2);color:var(--tx);border:1px solid var(--line)}
+.main{padding:16px;min-height:calc(100vh - 28px)}
+.top{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.top .t{flex:1;font-size:1.05rem;font-weight:700;padding-left:6px}.top small{display:block;font-weight:400;color:var(--mut);font-size:.74rem}
+.top .btn{width:auto;padding:11px 16px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.k{background:var(--glass2);border:1px solid var(--line);border-radius:20px;padding:14px 16px}
+.k span{color:var(--mut);font-size:.78rem}.k b{display:block;font-size:2rem;line-height:1.15;margin:2px 0}.k i{font-style:normal;font-size:.76rem;color:var(--mut)}
+.card{background:var(--glass2);border:1px solid var(--line);border-radius:20px;padding:14px 16px;margin-bottom:12px}
+.card h3{margin:0 0 10px;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);font-weight:600}
+.tabs{display:flex;gap:6px;margin-bottom:12px}.tabs button{flex:1;padding:8px 4px;font-size:.85rem;border-radius:12px;background:rgba(255,255,255,.4);border:1px solid var(--line);color:var(--mut)}.tabs button.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+.chart{display:flex;align-items:flex-end;gap:5px;height:140px}.chart div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;font-size:.62rem;color:var(--mut)}
+.chart u{display:block;width:100%;border-radius:7px 7px 3px 3px;min-height:3px;opacity:.9}
+.row{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:8px;background:var(--glass2);border:1px solid var(--line);border-radius:18px}
+.row .d{flex:0 0 10px;height:10px;border-radius:50%;background:var(--yel)}.row .d.g{background:var(--grn)}.row .d.r{background:var(--red)}
+.row .a{flex:1;min-width:0}.row b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.row small{color:var(--mut);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .r{text-align:right;white-space:nowrap;color:var(--mut);font-size:.78rem}
+.bar{display:flex;align-items:center;gap:10px;margin:9px 0;font-size:.86rem}.bar em{flex:0 0 36%;font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bar s{flex:1;height:9px;background:rgba(255,255,255,.55);border-radius:6px;overflow:hidden}.bar s i{display:block;height:100%;background:linear-gradient(90deg,#4fb3ff,#7a7cf0);border-radius:6px}.bar span{width:32px;text-align:right;color:var(--mut)}
+.info h2{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:0 0 4px;font-weight:600}
+.info .big{font-size:1.4rem;font-weight:700;margin-bottom:10px}
+.kv{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.6);font-size:.9rem}.kv span{color:var(--mut)}
+.info .btns{display:grid;gap:8px;margin-top:18px}
+.login{max-width:360px;margin:16vh auto;padding:30px 22px;text-align:center}.login input{width:100%;font:inherit;color:var(--tx);background:var(--glass2);border:1px solid var(--line);border-radius:16px;padding:13px;margin:16px 0 10px;outline:0}
+.err{color:var(--red);font-size:.85rem;min-height:1.2em;margin-top:8px}.mut{color:var(--mut);font-size:.82rem}.empty{color:var(--mut);padding:8px 2px}
+@media(max-width:960px){
+ .shell{grid-template-columns:1fr}.side{position:static;padding:12px}.side h1{display:none}
+ .nav{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}.nav .sep{display:none}.nav button{width:auto;white-space:nowrap;gap:8px;flex:0 0 auto;background:rgba(255,255,255,.35)}
+ .info{position:static;order:-1;padding:16px}.info .kvx{display:none}.info .btns{grid-template-columns:1fr 1fr;margin-top:6px}.info .big{margin-bottom:4px}
+ .main{min-height:0}.kpis{grid-template-columns:1fr 1fr}
+}
 </style></head><body>
 <div id="app"></div>
 <script>
 const URL_="https://ebswykhozbzobrypderu.supabase.co/functions/v1/kino-admin";
 const $=s=>document.querySelector(s),app=$("#app");
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let D=null,tab="visits",timer=null;
+let D=null,tab="visits",sec="over",timer=null;
 function ago(t){if(!t)return"—";const s=(Date.now()-new Date(t))/1e3;if(s<60)return"только что";if(s<3600)return Math.floor(s/60)+" мин назад";if(s<86400)return Math.floor(s/3600)+" ч назад";return Math.floor(s/86400)+" дн назад"}
-function login(msg=""){clearInterval(timer);app.innerHTML=`<div class="login"><h1 style="margin:0">🎬 Kinomatch</h1><div class="mut">Админка. Введите ключ доступа</div><input id="k" type="password" placeholder="Ключ" autocomplete="current-password"><button class="p" id="go" style="width:100%">Войти</button><div class="err">${esc(msg)}</div></div>`;
+function login(msg=""){clearInterval(timer);app.innerHTML=`<div class="login glass"><h1 style="margin:0">🎬 Kinomatch</h1><div class="mut">Админка. Введите ключ доступа</div><input id="k" type="password" placeholder="Ключ" autocomplete="current-password"><button class="btn" id="go">Войти</button><div class="err">${esc(msg)}</div></div>`;
   const go=()=>{const v=$("#k").value.trim();if(!v)return;localStorage.kmAdm=v;load(true)};$("#go").onclick=go;$("#k").onkeydown=e=>e.key==="Enter"&&go()}
 async function load(first){
   if(/^#k=/.test(location.hash)){localStorage.kmAdm=decodeURIComponent(location.hash.slice(3));history.replaceState(null,"",location.pathname)}
@@ -44,28 +67,29 @@ async function load(first){
     if(r.status===401){delete localStorage.kmAdm;return login(first?"Неверный ключ":"")}
     const j=await r.json();if(j.error)throw new Error(j.error);D=j;draw();
     clearInterval(timer);timer=setInterval(()=>load(false),60000)}
-  catch(e){if(D)return;app.innerHTML=`<div class="login"><div class="err">Не удалось загрузить: ${esc(e.message)}</div><button id="rt">Повторить</button></div>`;$("#rt").onclick=()=>load(true)}}
+  catch(e){if(D)return;app.innerHTML=`<div class="login glass"><div class="err">Не удалось загрузить: ${esc(e.message)}</div><button class="btn" id="rt">Повторить</button></div>`;$("#rt").onclick=()=>load(true)}}
 function draw(){
-  const t=D.totals,S=D.series,mx=Math.max(1,...S.map(x=>x[tab])),col={visits:"var(--blu)",regs:"var(--grn)",swipes:"var(--yel)"}[tab];
-  const bars=(arr,k=1)=>{const m=Math.max(1,...arr.map(x=>x.n));return arr.map(x=>`<div class="bar"><em>${esc(x[k===1?"ref":"dev"]||x.ref||x.dev)}</em><s><i style="width:${x.n/m*100}%"></i></s><span>${x.n}</span></div>`).join("")||'<div class="empty">Пока пусто</div>'};
-  app.innerHTML=`<header><h1>🎬 Kinomatch<small>обновлено ${ago(D.now)} · авто раз в минуту</small></h1><button id="rf">⟳</button><button id="lo">Выйти</button></header><main>
-  <h2>Сейчас</h2><div class="grid">
-   <div class="k"><span>Визитов за 24 ч</span><b>${t.visits_24h}</b><i>за 7 дн: ${t.visits_7d}</i></div>
-   <div class="k"><span>Регистраций</span><b>${t.regs}</b><i>+${t.regs_24h} за сутки · +${t.regs_7d} за неделю</i></div>
-   <div class="k"><span>Свайпов за 24 ч</span><b>${t.swipes_24h}</b><i>всего: ${t.swipes}</i></div>
-   <div class="k"><span>Свайпали (7 дн)</span><b>${t.swipers_7d}</b><i>всего людей: ${t.swipers}</i></div>
-   <div class="k"><span>Пар создано</span><b>${t.paired}</b></div>
-   <div class="k"><span>Ошибок за 24 ч</span><b style="color:${t.errors_24h?"var(--red)":"inherit"}">${t.errors_24h}</b><i style="color:var(--mut)">гостей 7 дн: ${t.guests_7d}</i></div></div>
-  <h2>Последние 14 дней</h2><div class="card"><div class="tabs">${[["visits","Визиты"],["regs","Регистрации"],["swipes","Свайпы"]].map(([k,n])=>`<button data-t="${k}" class="${tab===k?"on":""}">${n}</button>`).join("")}</div>
-   <div class="chart">${S.map(x=>`<div><span>${x[tab]||""}</span><u style="height:${x[tab]/mx*88}%;background:${col}"></u><span>${x.day.slice(8)}</span></div>`).join("")}</div></div>
-  <h2>Кто зарегистрирован (${D.users.length})</h2><div class="card">${D.users.map(u=>`<div class="row"><div class="a"><b>${esc(u.name||u.username||"без имени")}${u.paired?'<span class="tag g">пара</span>':""}</b><small>${u.username?"@"+esc(u.username)+" · ":""}${esc(u.lang||"")} · рег. ${ago(u.created_at)}</small></div><div class="r">${u.swipes} свайп.<br>${u.last_swipe?"был "+ago(u.last_swipe):"не свайпал"}</div></div>`).join("")||'<div class="empty">Нет</div>'}</div>
-  <h2>Откуда приходят (7 дн)</h2><div class="card">${bars(D.refs,1)}</div>
-  <h2>Устройства (7 дн)</h2><div class="card">${bars(D.devs,2)}</div>
-  <h2>Последние визиты</h2><div class="card">${D.visits.map(v=>`<div class="row"><div class="a"><b>${esc(v.ev)}${v.guest?'<span class="tag">гость</span>':'<span class="tag g">вошёл</span>'}</b><small>${esc(v.dev||"?")} · ${esc(v.lang||"")} · ${esc(v.ref||"прямой")} · #${esc(v.sid)}</small></div><div class="r">${ago(v.at)}</div></div>`).join("")||'<div class="empty">Нет</div>'}</div>
-  <h2>События (7 дн)</h2><div class="card">${bars(D.evs.map(e=>({ref:e.ev,n:e.n})),1)}</div>
-  <h2>Ошибки сайта</h2><div class="card">${D.errors.map(e=>`<div class="row"><div class="a"><b>${esc(e.msg)}</b><small>${esc(e.path)}</small></div><div class="r">${ago(e.at)}</div></div>`).join("")||'<div class="empty">Ошибок нет 🎉</div>'}</div>
-  </main>`;
-  $("#rf").onclick=()=>load(false);$("#lo").onclick=()=>{delete localStorage.kmAdm;D=null;login()};
-  document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw()})}
+  const t=D.totals,S=D.series,mx=Math.max(1,...S.map(x=>x[tab])),col={visits:"#3b82f6",regs:"#2fbf71",swipes:"#f0b33c"}[tab];
+  const bars=(arr,k)=>{const m=Math.max(1,...arr.map(x=>x.n));return arr.map(x=>`<div class="bar"><em>${esc(x[k]||x.ref||x.dev||"прямой")}</em><s><i style="width:${x.n/m*100}%"></i></s><span>${x.n}</span></div>`).join("")||'<div class="empty">Пока пусто</div>'};
+  const NAV=[["over","Обзор",""],["users","Люди",D.users.length],["src","Источники",""],["vis","Визиты",D.visits.length],["err","Ошибки",D.errors.length]];
+  const K=(l,v,s,c)=>`<div class="k"><span>${l}</span><b${c?` style="color:${c}"`:""}>${v}</b><i>${s}</i></div>`;
+  const S_={
+   over:`<div class="kpis">${K("Визитов за 24 ч",t.visits_24h,"за 7 дн: "+t.visits_7d)}${K("Регистраций",t.regs,"+"+t.regs_24h+" за сутки · +"+t.regs_7d+" за нед.")}${K("Свайпов за 24 ч",t.swipes_24h,"всего: "+t.swipes)}${K("Свайпали (7 дн)",t.swipers_7d,"всего людей: "+t.swipers)}${K("Пар создано",t.paired,"&nbsp;")}${K("Ошибок за 24 ч",t.errors_24h,"гостей 7 дн: "+t.guests_7d,t.errors_24h?"var(--red)":"")}</div>
+     <div class="card"><h3>Последние 14 дней</h3><div class="tabs">${[["visits","Визиты"],["regs","Регистрации"],["swipes","Свайпы"]].map(([k,n])=>`<button data-t="${k}" class="${tab===k?"on":""}">${n}</button>`).join("")}</div>
+     <div class="chart">${S.map(x=>`<div><span>${x[tab]||""}</span><u style="height:${x[tab]/mx*86}%;background:${col}"></u><span>${x.day.slice(8)}</span></div>`).join("")}</div></div>`,
+   users:D.users.map(u=>`<div class="row"><i class="d ${u.paired?"g":""}"></i><div class="a"><b>${esc(u.name||u.username||"без имени")}${u.paired?" · пара":""}</b><small>${u.username?"@"+esc(u.username)+" · ":""}${esc(u.lang||"")} · рег. ${ago(u.created_at)}</small></div><div class="r">${u.swipes} свайп.<br>${u.last_swipe?"был "+ago(u.last_swipe):"не свайпал"}</div></div>`).join("")||'<div class="empty">Нет</div>',
+   src:`<div class="card"><h3>Откуда приходят (7 дн)</h3>${bars(D.refs,"ref")}</div><div class="card"><h3>Устройства (7 дн)</h3>${bars(D.devs,"dev")}</div><div class="card"><h3>События (7 дн)</h3>${bars(D.evs.map(e=>({ref:e.ev,n:e.n})),"ref")}</div>`,
+   vis:D.visits.map(v=>`<div class="row"><i class="d ${v.guest?"":"g"}"></i><div class="a"><b>${esc(v.ev)} · ${v.guest?"гость":"вошёл"}</b><small>${esc(v.dev||"?")} · ${esc(v.lang||"")} · ${esc(v.ref||"прямой")} · #${esc(v.sid)}</small></div><div class="r">${ago(v.at)}</div></div>`).join("")||'<div class="empty">Нет</div>',
+   err:D.errors.map(e=>`<div class="row"><i class="d r"></i><div class="a"><b>${esc(e.msg)}</b><small>${esc(e.path)}</small></div><div class="r">${ago(e.at)}</div></div>`).join("")||'<div class="empty">Ошибок нет 🎉</div>'};
+  const title=NAV.find(n=>n[0]===sec)[1];
+  app.innerHTML=`<div class="shell">
+  <aside class="side glass"><h1>🎬 Kinomatch</h1><div class="nav">${NAV.map(([k,n,c])=>`<button data-s="${k}" class="${sec===k?"on":""}"><b>${n}</b>${c!==""?`<span>${c}</span>`:""}</button>`).join("")}</div></aside>
+  <main class="main glass"><div class="top"><div class="t">${title}<small>обновлено ${ago(D.now)} · авто раз в минуту</small></div><button class="btn l" id="rf">⟳ Обновить</button></div>${S_[sec]}</main>
+  <aside class="info glass"><h2>Сейчас</h2><div class="big">${t.visits_24h} визитов за сутки</div>
+   <div class="kvx"><div class="kv"><span>Регистраций</span><b>${t.regs}</b></div><div class="kv"><span>Свайпов за сутки</span><b>${t.swipes_24h}</b></div><div class="kv"><span>Пар</span><b>${t.paired}</b></div><div class="kv"><span>Ошибок за сутки</span><b style="color:${t.errors_24h?"var(--red)":"inherit"}">${t.errors_24h}</b></div></div>
+   <div class="btns"><button class="btn" id="open">Открыть сайт</button><button class="btn l" id="lo">Выйти</button></div></aside></div>`;
+  $("#rf").onclick=()=>load(false);$("#open").onclick=()=>window.open("/","_blank");$("#lo").onclick=()=>{delete localStorage.kmAdm;D=null;login()};
+  document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw()});
+  document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{sec=b.dataset.s;draw()})}
 load(true);
 </script></body></html>
