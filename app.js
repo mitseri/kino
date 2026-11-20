@@ -929,6 +929,9 @@ async function openColl(i){const c=COLLS[i];collOpen=i;sq="";
     sres=pages.flatMap(r=>r.results||[]).filter(x=>x.poster_path&&(kind||x.media_type==="movie"||x.media_type==="tv")).map(x=>itemFrom(x,kind||x.media_type)).filter((x,j,a)=>a.findIndex(y=>y.k===x.k)===j)}catch(e){sres=[]}
   renderSearch()}
 let sq="",sres=[],speople=[],ssim=[];
+/* история поиска: последние 8 запросов, в localStorage; сохраняется, когда пользователь открыл результат */
+const shGet=()=>{try{return JSON.parse(localStorage.getItem("km_sh")||"[]")}catch(e){return[]}};
+const shAdd=q=>{q=(q||"").trim();if(q.length<2)return;try{localStorage.setItem("km_sh",JSON.stringify([q,...shGet().filter(x=>x.toLowerCase()!==q.toLowerCase())].slice(0,8)))}catch(e){}};
 /* «Похожие названия»: берём начало слова из запроса, сверяем по биграммам (терпит опечатки, е/ё, лишние слова) */
 async function similarTitles(q,have){
   const nz=s=>(s||"").toLowerCase().replace(/ё/g,"е").replace(/[^\p{L}\p{N}]+/gu," ").trim(),n=nz(q);if(n.length<3)return[];
@@ -948,7 +951,7 @@ function renderSearch(){
     <div class="list" id="sr" style="margin-top:12px"></div></div></div>`;
   const R=it=>`<div class="lrow" data-s="${esc(it.k)}">${thumb(it)}<div class="lt"><b>${esc(it.t)}</b><span>${esc(metaOf(it))}</span><span class="clamp">${esc(it.d)}</span>
       <div class="la">${mine.shelf.has(it.k)?`<span class="onsh">На полке ✓</span>`:`<button class="btn red sm" data-add="${esc(it.k)}">На полку</button>`}</div></div></div>`;
-  const draw=()=>{$("#sr").innerHTML=(speople.length&&sq?`<span class="label">Люди</span><div class="cast" style="margin-bottom:10px">${speople.map(c=>`<button type="button" data-person="${c.id}" data-pname="${esc(c.name)}"><img src="${IMG}w185${c.profile_path}" alt="" loading="lazy">${esc(c.name)}<small>${esc((c.known_for||[]).map(k=>k.title||k.name).slice(0,2).join(", "))}</small></button>`).join("")}</div>`:"")+(sres.length?sres.map(R).join(""):sq?`<div class="empty">Ничего не нашлось</div>`:"")+(ssim.length&&sq?`<span class="label" style="margin-top:12px;display:block">Похожие названия</span>`+ssim.map(R).join(""):"")+(sq?"":`<div class="shelfs">${COLLS.map((x,i)=>`<section class="cshelf"><div class="csh"><b>${esc(x.t)}</b><button class="pill sm" data-coll-i="${i}">Все →</button></div><div class="ctrack" data-track="${i}">${'<div class="ccard ph"></div>'.repeat(4)}</div></section>`).join("")}</div>`);
+  const draw=()=>{$("#sr").innerHTML=(speople.length&&sq?`<span class="label">Люди</span><div class="cast" style="margin-bottom:10px">${speople.map(c=>`<button type="button" data-person="${c.id}" data-pname="${esc(c.name)}"><img src="${IMG}w185${c.profile_path}" alt="" loading="lazy">${esc(c.name)}<small>${esc((c.known_for||[]).map(k=>k.title||k.name).slice(0,2).join(", "))}</small></button>`).join("")}</div>`:"")+(sres.length?sres.map(R).join(""):sq?`<div class="empty">Ничего не нашлось</div>`:"")+(ssim.length&&sq?`<span class="label" style="margin-top:12px;display:block">Похожие названия</span>`+ssim.map(R).join(""):"")+(sq?"":(shGet().length?`<div class="row" style="margin:12px 0 4px;align-items:center"><span class="label" style="margin:0">Недавно искали</span><button class="pill sm" data-shclr="1" style="margin-left:auto">Очистить</button></div><div class="row" style="flex-wrap:wrap;gap:8px;margin-bottom:6px">${shGet().map(q=>`<button class="pill" data-sh="${esc(q)}">🕘 ${esc(q)}</button>`).join("")}</div>`:"")+`<div class="shelfs">${COLLS.map((x,i)=>`<section class="cshelf"><div class="csh"><b>${esc(x.t)}</b><button class="pill sm" data-coll-i="${i}">Все →</button></div><div class="ctrack" data-track="${i}">${'<div class="ccard ph"></div>'.repeat(4)}</div></section>`).join("")}</div>`);
     if(!sq&&!sres.length)fillShelves()};
   draw();let t;$("#sq").oninput=e=>{clearTimeout(t);t=setTimeout(async()=>{sq=e.target.value.trim();if(collOpen!=null&&sq){collOpen=null;$("#cBack")?.parentElement.nextElementSibling?.remove();$("#cBack")?.parentElement.remove()}if(!sq){sres=[];ssim=[];return draw()}
     try{const r=await tmdb("/search/multi",{query:sq,include_adult:"false"});speople=(r.results||[]).filter(x=>x.media_type==="person"&&x.profile_path).slice(0,8);
@@ -963,8 +966,8 @@ function renderSearch(){
   const cs=$("#cSwipe");if(cs)cs.onclick=()=>{const l=sres.filter(x=>!mine.swipes.has(x.k)&&!mine.shelf.has(x.k));if(!l.length)return toast("Всё из подборки вы уже видели");deck=l;hist=[];go("swipe");toast("Свайпаете подборку «"+c.t.replace(/^\S+\s/,"")+"»")};
   $("#main").onclick=async e=>{const ct=e.target.closest("[data-ctr]");if(ct){e.stopPropagation();const it=ROWIT.get(ct.dataset.ctr);if(it)playTrailer(it,trailerOf(await details(it)));return}
     const ck=e.target.closest("[data-ck]");if(ck){const it=ROWIT.get(ck.dataset.ck);if(it)openDetail(it);return}
-    const ci=e.target.closest("[data-coll-i]");if(ci)return openColl(+ci.dataset.collI);const a=e.target.closest("[data-add]");if(a){await addToShelf(sres.find(x=>x.k===a.dataset.add));a.outerHTML='<span class="onsh">На полке ✓</span>';toast("На полке");return}
-    const row=e.target.closest("[data-s]");if(row)openDetail(sres.find(x=>x.k===row.dataset.s))};
+    const ci=e.target.closest("[data-coll-i]");if(ci)return openColl(+ci.dataset.collI);const sh=e.target.closest("[data-sh]");if(sh){const i=$("#sq");i.value=sh.dataset.sh;i.dispatchEvent(new Event("input"));return}if(e.target.closest("[data-shclr]")){try{localStorage.removeItem("km_sh")}catch(x){}return renderSearch()}const a=e.target.closest("[data-add]");if(a){shAdd(sq);await addToShelf(sres.find(x=>x.k===a.dataset.add));a.outerHTML='<span class="onsh">На полке ✓</span>';toast("На полке");return}
+    const row=e.target.closest("[data-s]");if(row){shAdd(sq);openDetail([...sres,...ssim].find(x=>x.k===row.dataset.s))}};
 }
 /* ---------- glassy carousels: collections (tilted shelves) and trends (3D coverflow) ---------- */
 const ROWS=new Map(),ROWIT=new Map();
