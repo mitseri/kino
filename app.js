@@ -941,7 +941,12 @@ function renderSearch(){
     if(!sq&&!sres.length)fillShelves()};
   draw();let t;$("#sq").oninput=e=>{clearTimeout(t);t=setTimeout(async()=>{sq=e.target.value.trim();if(collOpen!=null&&sq){collOpen=null;$("#cBack")?.parentElement.nextElementSibling?.remove();$("#cBack")?.parentElement.remove()}if(!sq){sres=[];return draw()}
     try{const r=await tmdb("/search/multi",{query:sq,include_adult:"false"});speople=(r.results||[]).filter(x=>x.media_type==="person"&&x.profile_path).slice(0,8);
-      sres=(r.results||[]).filter(x=>(x.media_type==="movie"||x.media_type==="tv")&&x.poster_path).map(x=>itemFrom(x)).slice(0,20)}catch(err){sres=[];speople=[]}draw()},300)};
+      sres=(r.results||[]).filter(x=>(x.media_type==="movie"||x.media_type==="tv")&&x.poster_path).map(x=>itemFrom(x)).slice(0,20);
+      if(!sres.length){/* е/ё и знаки препинания: TMDB ищет строго, поэтому берём начало первого слова и сверяем сами */
+        const nz=s=>(s||"").toLowerCase().replace(/ё/g,"е").replace(/[^\p{L}\p{N}]+/gu," ").trim(),ws=nz(sq).split(" ").filter(Boolean);
+        if(ws.length){const w=ws[0],ix=w.indexOf("е"),pre=w.slice(0,ix>=3?ix:Math.min(w.length,4));
+          const pg=await Promise.all([1,2].map(p=>tmdb("/search/multi",{query:pre,include_adult:"false",page:String(p)}).catch(()=>({results:[]}))));
+          const seen=new Set();sres=pg.flatMap(j=>j.results||[]).filter(x=>(x.media_type==="movie"||x.media_type==="tv")&&x.poster_path).filter(x=>{const tw=nz(x.title||x.name).split(" "),ok=ws.every(q=>tw.some(t=>t.startsWith(q)));const k=x.media_type+x.id;if(!ok||seen.has(k))return false;seen.add(k);return true}).map(x=>itemFrom(x)).slice(0,20)}}}catch(err){sres=[];speople=[]}draw()},300)};
   const cb=$("#cBack");if(cb)cb.onclick=()=>{collOpen=null;sres=[];renderSearch()};
   const cs=$("#cSwipe");if(cs)cs.onclick=()=>{const l=sres.filter(x=>!mine.swipes.has(x.k)&&!mine.shelf.has(x.k));if(!l.length)return toast("Всё из подборки вы уже видели");deck=l;hist=[];go("swipe");toast("Свайпаете подборку «"+c.t.replace(/^\S+\s/,"")+"»")};
   $("#main").onclick=async e=>{const ct=e.target.closest("[data-ctr]");if(ct){e.stopPropagation();const it=ROWIT.get(ct.dataset.ctr);if(it)playTrailer(it,trailerOf(await details(it)));return}
