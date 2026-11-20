@@ -18,6 +18,12 @@ Deno.serve(async (req) => {
   const key = req.headers.get("x-admin-key") || "";
   if (!key || (await sha(key)) !== KEY_HASH) return J({ error: "forbidden" }, 401);
   try {
+    if (req.method === "POST") {
+      const b = await req.json();
+      if (b.action === "hide") { await sql`update km_reviews set hidden=true where user_id=${b.user_id} and tmdb=${b.tmdb}`; return J({ ok: true }); }
+      if (b.action === "unhide") { await sql`update km_reviews set hidden=false where user_id=${b.user_id} and tmdb=${b.tmdb}`; return J({ ok: true }); }
+      return J({ error: "bad action" }, 400);
+    }
     const [totals] = await sql`select
       (select count(*)::int from km_profiles) regs,
       (select count(*)::int from km_profiles where created_at>now()-interval '24 hours') regs_24h,
@@ -55,7 +61,12 @@ Deno.serve(async (req) => {
       where at>now()-interval '7 days' group by 1 order by 2 desc`;
     const evs = await sql`select ev, count(*)::int n from km_events where at>now()-interval '7 days' group by 1 order by 2 desc limit 10`;
     const errors = await sql`select at, left(msg,160) msg, coalesce(path,'') path from km_errors order by at desc limit 8`;
-    return J({ now: new Date().toISOString(), totals, series, users, visits, refs, devs, evs, errors });
+    const reps = await sql`select r.at, 'review' kind, r.author::text author, coalesce(ap.name,'') aname, r.tmdb, left(coalesce(v.text,''),300) text, coalesce(v.hidden,false) hidden, coalesce(rp.name,'') rname
+      from km_review_reports r left join km_profiles ap on ap.user_id=r.author left join km_profiles rp on rp.user_id=r.reporter left join km_reviews v on v.user_id=r.author and v.tmdb=r.tmdb
+      union all select u.at, 'profile', u.target::text, coalesce(tp.name,''), '', coalesce(tp.avatar_url,''), false, coalesce(rp.name,'')
+      from km_user_reports u left join km_profiles tp on tp.user_id=u.target left join km_profiles rp on rp.user_id=u.reporter
+      order by 1 desc limit 50`;
+    return J({ now: new Date().toISOString(), totals, series, users, visits, refs, devs, evs, errors, reps });
   } catch (e) {
     return J({ error: String(e) }, 500);
   }
