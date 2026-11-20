@@ -346,7 +346,7 @@ function buildSources(){
 }
 async function catPull(c){
   let q=TSB.from("km_catalog").select("id,kind,title,orig,year,poster,rating,genres,lang").eq("tag",c.tag).gte("r",Math.random()).order("r").limit(40);
-  if(c.a)q=q.gte("year",c.a);if(c.b)q=q.lte("year",c.b);q=q.gte("votes",c.minR?5:3);if(c.minR)q=q.gte("rating",c.minR);
+  if(c.a)q=q.gte("year",c.a);if(c.b)q=q.lte("year",c.b);q=q.gte("votes",c.minR?100:30);if(c.minR)q=q.gte("rating",c.minR);
   if(c.yes.length)q=q.overlaps("genres",c.yes);if(c.no.length)q=q.not("genres","ov","{"+c.no.join(",")+"}");
   const {data,error}=await q;if(error)throw error;
   return (data||[]).filter(x=>x.poster).map(x=>itemFrom({id:x.id,title:x.title,original_title:x.orig,release_date:x.year+"-01-01",vote_average:x.rating,overview:"",poster_path:x.poster,genre_ids:x.genres||[],original_language:x.lang},x.kind))}
