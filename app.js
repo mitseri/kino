@@ -693,7 +693,7 @@ async function undo(){const h=hist.pop();if(!h)return;mine.swipes.delete(h.it.k)
   deck=deck.filter(x=>x.k!==h.it.k);deck.unshift(h.it);renderSwipe();counts()}
 async function addToShelf(it,status){const row={user_id:me.user_id,tmdb:it.k,data:slim(it),status:status||"want",rating:0,note:"",updated_at:new Date().toISOString()};
   mine.shelf.set(it.k,{...row,added_at:row.updated_at});const {error}=await sb.from("km_shelf").upsert(row);if(error)toast("Не сохранилось: "+error.message)}
-function showMatch(it,sup){confetti();snd("match");track(sup?"supermatch":"match");if(night&&!night.matches.some(x=>x.k===it.k))night.matches.push(it);if(sup)setTimeout(confetti,500);try{navigator.vibrate&&navigator.vibrate(sup?[30,50,30,50,30,50,80]:[20,60,20,60,40])}catch(e){}const L=$("#layer");L.innerHTML=`<div class="match ${sup?"super":""}" id="mt"><div class="mcard"><h3>${sup?"Супер-мэтч!":"Мэтч!"}</h3>${it.poster?`<img src="${IMG}w342${it.poster}" alt="">`:""}<p>${sup?`Вы с ${esc(ptName())} <b>оба поставили мега-лайк</b> — смотрите сегодня!<br>`:`Вы с ${esc(ptName())} оба хотите посмотреть<br>`}<b>${esc(it.t)}</b></p><div style="display:flex;gap:10px"><button class="btn red" id="mtS">На полку</button><button class="btn" id="mtOk">Дальше</button></div><button class="btn ghost sm" id="mtSh" style="margin-top:8px">📸 Поделиться мэтчем</button></div></div>`;
+function showMatch(it,sup){initPush();confetti();snd("match");track(sup?"supermatch":"match");if(night&&!night.matches.some(x=>x.k===it.k))night.matches.push(it);if(sup)setTimeout(confetti,500);try{navigator.vibrate&&navigator.vibrate(sup?[30,50,30,50,30,50,80]:[20,60,20,60,40])}catch(e){}const L=$("#layer");L.innerHTML=`<div class="match ${sup?"super":""}" id="mt"><div class="mcard"><h3>${sup?"Супер-мэтч!":"Мэтч!"}</h3>${it.poster?`<img src="${IMG}w342${it.poster}" alt="">`:""}<p>${sup?`Вы с ${esc(ptName())} <b>оба поставили мега-лайк</b> — смотрите сегодня!<br>`:`Вы с ${esc(ptName())} оба хотите посмотреть<br>`}<b>${esc(it.t)}</b></p><div style="display:flex;gap:10px"><button class="btn red" id="mtS">На полку</button><button class="btn" id="mtOk">Дальше</button></div><button class="btn ghost sm" id="mtSh" style="margin-top:8px">📸 Поделиться мэтчем</button></div></div>`;
   $("#mtOk").onclick=()=>L.innerHTML="";$("#mtS").onclick=async()=>{await addToShelf(it);L.innerHTML="";toast("На полке")};$("#mt").onclick=e=>{if(e.target.id==="mt")L.innerHTML=""};$("#mtSh").onclick=()=>matchImage(it,sup)}
 function playTrailer(it,tr){
   if(!tr){if(it)window.open("https://www.youtube.com/results?search_query="+encodeURIComponent((it.o||it.t)+" трейлер"),"_blank");return}
@@ -1079,6 +1079,12 @@ async function openOnboarding(force){if(!force&&(ls.get("onbDone",false)||mine.s
   return new Promise(done=>{const fin=async ok=>{ls.set("onbDone",true);if(ok){const p={...DEF_PREFS(),...(prefs||{}),yes:[...sel],person:null,fresh:false};confetti();await savePrefs(p)}L.innerHTML="";done(true)};
     $("#onbGo").onclick=()=>fin(true);$("#onbSkip").onclick=()=>fin(false)})}
 
+/* ---------- push (iOS-приложение) ---------- */
+async function initPush(){if(!IOSAPP||!me||me.guest||initPush.done)return;const P=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.PushNotifications;if(!P)return;initPush.done=1;
+  try{let s=await P.checkPermissions();if(s.receive==="prompt")s=await P.requestPermissions();if(s.receive!=="granted")return;
+    P.addListener("registration",async t=>{try{await REAL_SB.from("km_push_tokens").upsert({user_id:me.user_id,token:t.value,platform:"ios"},{onConflict:"user_id,token"})}catch(e){}});
+    P.addListener("pushNotificationActionPerformed",n=>{const k=n&&n.notification&&n.notification.data&&n.notification.data.k;if(k)location.href="/?m="+encodeURIComponent(k)});
+    await P.register()}catch(e){}}
 /* ---------- жалобы и блокировка ---------- */
 var BLK=new Set(),BLKN={};
 async function loadBlocks(){if(!me||me.guest)return;try{const {data}=await REAL_SB.from("km_blocks").select("blocked,name");BLK=new Set((data||[]).map(x=>x.blocked));BLKN={};(data||[]).forEach(x=>BLKN[x.blocked]=x.name||"")}catch(e){}}
@@ -1165,7 +1171,7 @@ async function start(session){
   if(started)return;started=true;track("login");
   $("#land").hidden=true;closeModal();$("#app").hidden=false;document.body.classList.add("inapp");
   $("#main").innerHTML=`<div class="swempty"><div class="spin"></div></div>`;
-  sb=REAL_SB;const p=await ensureProfile(session.user);me={...p,email:session.user.email};await migrateGuest();loadBlocks();if(window.LANG&&p.lang!==window.LANG)sb.from("km_profiles").update({lang:window.LANG}).eq("user_id",p.user_id).then(()=>{});
+  sb=REAL_SB;const p=await ensureProfile(session.user);me={...p,email:session.user.email};await migrateGuest();loadBlocks();setTimeout(()=>{if(partner)initPush()},8000);if(window.LANG&&p.lang!==window.LANG)sb.from("km_profiles").update({lang:window.LANG}).eq("user_id",p.user_id).then(()=>{});
   await Promise.all([loadAll(),loadGenres()]);await importFirstVersion();
   const pair=new URLSearchParams(location.search).get("pair");
   if(pair){history.replaceState(null,"",location.pathname);if(!partner&&pair.toUpperCase()!==me.pair_code)await pairWith(pair)}
