@@ -39,11 +39,16 @@ Deno.serve(async (req) => {
         (select count(*)::int from km_swipes where (at at time zone 'Europe/Kyiv')::date=d.day) swipes
       from d order by 1`;
     const users = await sql`select p.name, p.username, p.created_at, (p.partner is not null) paired, coalesce(p.lang,'') lang,
+        coalesce(au.email,'') email, coalesce(au.raw_app_meta_data->>'provider','') prov, au.last_sign_in_at,
+        (select ip from km_events e where e.user_id=p.user_id and e.ip is not null order by e.at desc limit 1) ip,
+        (select cc from km_events e where e.user_id=p.user_id and e.cc is not null order by e.at desc limit 1) cc,
         (select count(*)::int from km_swipes s where s.user_id=p.user_id) swipes,
         (select max(at) from km_swipes s where s.user_id=p.user_id) last_swipe
-      from km_profiles p order by p.created_at desc limit 50`;
-    const visits = await sql`select at, ev, coalesce(dev,'') dev, coalesce(lang,'') lang, guest, coalesce(ref,'') ref, left(sid::text,6) sid
-      from km_events order by at desc limit 40`;
+      from km_profiles p left join auth.users au on au.id=p.user_id order by p.created_at desc limit 300`;
+    const visits = await sql`select e.at, e.ev, coalesce(e.dev,'') dev, coalesce(e.lang,'') lang, e.guest, coalesce(e.ref,'') ref, left(e.sid::text,6) sid,
+        coalesce(e.ip,'') ip, coalesce(e.cc,'') cc, coalesce(pp.name,'') uname, coalesce(pp.username,'') uuser, coalesce(au.email,'') email
+      from km_events e left join km_profiles pp on pp.user_id=e.user_id left join auth.users au on au.id=e.user_id
+      order by e.at desc limit 60`;
     const refs = await sql`select coalesce(nullif(ref,''),'прямой заход') ref, count(distinct sid)::int n from km_events
       where at>now()-interval '7 days' group by 1 order by 2 desc limit 8`;
     const devs = await sql`select coalesce(nullif(dev,''),'?') dev, count(distinct sid)::int n from km_events

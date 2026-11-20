@@ -33,7 +33,7 @@ button{font:inherit;cursor:pointer;color:var(--tx)}
 .card{background:var(--glass2);border:1px solid var(--line);border-radius:22px;padding:16px 18px}
 .card h3{margin:0 0 10px;font-size:.78rem;color:var(--mut);font-weight:600}
 .big{font-size:2.2rem;font-weight:700;line-height:1.1;letter-spacing:-.02em}
-.hint{color:var(--mut);font-size:.78rem}.pill{display:inline-block;font-size:.7rem;padding:2px 9px;border-radius:99px;background:rgba(47,168,107,.16);color:var(--grn);font-weight:600}
+.ip{font-family:ui-monospace,Consolas,monospace;font-size:.78em;color:var(--tx)}.hint{color:var(--mut);font-size:.78rem}.pill{display:inline-block;font-size:.7rem;padding:2px 9px;border-radius:99px;background:rgba(47,168,107,.16);color:var(--grn);font-weight:600}
 .btns{display:flex;gap:8px;margin:14px 0 12px}
 .btn{flex:1;border:0;border-radius:99px;padding:11px 14px;font-weight:600;background:var(--dark);color:#fff}.btn.l{background:#fff;color:var(--tx)}
 .mini{background:rgba(255,255,255,.55);border-radius:16px;padding:10px 12px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center}
@@ -49,11 +49,11 @@ button{font:inherit;cursor:pointer;color:var(--tx)}
 .full{margin-top:12px}
 .utool{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}.utool input{flex:1;min-width:160px;font:inherit;border:1px solid var(--line);background:var(--glass2);border-radius:99px;padding:9px 16px;outline:0;color:var(--tx)}
 .utab{background:var(--glass2);border:1px solid var(--line);border-radius:18px;overflow:hidden}
-.uh,.ur{display:grid;grid-template-columns:minmax(0,2.4fr) 1fr .7fr 1fr;gap:8px;padding:8px 14px;align-items:center;font-size:.82rem}
+.uh,.ur{display:grid;grid-template-columns:minmax(0,2.6fr) 1.2fr 1fr .6fr .9fr;gap:8px;padding:8px 14px;align-items:center;font-size:.82rem}
 .uh{color:var(--mut);font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;background:rgba(255,255,255,.5)}
 .ur{border-top:1px solid rgba(255,255,255,.7);color:var(--mut)}.ur:hover{background:rgba(255,255,255,.6)}
 .ur .n{display:flex;align-items:center;gap:8px;min-width:0;color:var(--tx)}.ur .n b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ur .n small{color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ur .d{flex:0 0 8px;height:8px;border-radius:50%;background:var(--yel)}.ur .d.g{background:var(--grn)}
-@media(max-width:720px){.uh span:nth-child(2),.ur span:nth-child(2){display:none}.uh,.ur{grid-template-columns:minmax(0,2fr) .6fr 1fr}.ur .n small{display:none}}
+@media(max-width:720px){.uh span:nth-child(3),.ur span:nth-child(3){display:none}.uh,.ur{grid-template-columns:minmax(0,2fr) 1fr .6fr 1fr}}
 .row{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:8px;background:var(--glass2);border:1px solid var(--line);border-radius:18px}
 .row .d{flex:0 0 10px;height:10px;border-radius:50%;background:var(--yel)}.row .d.g{background:var(--grn)}.row .d.r{background:var(--red)}
 .row .a{flex:1;min-width:0}.row b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.row small{color:var(--mut);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -99,13 +99,15 @@ async function load(first){
     clearInterval(timer);timer=setInterval(()=>load(false),60000)}
   catch(e){if(D)return;app.innerHTML=`<div class="login glass"><div class="err">Не удалось загрузить: ${esc(e.message)}</div><button class="btn" id="rt">Повторить</button></div>`;$("#rt").onclick=()=>load(true)}}
 let uq="",uf="all",un=30;
+function flag(cc){try{return String.fromCodePoint(...[...cc.toUpperCase()].map(x=>127397+x.charCodeAt(0)))}catch(_){return""}}
+function who(v){const n=v.uname||(v.uuser?"@"+v.uuser:"");if(v.email||n)return`<span style="color:var(--grn)">${esc(n)}${v.email?(n?" · ":"")+esc(v.email):""}</span>`;return v.guest?"гость":"аноним"}
 function usersView(){
   const q=uq.toLowerCase(),wk=Date.now()-7*864e5;
-  const all=D.users,L=all.filter(u=>(uf==="all"||(uf==="pair"&&u.paired)||(uf==="act"&&u.last_swipe&&new Date(u.last_swipe)>wk)||(uf==="idle"&&!u.swipes))&&(!q||((u.name||"")+" "+(u.username||"")).toLowerCase().includes(q)));
+  const all=D.users,L=all.filter(u=>(uf==="all"||(uf==="pair"&&u.paired)||(uf==="act"&&u.last_swipe&&new Date(u.last_swipe)>wk)||(uf==="idle"&&!u.swipes))&&(!q||((u.name||"")+" "+(u.username||"")+" "+(u.email||"")+" "+(u.ip||"")).toLowerCase().includes(q)));
   const chip=(k,n)=>`<button data-uf="${k}" class="${uf===k?"on":""}">${n}</button>`;
-  return`<h1 class="hello">Люди</h1><p class="sub">Всего: ${all.length}${all.length>=50?" (показаны последние 50)":""} · найдено: ${L.length}</p>
-   <div class="utool"><input id="uq" type="search" placeholder="Поиск по имени или @нику" value="${esc(uq)}"><div class="seg" style="margin:0">${chip("all","Все")}${chip("pair","В паре")}${chip("act","Активные")}${chip("idle","Без свайпов")}</div></div>
-   <div class="utab"><div class="uh"><span>Имя</span><span>Рег.</span><span>Свайпов</span><span>Был</span></div>${L.slice(0,un).map(u=>`<div class="ur"><span class="n"><i class="d ${u.paired?"g":""}"></i><b>${esc(u.name||u.username||"без имени")}</b>${u.username?`<small>@${esc(u.username)}</small>`:""}</span><span>${ago(u.created_at)}</span><span>${u.swipes}</span><span>${u.last_swipe?ago(u.last_swipe):"—"}</span></div>`).join("")||'<div class="empty">Никого не нашлось</div>'}</div>
+  return`<h1 class="hello">Люди</h1><p class="sub">Всего: ${all.length}${all.length>=300?" (показаны последние 300)":""} · найдено: ${L.length}</p>
+   <div class="utool"><input id="uq" type="search" placeholder="Поиск: имя, @ник, почта, IP" value="${esc(uq)}"><div class="seg" style="margin:0">${chip("all","Все")}${chip("pair","В паре")}${chip("act","Активные")}${chip("idle","Без свайпов")}</div></div>
+   <div class="utab"><div class="uh"><span>Имя / почта</span><span>IP</span><span>Рег.</span><span>Свайпов</span><span>Был</span></div>${L.slice(0,un).map(u=>`<div class="ur"><span class="n"><i class="d ${u.paired?"g":""}"></i><b>${esc(u.name||u.username||"без имени")}</b><small>${u.email?esc(u.email):(u.username?"@"+esc(u.username):"")}${u.prov?` · ${esc(u.prov==="email"?"почта":u.prov)}`:""}</small></span><span class="ip">${u.ip?esc(u.ip)+(u.cc?" "+esc(u.cc):""):"—"}</span><span>${ago(u.created_at)}</span><span>${u.swipes}</span><span>${u.last_swipe?ago(u.last_swipe):"—"}</span></div>`).join("")||'<div class="empty">Никого не нашлось</div>'}</div>
    ${L.length>un?`<button class="btn l" id="umore" style="width:100%;margin-top:10px">Показать ещё (${L.length-un})</button>`:""}`}
 function draw(){
   const t=D.totals,S=D.series,mx=Math.max(1,...S.map(x=>x[tab]));
@@ -117,7 +119,7 @@ function draw(){
   const NAV=[["over","Обзор"],["users","Люди"],["src","Источники"],["vis","Визиты"],["err","Ошибки"]].map(a=>[...a,`<svg viewBox="0 0 24 24">${IC[a[0]]}</svg>`]);
   const h=new Date().getHours(),greet=h<5?"Доброй ночи":h<12?"Доброе утро":h<18?"Добрый день":"Добрый вечер";
   const dt=new Date().toLocaleDateString("ru",{weekday:"long",day:"numeric",month:"long"});
-  const visRow=v=>`<div class="row"><i class="d ${v.guest?"":"g"}"></i><div class="a"><b>${esc(v.ev)} · ${v.guest?"гость":"вошёл"}</b><small>${esc(v.dev||"?")} · ${esc(v.lang||"")} · ${esc(v.ref||"прямой")} · #${esc(v.sid)}</small></div><div class="r">${ago(v.at)}</div></div>`;
+  const visRow=v=>`<div class="row"><i class="d ${v.guest?"":"g"}"></i><div class="a"><b>${esc(v.ev)} · ${who(v)}</b><small>${v.ip?`<span class="ip">${esc(v.ip)}</span>${v.cc?" "+esc(flag(v.cc)+" "+v.cc):""} · `:""}${esc(v.dev||"?")} · ${esc(v.lang||"")} · ${esc(v.ref||"прямой")} · #${esc(v.sid)}</small></div><div class="r">${ago(v.at)}</div></div>`;
   const S_={
    over:`<h1 class="hello">${greet}!</h1><p class="sub">${dt} · так идут дела у Kinomatch</p>
     <div class="ov">
