@@ -928,25 +928,37 @@ async function openColl(i){const c=COLLS[i];collOpen=i;sq="";
   try{const pages=await Promise.all([1,2].map(pg=>tmdb(c.p,{...(c.q||{}),page:String(pg)})));
     sres=pages.flatMap(r=>r.results||[]).filter(x=>x.poster_path&&(kind||x.media_type==="movie"||x.media_type==="tv")).map(x=>itemFrom(x,kind||x.media_type)).filter((x,j,a)=>a.findIndex(y=>y.k===x.k)===j)}catch(e){sres=[]}
   renderSearch()}
-let sq="",sres=[],speople=[];
+let sq="",sres=[],speople=[],ssim=[];
+/* «Похожие названия»: берём начало слова из запроса, сверяем по биграммам (терпит опечатки, е/ё, лишние слова) */
+async function similarTitles(q,have){
+  const nz=s=>(s||"").toLowerCase().replace(/ё/g,"е").replace(/[^\p{L}\p{N}]+/gu," ").trim(),n=nz(q);if(n.length<3)return[];
+  const bg=s=>{const t=" "+s+" ",m=new Map();for(let i=0;i<t.length-1;i++){const g=t.slice(i,i+2);m.set(g,(m.get(g)||0)+1)}return m};
+  const dice=(a,b)=>{if(!a||!b)return 0;const A=bg(a),B=bg(b);let c=0,x=0,y=0;A.forEach((v,k)=>{x+=v;if(B.has(k))c+=Math.min(v,B.get(k))});B.forEach(v=>y+=v);return 2*c/(x+y)};
+  const w=n.split(" ")[0],pre=w.slice(0,Math.min(w.length,4)),qs=[...new Set([pre,w.slice(0,Math.max(3,w.length-2))])];
+  const pg=await Promise.all(qs.map(x=>tmdb("/search/multi",{query:x,include_adult:"false"}).catch(()=>({results:[]}))));
+  const seen=new Set(have.map(h=>h.k));
+  return pg.flatMap(j=>j.results||[]).filter(x=>(x.media_type==="movie"||x.media_type==="tv")&&x.poster_path).map(x=>{const t=nz(x.title||x.name),o=nz(x.original_title||x.original_name);
+    const sc=Math.max(dice(n,t),dice(n,o),dice(n,t.split(" ").slice(0,n.split(" ").length).join(" ")));return{x,sc}})
+    .filter(o=>o.sc>=.4).sort((a,b)=>b.sc-a.sc).map(o=>itemFrom(o.x)).filter(it=>{if(seen.has(it.k))return false;seen.add(it.k);return true}).slice(0,8)}
 function renderSearch(){
   const c=collOpen!=null?COLLS[collOpen]:null;
   $("#main").innerHTML=`<div class="view"><div class="wrap pad">${topBar("Поиск","Любой фильм, сериал или аниме — или готовые подборки")}
     <input type="search" id="sq" placeholder="Название…" value="${esc(sq)}" autocomplete="off">
     ${c?`<div class="row" style="margin-top:12px"><button class="pill" id="cBack">← Подборки</button><button class="pill act" id="cSwipe">🃏 Свайпать эту подборку</button></div><h2 style="margin:6px 0 0;font:800 1.1rem var(--font)">${esc(c.t)}</h2>`:""}
     <div class="list" id="sr" style="margin-top:12px"></div></div></div>`;
-  const draw=()=>{$("#sr").innerHTML=(speople.length&&sq?`<span class="label">Люди</span><div class="cast" style="margin-bottom:10px">${speople.map(c=>`<button type="button" data-person="${c.id}" data-pname="${esc(c.name)}"><img src="${IMG}w185${c.profile_path}" alt="" loading="lazy">${esc(c.name)}<small>${esc((c.known_for||[]).map(k=>k.title||k.name).slice(0,2).join(", "))}</small></button>`).join("")}</div>`:"")+(sres.length?sres.map(it=>`<div class="lrow" data-s="${esc(it.k)}">${thumb(it)}<div class="lt"><b>${esc(it.t)}</b><span>${esc(metaOf(it))}</span><span class="clamp">${esc(it.d)}</span>
-      <div class="la">${mine.shelf.has(it.k)?`<span class="onsh">На полке ✓</span>`:`<button class="btn red sm" data-add="${esc(it.k)}">На полку</button>`}</div></div></div>`).join(""):sq?`<div class="empty">Ничего не нашлось</div>`
-      :`<div class="shelfs">${COLLS.map((x,i)=>`<section class="cshelf"><div class="csh"><b>${esc(x.t)}</b><button class="pill sm" data-coll-i="${i}">Все →</button></div><div class="ctrack" data-track="${i}">${'<div class="ccard ph"></div>'.repeat(4)}</div></section>`).join("")}</div>`);
+  const R=it=>`<div class="lrow" data-s="${esc(it.k)}">${thumb(it)}<div class="lt"><b>${esc(it.t)}</b><span>${esc(metaOf(it))}</span><span class="clamp">${esc(it.d)}</span>
+      <div class="la">${mine.shelf.has(it.k)?`<span class="onsh">На полке ✓</span>`:`<button class="btn red sm" data-add="${esc(it.k)}">На полку</button>`}</div></div></div>`;
+  const draw=()=>{$("#sr").innerHTML=(speople.length&&sq?`<span class="label">Люди</span><div class="cast" style="margin-bottom:10px">${speople.map(c=>`<button type="button" data-person="${c.id}" data-pname="${esc(c.name)}"><img src="${IMG}w185${c.profile_path}" alt="" loading="lazy">${esc(c.name)}<small>${esc((c.known_for||[]).map(k=>k.title||k.name).slice(0,2).join(", "))}</small></button>`).join("")}</div>`:"")+(sres.length?sres.map(R).join(""):sq?`<div class="empty">Ничего не нашлось</div>`:"")+(ssim.length&&sq?`<span class="label" style="margin-top:12px;display:block">Похожие названия</span>`+ssim.map(R).join(""):"")+(sq?"":`<div class="shelfs">${COLLS.map((x,i)=>`<section class="cshelf"><div class="csh"><b>${esc(x.t)}</b><button class="pill sm" data-coll-i="${i}">Все →</button></div><div class="ctrack" data-track="${i}">${'<div class="ccard ph"></div>'.repeat(4)}</div></section>`).join("")}</div>`);
     if(!sq&&!sres.length)fillShelves()};
-  draw();let t;$("#sq").oninput=e=>{clearTimeout(t);t=setTimeout(async()=>{sq=e.target.value.trim();if(collOpen!=null&&sq){collOpen=null;$("#cBack")?.parentElement.nextElementSibling?.remove();$("#cBack")?.parentElement.remove()}if(!sq){sres=[];return draw()}
+  draw();let t;$("#sq").oninput=e=>{clearTimeout(t);t=setTimeout(async()=>{sq=e.target.value.trim();if(collOpen!=null&&sq){collOpen=null;$("#cBack")?.parentElement.nextElementSibling?.remove();$("#cBack")?.parentElement.remove()}if(!sq){sres=[];ssim=[];return draw()}
     try{const r=await tmdb("/search/multi",{query:sq,include_adult:"false"});speople=(r.results||[]).filter(x=>x.media_type==="person"&&x.profile_path).slice(0,8);
       sres=(r.results||[]).filter(x=>(x.media_type==="movie"||x.media_type==="tv")&&x.poster_path).map(x=>itemFrom(x)).slice(0,20);
       if(!sres.length){/* е/ё и знаки препинания: TMDB ищет строго, поэтому берём начало первого слова и сверяем сами */
         const nz=s=>(s||"").toLowerCase().replace(/ё/g,"е").replace(/[^\p{L}\p{N}]+/gu," ").trim(),ws=nz(sq).split(" ").filter(Boolean);
         if(ws.length){const w=ws[0],ix=w.indexOf("е"),pre=w.slice(0,ix>=3?ix:Math.min(w.length,4));
           const pg=await Promise.all([1,2].map(p=>tmdb("/search/multi",{query:pre,include_adult:"false",page:String(p)}).catch(()=>({results:[]}))));
-          const seen=new Set();sres=pg.flatMap(j=>j.results||[]).filter(x=>(x.media_type==="movie"||x.media_type==="tv")&&x.poster_path).filter(x=>{const tw=nz(x.title||x.name).split(" "),ok=ws.every(q=>tw.some(t=>t.startsWith(q)));const k=x.media_type+x.id;if(!ok||seen.has(k))return false;seen.add(k);return true}).map(x=>itemFrom(x)).slice(0,20)}}}catch(err){sres=[];speople=[]}draw()},300)};
+          const seen=new Set();sres=pg.flatMap(j=>j.results||[]).filter(x=>(x.media_type==="movie"||x.media_type==="tv")&&x.poster_path).filter(x=>{const tw=nz(x.title||x.name).split(" "),ok=ws.every(q=>tw.some(t=>t.startsWith(q)));const k=x.media_type+x.id;if(!ok||seen.has(k))return false;seen.add(k);return true}).map(x=>itemFrom(x)).slice(0,20)}}
+      ssim=await similarTitles(sq,sres)}catch(err){sres=[];speople=[];ssim=[]}draw()},300)};
   const cb=$("#cBack");if(cb)cb.onclick=()=>{collOpen=null;sres=[];renderSearch()};
   const cs=$("#cSwipe");if(cs)cs.onclick=()=>{const l=sres.filter(x=>!mine.swipes.has(x.k)&&!mine.shelf.has(x.k));if(!l.length)return toast("Всё из подборки вы уже видели");deck=l;hist=[];go("swipe");toast("Свайпаете подборку «"+c.t.replace(/^\S+\s/,"")+"»")};
   $("#main").onclick=async e=>{const ct=e.target.closest("[data-ctr]");if(ct){e.stopPropagation();const it=ROWIT.get(ct.dataset.ctr);if(it)playTrailer(it,trailerOf(await details(it)));return}
