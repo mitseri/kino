@@ -876,6 +876,32 @@ const COLLS=[{t:"🔥 Тренды недели",p:"/trending/all/week"},{t:"�
   {t:"👨‍👩‍👧 С семьёй",p:"/discover/movie",q:{with_genres:"10751","vote_count.gte":"1000",sort_by:"vote_average.desc"}},{t:"🇺🇦 Украинское кино",p:"/discover/movie",q:{with_origin_country:"UA","vote_count.gte":"10",sort_by:"popularity.desc"}},
   {t:"⏱ До полутора часов",p:"/discover/movie",q:{"with_runtime.lte":"95","vote_count.gte":"2000",sort_by:"vote_average.desc"}},{t:"🕵️ Детективы",p:"/discover/tv",q:{with_genres:"9648|80","vote_count.gte":"500",sort_by:"vote_average.desc",without_genres:"16"}},
   {t:"🎄 Уютное на вечер",p:"/discover/movie",q:{with_genres:"10751|35|10749",without_genres:"27,53,80","vote_count.gte":"800",sort_by:"popularity.desc"}}];
+/* dynamic collections: new this month, seasonal (by date), weekly rotation. Index 0 (trends) must stay first. */
+function dynColls(){
+  const d=new Date(),m=d.getMonth()+1,day=d.getDate(),out=[];
+  const wk=Math.floor((d-new Date(d.getFullYear(),0,1))/6048e5);
+  const POOL=[
+    {t:"📼 Кино 90-х",q:{"primary_release_date.gte":"1990-01-01","primary_release_date.lte":"1999-12-31","vote_count.gte":"2000",sort_by:"vote_average.desc"}},
+    {t:"🕹 Кино 80-х",q:{"primary_release_date.gte":"1980-01-01","primary_release_date.lte":"1989-12-31","vote_count.gte":"1500",sort_by:"vote_average.desc"}},
+    {t:"💎 Скрытые жемчужины",q:{"vote_average.gte":"7.5","vote_count.gte":"300","vote_count.lte":"1500",sort_by:"vote_average.desc"}},
+    {t:"🎞 Нулевые",q:{"primary_release_date.gte":"2000-01-01","primary_release_date.lte":"2009-12-31","vote_count.gte":"2500",sort_by:"vote_average.desc"}},
+    {t:"🪖 Военное кино",q:{with_genres:"10752","vote_count.gte":"1500",sort_by:"vote_average.desc"}},
+    {t:"🤠 Вестерны",q:{with_genres:"37","vote_count.gte":"800",sort_by:"vote_average.desc"}},
+    {t:"🎶 Мюзиклы",q:{with_genres:"10402","vote_count.gte":"1000",sort_by:"vote_average.desc"}},
+    {t:"🎨 Мультфильмы для взрослых",q:{with_genres:"16",without_genres:"10751","vote_count.gte":"1500",sort_by:"vote_average.desc"}},
+    {t:"📜 По реальным событиям",q:{with_genres:"36","vote_count.gte":"1500",sort_by:"vote_average.desc"}},
+    {t:"🔪 Триллеры",q:{with_genres:"53","vote_count.gte":"3000",sort_by:"vote_average.desc"}},
+    {t:"🚀 Фантастика",q:{with_genres:"878","vote_count.gte":"3000",sort_by:"vote_average.desc"}},
+    {t:"🌿 Студия Ghibli",q:{with_companies:"10342","vote_count.gte":"300",sort_by:"vote_average.desc"}}];
+  const w=POOL[wk%POOL.length];out.push({t:"⭐ Подборка недели: "+w.t.replace(/^\S+\s/,""),p:"/discover/movie",q:w.q});
+  out.push({t:"🆕 Новинки этого месяца",p:"/discover/movie",q:{sort_by:"popularity.desc","vote_count.gte":"15","primary_release_date.gte":dayAgo(31),"primary_release_date.lte":dayAgo(0),with_release_type:"3|4|5"}});
+  const sea=(m===11&&day>=15)||m===12||(m===1&&day<=10)?{t:"🎄 Новогодний вечер",q:{with_keywords:"207317",with_genres:"35|10751|10749|14","vote_count.gte":"300",sort_by:"popularity.desc"}}
+    :(m===10&&day>=10)||(m===11&&day<=1)?{t:"🎃 Хэллоуин",q:{with_genres:"27","vote_count.gte":"800",with_keywords:"3335",sort_by:"popularity.desc"}}
+    :(m===2&&day<=14)?{t:"💕 К 14 февраля",q:{with_genres:"10749","vote_count.gte":"1500",sort_by:"popularity.desc"}}
+    :(m>=6&&m<=8)?{t:"☀️ Летний вечер",q:{with_genres:"12|35|10749","vote_count.gte":"1500",sort_by:"popularity.desc"}}:null;
+  if(sea)out.push({t:sea.t,p:"/discover/movie",q:sea.q});
+  return out}
+COLLS.splice(1,0,...dynColls());
 let collOpen=null;
 async function openColl(i){const c=COLLS[i];collOpen=i;sq="";
   $("#sr").innerHTML=`<div class="swempty"><div class="spin"></div></div>`;const kind=c.p.includes("/tv")?"tv":c.p.includes("/movie")?"movie":null;
