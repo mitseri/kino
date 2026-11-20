@@ -1,61 +1,67 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#9fc3de">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#d9cbb8">
 <title>Kinomatch · админка</title>
 <style>
-:root{--tx:#141c28;--mut:#5d6b80;--line:rgba(255,255,255,.55);--glass:rgba(255,255,255,.42);--glass2:rgba(255,255,255,.62);--dark:#141c28;--grn:#2fbf71;--yel:#f0b33c;--red:#e5566b;--blu:#3b82f6}
+:root{--tx:#1b1a18;--mut:#7a7165;--line:rgba(255,255,255,.65);--glass:rgba(255,255,255,.38);--glass2:rgba(255,255,255,.6);--dark:#1b1a18;--teal:#14a08a;--teal2:#0c7a6b;--grn:#2fa86b;--yel:#e0a53a;--red:#d9534f}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{background:#9fc3de}
+html{background:#d9cbb8}
 body{margin:0;min-height:100vh;color:var(--tx);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
- background:radial-gradient(60% 50% at 18% 95%,#4fb3ff 0,transparent 70%),radial-gradient(55% 50% at 80% 70%,#7a7cf0 0,transparent 70%),radial-gradient(50% 40% at 50% 30%,#b9e4ff 0,transparent 70%),linear-gradient(160deg,#b4d0e4,#8fb4e6);
+ background:radial-gradient(40% 45% at 8% 20%,#a9794a 0,transparent 70%),radial-gradient(40% 40% at 92% 12%,#c79a6a 0,transparent 70%),radial-gradient(50% 45% at 55% 100%,#8f6a48 0,transparent 70%),radial-gradient(45% 40% at 50% 45%,#f4ebdd 0,transparent 80%),linear-gradient(160deg,#e3d6c4,#cdb89f);
  background-attachment:fixed;padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom))}
-.shell{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:68px minmax(0,1fr) 290px;gap:16px;align-items:start}
-.glass{background:var(--glass);border:1px solid var(--line);border-radius:26px;backdrop-filter:blur(22px) saturate(1.3);-webkit-backdrop-filter:blur(22px) saturate(1.3);box-shadow:0 8px 30px rgba(40,70,130,.12)}
-.side,.info{padding:20px 14px;position:sticky;top:14px}
-.side{padding:12px 11px;border-radius:30px}
-.side h1{font-size:1.5rem;margin:2px 0 12px;text-align:center}
-.nav{display:flex;flex-direction:column;gap:6px;align-items:center}
-.nav button{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;width:46px;height:46px;background:none;border:0;border-radius:16px;color:var(--mut);transition:.18s}
-.nav button:hover{background:rgba(255,255,255,.4);transform:scale(1.08)}
-.nav button.on{background:var(--dark);color:#fff;box-shadow:0 6px 16px rgba(20,28,40,.3)}
-.nav em{font-style:normal;font-size:1.25rem;line-height:1}
-.nav b{display:none;font-weight:500}
-.nav sup{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--red);color:#fff;font-size:.66rem;line-height:18px;text-align:center;font-weight:700}
-.nav sup.z{background:#fff;color:var(--mut)}
-.nav button::after{content:attr(data-l);position:absolute;left:58px;top:50%;transform:translateY(-50%) scale(.9);background:var(--dark);color:#fff;font-size:.78rem;padding:5px 10px;border-radius:10px;white-space:nowrap;opacity:0;pointer-events:none;transition:.15s;z-index:9}
-.nav button:hover::after{opacity:1;transform:translateY(-50%) scale(1)}
+.wrap{max-width:1240px;margin:0 auto}
+.glass{background:var(--glass);border:1px solid var(--line);border-radius:26px;backdrop-filter:blur(24px) saturate(1.25);-webkit-backdrop-filter:blur(24px) saturate(1.25);box-shadow:0 10px 34px rgba(70,45,20,.14)}
 button{font:inherit;cursor:pointer;color:var(--tx)}
-.btn{background:var(--dark);color:#fff;border:0;border-radius:16px;padding:13px 18px;font-weight:600;width:100%}
-.btn.l{background:var(--glass2);color:var(--tx);border:1px solid var(--line)}
-.main{padding:16px;min-height:calc(100vh - 28px)}
-.top{display:flex;gap:10px;align-items:center;margin-bottom:12px}
-.top .t{flex:1;font-size:1.05rem;font-weight:700;padding-left:6px}.top small{display:block;font-weight:400;color:var(--mut);font-size:.74rem}
-.top .btn{width:auto;padding:11px 16px}
-.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
-.k{background:var(--glass2);border:1px solid var(--line);border-radius:20px;padding:14px 16px}
-.k span{color:var(--mut);font-size:.78rem}.k b{display:block;font-size:2rem;line-height:1.15;margin:2px 0}.k i{font-style:normal;font-size:.76rem;color:var(--mut)}
-.card{background:var(--glass2);border:1px solid var(--line);border-radius:20px;padding:14px 16px;margin-bottom:12px}
-.card h3{margin:0 0 10px;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);font-weight:600}
-.tabs{display:flex;gap:6px;margin-bottom:12px}.tabs button{flex:1;padding:8px 4px;font-size:.85rem;border-radius:12px;background:rgba(255,255,255,.4);border:1px solid var(--line);color:var(--mut)}.tabs button.on{background:var(--dark);color:#fff;border-color:var(--dark)}
-.chart{display:flex;align-items:flex-end;gap:5px;height:140px}.chart div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;font-size:.62rem;color:var(--mut)}
-.chart u{display:block;width:100%;border-radius:7px 7px 3px 3px;min-height:3px;opacity:.9}
+.topbar{display:flex;align-items:center;gap:12px;padding:8px 10px 8px 8px;border-radius:99px;margin-bottom:14px}
+.av{width:38px;height:38px;border-radius:50%;background:var(--dark);display:grid;place-items:center;font-size:1.1rem;flex:0 0 auto}
+.topbar .t{flex:1;min-width:0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.topbar .t small{color:var(--mut);font-weight:400;margin-left:8px}
+.rb{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--glass2);display:grid;place-items:center;font-size:1rem;flex:0 0 auto;transition:.18s}.rb:hover{background:#fff;transform:rotate(25deg)}
+.shell{display:grid;grid-template-columns:62px minmax(0,1fr);gap:14px;align-items:start}
+.side{padding:10px;border-radius:99px;position:sticky;top:14px}
+.nav{display:flex;flex-direction:column;gap:6px;align-items:center}
+.nav button{position:relative;display:grid;place-items:center;width:42px;height:42px;background:none;border:0;border-radius:50%;color:var(--mut);transition:.18s}
+.nav button:hover{background:rgba(255,255,255,.55);transform:scale(1.1)}
+.nav button.on{background:var(--dark);box-shadow:0 6px 16px rgba(27,26,24,.3)}
+.nav em{font-style:normal;font-size:1.12rem;line-height:1;filter:grayscale(.2)}.nav button.on em{filter:none}
+.nav b{display:none;font-weight:500}
+.nav sup{position:absolute;top:-2px;right:-2px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--red);color:#fff;font-size:.64rem;line-height:17px;text-align:center;font-weight:700}
+.nav button::after{content:attr(data-l);position:absolute;left:54px;top:50%;transform:translateY(-50%) scale(.9);background:var(--dark);color:#fff;font-size:.76rem;padding:5px 10px;border-radius:10px;white-space:nowrap;opacity:0;pointer-events:none;transition:.15s;z-index:9}
+.nav button:hover::after{opacity:1;transform:translateY(-50%) scale(1)}
+.main{padding:22px;min-height:calc(100vh - 100px)}
+.hello{font-size:1.9rem;font-weight:700;margin:0;letter-spacing:-.01em}.sub{color:var(--mut);margin:2px 0 18px;font-size:.9rem}
+.ov{display:grid;grid-template-columns:1.15fr 1fr 1.3fr;gap:12px}
+.card{background:var(--glass2);border:1px solid var(--line);border-radius:22px;padding:16px 18px}
+.card h3{margin:0 0 10px;font-size:.78rem;color:var(--mut);font-weight:600}
+.big{font-size:2.2rem;font-weight:700;line-height:1.1;letter-spacing:-.02em}
+.hint{color:var(--mut);font-size:.78rem}.pill{display:inline-block;font-size:.7rem;padding:2px 9px;border-radius:99px;background:rgba(47,168,107,.16);color:var(--grn);font-weight:600}
+.btns{display:flex;gap:8px;margin:14px 0 12px}
+.btn{flex:1;border:0;border-radius:99px;padding:11px 14px;font-weight:600;background:var(--dark);color:#fff}.btn.l{background:#fff;color:var(--tx)}
+.mini{background:rgba(255,255,255,.55);border-radius:16px;padding:10px 12px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center}
+.mini b{display:block;font-size:1.15rem}.mini span{font-size:.7rem;color:var(--mut)}
+.col{display:grid;gap:12px;align-content:start}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid2 .card{padding:14px 16px}.grid2 .big{font-size:1.9rem}
+.teal{background:linear-gradient(145deg,var(--teal),var(--teal2));color:#fff;border-color:transparent;box-shadow:0 10px 24px rgba(12,122,107,.35)}.teal h3,.teal .hint{color:rgba(255,255,255,.8)}.teal .pill{background:rgba(255,255,255,.25);color:#fff}
+.seg{display:inline-flex;background:rgba(255,255,255,.55);border-radius:99px;padding:3px;margin-bottom:12px;gap:2px}.seg button{border:0;background:none;border-radius:99px;padding:6px 12px;font-size:.78rem;color:var(--mut)}.seg button.on{background:var(--dark);color:#fff}
+.chart{display:flex;align-items:flex-end;gap:5px;height:170px}.chart div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;font-size:.62rem;color:var(--mut);gap:2px}
+.chart u{display:block;width:100%;border-radius:8px 8px 3px 3px;min-height:4px;background:linear-gradient(180deg,var(--teal),#0f5f55)}
+.chart div.td u{background:linear-gradient(180deg,#e9b44c,#b27d1b)}
+.full{margin-top:12px}
 .row{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:8px;background:var(--glass2);border:1px solid var(--line);border-radius:18px}
 .row .d{flex:0 0 10px;height:10px;border-radius:50%;background:var(--yel)}.row .d.g{background:var(--grn)}.row .d.r{background:var(--red)}
 .row .a{flex:1;min-width:0}.row b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.row small{color:var(--mut);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .row .r{text-align:right;white-space:nowrap;color:var(--mut);font-size:.78rem}
-.bar{display:flex;align-items:center;gap:10px;margin:9px 0;font-size:.86rem}.bar em{flex:0 0 36%;font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bar s{flex:1;height:9px;background:rgba(255,255,255,.55);border-radius:6px;overflow:hidden}.bar s i{display:block;height:100%;background:linear-gradient(90deg,#4fb3ff,#7a7cf0);border-radius:6px}.bar span{width:32px;text-align:right;color:var(--mut)}
-.info h2{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:0 0 4px;font-weight:600}
-.info .big{font-size:1.4rem;font-weight:700;margin-bottom:10px}
-.kv{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.6);font-size:.9rem}.kv span{color:var(--mut)}
-.info .btns{display:grid;gap:8px;margin-top:18px}
-.login{max-width:360px;margin:16vh auto;padding:30px 22px;text-align:center}.login input{width:100%;font:inherit;color:var(--tx);background:var(--glass2);border:1px solid var(--line);border-radius:16px;padding:13px;margin:16px 0 10px;outline:0}
+.bar{display:flex;align-items:center;gap:10px;margin:10px 0;font-size:.86rem}.bar em{flex:0 0 36%;font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bar s{flex:1;height:9px;background:rgba(255,255,255,.7);border-radius:6px;overflow:hidden}.bar s i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),#e0a53a);border-radius:6px}.bar span{width:32px;text-align:right;color:var(--mut)}
+.donut{display:flex;align-items:center;gap:18px;flex-wrap:wrap}.ring{width:130px;height:130px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto}.ring div{width:84px;height:84px;border-radius:50%;background:#f6efe5;display:grid;place-items:center;text-align:center;font-size:.7rem;color:var(--mut);line-height:1.2}.ring b{display:block;color:var(--tx);font-size:1.15rem}
+.leg{flex:1;min-width:140px;font-size:.84rem}.leg p{margin:6px 0;display:flex;align-items:center;gap:8px}.leg i{width:10px;height:10px;border-radius:50%;flex:0 0 auto}.leg span{margin-left:auto;color:var(--mut)}
+.login{max-width:360px;margin:16vh auto;padding:30px 22px;text-align:center}.login input{width:100%;font:inherit;color:var(--tx);background:var(--glass2);border:1px solid var(--line);border-radius:99px;padding:13px 18px;margin:16px 0 10px;outline:0}.login .btn{width:100%}
 .err{color:var(--red);font-size:.85rem;min-height:1.2em;margin-top:8px}.mut{color:var(--mut);font-size:.82rem}.empty{color:var(--mut);padding:8px 2px}
-@media(max-width:960px){
- .shell{grid-template-columns:1fr}.side{position:static;padding:8px;border-radius:24px}.side h1{display:none}
- .nav{flex-direction:row;justify-content:space-around;gap:4px}.nav button{flex:1;width:auto;height:44px;border-radius:14px}.nav button::after{display:none}.nav button.on b{display:inline;font-size:.8rem}
- .info{position:static;order:-1;padding:16px}.info .kvx{display:none}.info .btns{grid-template-columns:1fr 1fr;margin-top:6px}.info .big{margin-bottom:4px}
- .main{min-height:0}.kpis{grid-template-columns:1fr 1fr}
+@media(max-width:980px){.ov{grid-template-columns:1fr 1fr}.ov>.chartc{grid-column:1/-1}}
+@media(max-width:720px){
+ .shell{grid-template-columns:1fr}.side{position:static;padding:6px;order:2;position:sticky;bottom:10px;top:auto;z-index:20;box-shadow:0 10px 34px rgba(70,45,20,.25)}
+ .nav{flex-direction:row;justify-content:space-around}.nav button{width:auto;flex:1;border-radius:99px;grid-auto-flow:column;gap:6px;height:42px}.nav button::after{display:none}.nav button.on b{display:inline;color:#fff;font-size:.8rem}
+ .main{padding:16px;min-height:0}.hello{font-size:1.5rem}.ov{grid-template-columns:1fr}.topbar .t small{display:none}
 }
 </style></head><body>
 <div id="app"></div>
@@ -76,27 +82,40 @@ async function load(first){
     clearInterval(timer);timer=setInterval(()=>load(false),60000)}
   catch(e){if(D)return;app.innerHTML=`<div class="login glass"><div class="err">Не удалось загрузить: ${esc(e.message)}</div><button class="btn" id="rt">Повторить</button></div>`;$("#rt").onclick=()=>load(true)}}
 function draw(){
-  const t=D.totals,S=D.series,mx=Math.max(1,...S.map(x=>x[tab])),col={visits:"#3b82f6",regs:"#2fbf71",swipes:"#f0b33c"}[tab];
-  const bars=(arr,k)=>{const m=Math.max(1,...arr.map(x=>x.n));return arr.map(x=>`<div class="bar"><em>${esc(x[k]||x.ref||x.dev||"прямой")}</em><s><i style="width:${x.n/m*100}%"></i></s><span>${x.n}</span></div>`).join("")||'<div class="empty">Пока пусто</div>'};
-  const NAV=[["over","Обзор","",""],["users","Люди",D.users.length,"👥"],["src","Источники","","🧭"],["vis","Визиты",D.visits.length,"👀"],["err","Ошибки",D.errors.length,"⚠️"]];NAV[0][3]="📊";
-  const K=(l,v,s,c)=>`<div class="k"><span>${l}</span><b${c?` style="color:${c}"`:""}>${v}</b><i>${s}</i></div>`;
+  const t=D.totals,S=D.series,mx=Math.max(1,...S.map(x=>x[tab]));
+  const bars=(arr,k)=>{const m=Math.max(1,...arr.map(x=>x.n));return arr.map(x=>`<div class="bar"><em>${esc(x[k]||"прямой")}</em><s><i style="width:${x.n/m*100}%"></i></s><span>${x.n}</span></div>`).join("")||'<div class="empty">Пока пусто</div>'};
+  const COL=["#14a08a","#e0a53a","#1b1a18","#c9744a","#8a7ee0","#9aa5ad"];
+  const donut=arr=>{const tot=arr.reduce((a,x)=>a+x.n,0);if(!tot)return'<div class="empty">Пока пусто</div>';let acc=0;const seg=arr.slice(0,6).map((x,i)=>{const a=acc/tot*360;acc+=x.n;return`${COL[i]} ${a}deg ${acc/tot*360}deg`});if(acc<tot)seg.push(`#d6cbbd ${acc/tot*360}deg 360deg`);
+    return`<div class="donut"><div class="ring" style="background:conic-gradient(${seg.join(",")})"><div><span><b>${tot}</b>за 7 дн</span></div></div><div class="leg">${arr.slice(0,6).map((x,i)=>`<p><i style="background:${COL[i]}"></i>${esc(x.dev||"?")}<span>${Math.round(x.n/tot*100)}%</span></p>`).join("")}</div></div>`};
+  const NAV=[["over","Обзор","📊"],["users","Люди","👥"],["src","Источники","🧭"],["vis","Визиты","👀"],["err","Ошибки","⚠️"]];
+  const h=new Date().getHours(),greet=h<5?"Доброй ночи":h<12?"Доброе утро":h<18?"Добрый день":"Добрый вечер";
+  const dt=new Date().toLocaleDateString("ru",{weekday:"long",day:"numeric",month:"long"});
+  const visRow=v=>`<div class="row"><i class="d ${v.guest?"":"g"}"></i><div class="a"><b>${esc(v.ev)} · ${v.guest?"гость":"вошёл"}</b><small>${esc(v.dev||"?")} · ${esc(v.lang||"")} · ${esc(v.ref||"прямой")} · #${esc(v.sid)}</small></div><div class="r">${ago(v.at)}</div></div>`;
   const S_={
-   over:`<div class="kpis">${K("Визитов за 24 ч",t.visits_24h,"за 7 дн: "+t.visits_7d)}${K("Регистраций",t.regs,"+"+t.regs_24h+" за сутки · +"+t.regs_7d+" за нед.")}${K("Свайпов за 24 ч",t.swipes_24h,"всего: "+t.swipes)}${K("Свайпали (7 дн)",t.swipers_7d,"всего людей: "+t.swipers)}${K("Пар создано",t.paired,"&nbsp;")}${K("Ошибок за 24 ч",t.errors_24h,"гостей 7 дн: "+t.guests_7d,t.errors_24h?"var(--red)":"")}</div>
-     <div class="card"><h3>Последние 14 дней</h3><div class="tabs">${[["visits","Визиты"],["regs","Регистрации"],["swipes","Свайпы"]].map(([k,n])=>`<button data-t="${k}" class="${tab===k?"on":""}">${n}</button>`).join("")}</div>
-     <div class="chart">${S.map(x=>`<div><span>${x[tab]||""}</span><u style="height:${x[tab]/mx*86}%;background:${col}"></u><span>${x.day.slice(8)}</span></div>`).join("")}</div></div>`,
-   users:D.users.map(u=>`<div class="row"><i class="d ${u.paired?"g":""}"></i><div class="a"><b>${esc(u.name||u.username||"без имени")}${u.paired?" · пара":""}</b><small>${u.username?"@"+esc(u.username)+" · ":""}${esc(u.lang||"")} · рег. ${ago(u.created_at)}</small></div><div class="r">${u.swipes} свайп.<br>${u.last_swipe?"был "+ago(u.last_swipe):"не свайпал"}</div></div>`).join("")||'<div class="empty">Нет</div>',
-   src:`<div class="card"><h3>Откуда приходят (7 дн)</h3>${bars(D.refs,"ref")}</div><div class="card"><h3>Устройства (7 дн)</h3>${bars(D.devs,"dev")}</div><div class="card"><h3>События (7 дн)</h3>${bars(D.evs.map(e=>({ref:e.ev,n:e.n})),"ref")}</div>`,
-   vis:D.visits.map(v=>`<div class="row"><i class="d ${v.guest?"":"g"}"></i><div class="a"><b>${esc(v.ev)} · ${v.guest?"гость":"вошёл"}</b><small>${esc(v.dev||"?")} · ${esc(v.lang||"")} · ${esc(v.ref||"прямой")} · #${esc(v.sid)}</small></div><div class="r">${ago(v.at)}</div></div>`).join("")||'<div class="empty">Нет</div>',
-   err:D.errors.map(e=>`<div class="row"><i class="d r"></i><div class="a"><b>${esc(e.msg)}</b><small>${esc(e.path)}</small></div><div class="r">${ago(e.at)}</div></div>`).join("")||'<div class="empty">Ошибок нет 🎉</div>'};
-  const title=NAV.find(n=>n[0]===sec)[1];
-  app.innerHTML=`<div class="shell">
-  <aside class="side glass"><h1>🎬 Kinomatch</h1><div class="nav">${NAV.map(([k,n,c,i])=>`<button data-s="${k}" data-l="${n}" title="${n}" class="${sec===k?"on":""}"><em>${i}</em><b>${n}</b>${k==="err"&&c?`<sup>${c}</sup>`:""}</button>`).join("")}</div></aside>
-  <main class="main glass"><div class="top"><div class="t">${title}<small>обновлено ${ago(D.now)} · авто раз в минуту</small></div><button class="btn l" id="rf">⟳ Обновить</button></div>${S_[sec]}</main>
-  <aside class="info glass"><h2>Сейчас</h2><div class="big">${t.visits_24h} визитов за сутки</div>
-   <div class="kvx"><div class="kv"><span>Регистраций</span><b>${t.regs}</b></div><div class="kv"><span>Свайпов за сутки</span><b>${t.swipes_24h}</b></div><div class="kv"><span>Пар</span><b>${t.paired}</b></div><div class="kv"><span>Ошибок за сутки</span><b style="color:${t.errors_24h?"var(--red)":"inherit"}">${t.errors_24h}</b></div></div>
-   <div class="btns"><button class="btn" id="open">Открыть сайт</button><button class="btn l" id="lo">Выйти</button></div></aside></div>`;
-  $("#rf").onclick=()=>load(false);$("#open").onclick=()=>window.open("/","_blank");$("#lo").onclick=()=>{delete localStorage.kmAdm;D=null;login()};
+   over:`<h1 class="hello">${greet}!</h1><p class="sub">${dt} · так идут дела у Kinomatch</p>
+    <div class="ov">
+     <div class="col"><div class="card"><h3>Визитов за 24 часа</h3><div class="big">${t.visits_24h}</div><span class="hint">за 7 дней: ${t.visits_7d} · гостей: ${t.guests_7d}</span>
+       <div class="btns"><button class="btn" id="rf">⟳ Обновить</button><button class="btn l" id="open">Открыть сайт</button></div>
+       <div class="mini"><div><b>${t.swipers_7d}</b><span>свайпали (7 дн)</span></div><div><b>${t.swipers}</b><span>всего людей</span></div><div><b>${t.swipes}</b><span>всего свайпов</span></div></div></div></div>
+     <div class="grid2" style="align-content:start">
+       <div class="card teal"><h3>Регистраций</h3><div class="big">${t.regs}</div><span class="pill">+${t.regs_24h} сутки</span> <span class="hint">+${t.regs_7d} нед.</span></div>
+       <div class="card"><h3>Свайпов за 24 ч</h3><div class="big">${t.swipes_24h}</div><span class="hint">всего ${t.swipes}</span></div>
+       <div class="card"><h3>Пар создано</h3><div class="big">${t.paired}</div><span class="hint">вдвоём смотрят</span></div>
+       <div class="card"><h3>Ошибок за 24 ч</h3><div class="big" style="color:${t.errors_24h?"var(--red)":"var(--grn)"}">${t.errors_24h}</div><span class="hint">${t.errors_24h?"смотри раздел ⚠️":"всё чисто"}</span></div></div>
+     <div class="card chartc"><h3>Последние 14 дней</h3><div class="seg">${[["visits","Визиты"],["regs","Регистрации"],["swipes","Свайпы"]].map(([k,n])=>`<button data-t="${k}" class="${tab===k?"on":""}">${n}</button>`).join("")}</div>
+       <div class="chart">${S.map(x=>`<div class="${tab==="swipes"?"td":""}"><span>${x[tab]||""}</span><u style="height:${x[tab]/mx*84}%"></u><span>${x.day.slice(8)}</span></div>`).join("")}</div></div>
+    </div>
+    <div class="card full"><h3>Недавняя активность</h3>${D.visits.slice(0,6).map(visRow).join("")||'<div class="empty">Нет</div>'}</div>`,
+   users:`<h1 class="hello">Люди</h1><p class="sub">Зарегистрировано: ${D.users.length}</p>`+(D.users.map(u=>`<div class="row"><i class="d ${u.paired?"g":""}"></i><div class="a"><b>${esc(u.name||u.username||"без имени")}${u.paired?" · пара":""}</b><small>${u.username?"@"+esc(u.username)+" · ":""}${esc(u.lang||"")} · рег. ${ago(u.created_at)}</small></div><div class="r">${u.swipes} свайп.<br>${u.last_swipe?"был "+ago(u.last_swipe):"не свайпал"}</div></div>`).join("")||'<div class="empty">Нет</div>'),
+   src:`<h1 class="hello">Источники</h1><p class="sub">За последние 7 дней</p><div class="card"><h3>Откуда приходят</h3>${bars(D.refs,"ref")}</div><div class="card full"><h3>Устройства</h3>${donut(D.devs)}</div><div class="card full"><h3>События</h3>${bars(D.evs.map(e=>({ref:e.ev,n:e.n})),"ref")}</div>`,
+   vis:`<h1 class="hello">Визиты</h1><p class="sub">Последние заходы на сайт</p>`+(D.visits.map(visRow).join("")||'<div class="empty">Нет</div>'),
+   err:`<h1 class="hello">Ошибки</h1><p class="sub">Что ломалось на сайте</p>`+(D.errors.map(e=>`<div class="row"><i class="d r"></i><div class="a"><b>${esc(e.msg)}</b><small>${esc(e.path)}</small></div><div class="r">${ago(e.at)}</div></div>`).join("")||'<div class="empty">Ошибок нет 🎉</div>')};
+  app.innerHTML=`<div class="wrap"><div class="glass topbar"><div class="av">🎬</div><div class="t">Kinomatch · админка<small>обновлено ${ago(D.now)} · авто раз в минуту</small></div><button class="rb" id="rf2" title="Обновить">⟳</button><button class="rb" id="lo" title="Выйти">⎋</button></div>
+  <div class="shell"><aside class="side glass"><div class="nav">${NAV.map(([k,n,i])=>`<button data-s="${k}" data-l="${n}" title="${n}" class="${sec===k?"on":""}"><em>${i}</em><b>${n}</b>${k==="err"&&D.errors.length?`<sup>${D.errors.length}</sup>`:""}</button>`).join("")}</div></aside>
+  <main class="main glass">${S_[sec]}</main></div></div>`;
+  const rf=()=>load(false);$("#rf2").onclick=rf;if($("#rf"))$("#rf").onclick=rf;if($("#open"))$("#open").onclick=()=>window.open("/","_blank");
+  $("#lo").onclick=()=>{delete localStorage.kmAdm;D=null;login()};
   document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw()});
-  document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{sec=b.dataset.s;draw()})}
+  document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{sec=b.dataset.s;draw();scrollTo(0,0)})}
 load(true);
 </script></body></html>
