@@ -407,7 +407,7 @@ const avatar=(n,pt,url)=>`<span class="av ${pt?"pt":""}">${url?`<img src="${esc(
 const myAv=()=>avatar(myName(),0,me?.avatar_url),ptAv=()=>avatar(ptName(),1,partner?.avatar_url);
 function topBar(title,sub){return `<div class="top">${me?.guest?`<button class="btn ghost sm" id="gHome" type="button" aria-label="На главную">${backSvg} Главная</button>`:""}<div class="grow"><h1>${title}</h1>${sub?`<div class="sub">${sub}</div>`:""}</div>
   <button class="me" id="meBtn" type="button"><span class="duo">${myAv()}${partner?ptAv():""}</span><span>${esc(myName())}</span></button></div>`}
-function go(v){view=v;document.querySelectorAll("#nav button").forEach(b=>b.setAttribute("aria-current",b.dataset.v===v));
+function go(v){view=v;document.querySelectorAll("#nav button").forEach(b=>b.setAttribute("aria-current",b.dataset.v===v));movePill();
   $("#main").onclick=null;({swipe:renderSwipeView,likes:renderLikes,matches:renderMatches,shelf:renderShelf,search:renderSearch})[v]();counts()}
 $("#nav").onclick=e=>{const b=e.target.closest("button");if(b)go(b.dataset.v)};
 document.addEventListener("click",e=>{if(e.target.closest("#gHome")){ls.set("guest",false);location.href=location.pathname;return}if(e.target.closest("#meBtn"))openProfile();if(e.target.closest("#pairBanner"))openProfile()});
@@ -1236,3 +1236,6 @@ async function start(session){
 /* ---------- rarely used features (kino-year, CSV import, match image) live in rare.js and load on first use ---------- */
 let RARE=null;const rare=()=>RARE||(RARE=new Promise((ok,no)=>{const sc=document.createElement("script");sc.src="/rare.js?v=1";sc.onload=ok;sc.onerror=()=>{RARE=null;no()};document.head.appendChild(sc)}));
 for(const n of["openYear","yearImage","runImport","matchImage"])window[n]=(...a)=>rare().then(()=>window["_"+n](...a)).catch(()=>toast("Нет связи, попробуйте ещё раз"));
+
+function movePill(){const n=document.getElementById("nav");if(!n)return;let p=document.getElementById("navPill");if(!p){p=document.createElement("span");p.id="navPill";n.prepend(p)}const b=n.querySelector('button[aria-current="true"]');if(!b||!b.offsetWidth){p.style.opacity=0;return}p.style.width=b.offsetWidth+"px";p.style.transform="translateX("+b.offsetLeft+"px)";p.style.opacity=1}
+addEventListener("resize",movePill);addEventListener("load",()=>setTimeout(movePill,50));
