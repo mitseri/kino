@@ -535,3 +535,9 @@ html.km-authed #land{display:none}
   .amb::after{animation:aurora 18s ease-in-out infinite alternate}
   @keyframes aurora{0%{background-position:0% 0%,100% 0%,50% 100%,0% 100%,0 0}50%{background-position:40% 30%,60% 40%,30% 70%,30% 60%,0 0}100%{background-position:100% 100%,0% 60%,80% 0%,70% 20%,0 0}}
 }
+/* panel fixes: no overflow, light-theme contrast */
+.ctrl2,.big2>*,.mini2{min-width:0}
+.ctrl2{overflow-x:clip}
+:root[data-theme=light] .bigb.no{background:linear-gradient(180deg,rgb(255 255 255/.4) 0%,rgb(255 255 255/.08) 46%,rgb(255 255 255/.04) 54%,rgb(255 255 255/.2) 100%),linear-gradient(135deg,#ff5d73,#ff8a5c);color:#fff;text-shadow:0 1px 2px rgb(120 10 30/.45)}
+:root[data-theme=light] .mb{background:rgb(255 255 255/.7);border-color:rgb(0 0 0/.08);color:#1b1b22;box-shadow:inset 0 1px 0 #fff,0 6px 14px -8px rgb(0 0 0/.25)}
+:root[data-theme=light] .mb:disabled{opacity:.5}
