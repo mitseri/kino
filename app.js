@@ -1237,5 +1237,17 @@ async function start(session){
 let RARE=null;const rare=()=>RARE||(RARE=new Promise((ok,no)=>{const sc=document.createElement("script");sc.src="/rare.js?v=1";sc.onload=ok;sc.onerror=()=>{RARE=null;no()};document.head.appendChild(sc)}));
 for(const n of["openYear","yearImage","runImport","matchImage"])window[n]=(...a)=>rare().then(()=>window["_"+n](...a)).catch(()=>toast("Нет связи, попробуйте ещё раз"));
 
-function movePill(){const n=document.getElementById("nav");if(!n)return;let p=document.getElementById("navPill");if(!p){p=document.createElement("span");p.id="navPill";n.prepend(p)}const b=n.querySelector('button[aria-current="true"]');if(!b||!b.offsetWidth){p.style.opacity=0;return}p.style.width=b.offsetWidth+"px";p.style.transform="translateX("+b.offsetLeft+"px)";p.style.opacity=1}
+function movePill(){const n=document.getElementById("nav");if(!n)return;let p=document.getElementById("navPill");if(!p){p=document.createElement("span");p.id="navPill";n.prepend(p)}const b=n.querySelector('button[aria-current="true"]');if(!b||!b.offsetWidth){p.style.opacity=0;return}
+const x1=b.offsetLeft,w1=b.offsetWidth,had=p.style.opacity==="1",x0=parseFloat(p.style.left)||0,w0=parseFloat(p.style.width)||0;p.style.opacity=1;p.style.left=x1+"px";p.style.width=w1+"px";
+if(!had||(x0===x1&&w0===w1)||matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+const r=x1>x0,L=Math.min(x0,x1),R=Math.max(x0+w0,x1+w1),px=v=>v+"px";
+const a=r?{left:px(x0),width:px(w0)}:{left:px(x0),width:px(w0)},mid=r?{left:px(x0+(x1-x0)*.25),width:px(R-(x0+(x1-x0)*.25)-0)}:{left:px(L),width:px(x0+w0-L-(x0-x1)*.25)};
+const stretch={left:px(L),width:px(R-L)};
+if(p._a)p._a.cancel();
+p._a=p.animate([
+{left:px(x0),width:px(w0),transform:"scale(1,1)",offset:0},
+{left:px(r?x0:L),width:px(R-(r?x0:L)),transform:"scale(1,.8)",offset:.45,easing:"cubic-bezier(.5,0,.2,1)"},
+{left:px(x1),width:px(w1),transform:"scale(1.04,.94)",offset:.8},
+{left:px(x1),width:px(w1),transform:"scale(1,1)",offset:1}
+],{duration:620,easing:"cubic-bezier(.4,0,.2,1)"})}
 addEventListener("resize",movePill);addEventListener("load",()=>setTimeout(movePill,50));
