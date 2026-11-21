@@ -149,7 +149,8 @@ body:not(.inapp) .amb{display:none}
 .nav button[aria-current="true"]::before{content:"";position:absolute;top:0;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:var(--red);box-shadow:0 0 12px var(--red)}
 .nav i{position:absolute;top:4px;left:calc(50% + 6px);font-style:normal;background:var(--red);color:#fff;font-size:.62rem;min-width:17px;height:17px;border-radius:9px;display:grid;place-items:center;padding:0 4px}
 .nav i.gold{background:var(--gold);color:#1a1300}
-.top{display:flex;align-items:center;gap:10px;padding-block:14px 10px}
+.top{display:flex;align-items:flex-start;gap:10px;padding-block:14px 10px;min-height:76px}
+.top .me{align-self:flex-start;margin-top:2px}
 .top .grow{flex:1;min-width:0}
 .top h1{font:900 1.45rem var(--display);margin:0;letter-spacing:-.035em;background:linear-gradient(90deg,#fff 40%,#ffb1b8);-webkit-background-clip:text;background-clip:text;color:transparent}
 .me{border:1px solid rgb(255 255 255/.08);background:rgb(26 26 31/.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:999px;padding:5px 12px 5px 5px;display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:800;font-size:.85rem;max-width:48%}
