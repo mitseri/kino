@@ -528,7 +528,10 @@ const TOUR=[
   ['#nav [data-v="shelf"]',"Полка","Хочу, смотрю, посмотрено. Оценки, свои списки, прогресс сериалов, 3D-вид, импорт и экспорт."],
   ['#nav [data-v="search"]',"Поиск и подборки","Найдите любой фильм по названию или откройте готовые подборки: «Для свидания», «Хоррор-вечер» и другие."],
   ["#meBtn","Профиль","Фото, код пары, ачивки и уровень, Telegram-уведомления, язык, тема и звуки. Обучение можно пройти здесь заново."]];
-async function startTour(force){if(!force&&ls.get("tourDone",false))return;if(view!=="swipe")go("swipe");
+function askTour(){return new Promise(res=>{modal(`<h2>Показать подсказки?</h2><p class="sub" style="margin:0">Коротко покажу, как свайпать, где мэтчи и полка. Это займёт меньше минуты.</p>
+    <button class="btn red big" type="button" id="tqY">Да, покажите</button><button class="btn big" type="button" id="tqN">Нет, разберусь сам</button>`);
+  const fin=v=>{closeModal();res(v)};$("#tqY").onclick=()=>fin(true);$("#tqN").onclick=()=>fin(false);const x=$("#mx"),md=$("#md");if(x)x.onclick=()=>fin(false);if(md)md.onclick=e=>{if(e.target.id==="md")fin(false)}})}
+async function startTour(force){if(!force&&ls.get("tourDone",false))return;if(!force&&!(await askTour())){ls.set("tourDone",true);return}if(view!=="swipe")go("swipe");
   for(let i=0;i<50&&!$("#stack .sc.front");i++)await new Promise(r=>setTimeout(r,150));
   const steps=TOUR.filter(t=>document.querySelector(t[0]));let i=0;
   const el=document.createElement("div");el.className="tour";el.innerHTML=`<div class="hole"></div><div class="tip" role="dialog" aria-live="polite"><b></b><p></p><div class="r"><span></span><button class="btn ghost sm" data-skip>Пропустить</button><button class="btn red" data-ok>Ясно</button></div></div>`;document.body.appendChild(el);
