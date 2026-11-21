@@ -1237,10 +1237,10 @@ async function start(session){
 let RARE=null;const rare=()=>RARE||(RARE=new Promise((ok,no)=>{const sc=document.createElement("script");sc.src="/rare.js?v=1";sc.onload=ok;sc.onerror=()=>{RARE=null;no()};document.head.appendChild(sc)}));
 for(const n of["openYear","yearImage","runImport","matchImage"])window[n]=(...a)=>rare().then(()=>window["_"+n](...a)).catch(()=>toast("Нет связи, попробуйте ещё раз"));
 
-function movePill(){const n=document.getElementById("nav");if(!n)return;let p=document.getElementById("navPill");if(!p){p=document.createElement("span");p.id="navPill";n.prepend(p)}const b=n.querySelector('button[aria-current="true"]');if(!b||!b.offsetWidth){p.style.opacity=0;return}
+function movePill(){const n=document.getElementById("nav");if(!n)return;let p=document.getElementById("navPill");if(!p){p=document.createElement("span");p.id="navPill";p._t0=Date.now();n.prepend(p)}const b=n.querySelector('button[aria-current="true"]');if(!b||!b.offsetWidth){p.style.opacity=0;return}
 const x1=b.offsetLeft,w1=b.offsetWidth,had=p.style.opacity==="1",x0=p._x==null?x1:p._x;p._x=x1;p.style.opacity=1;p.style.width=w1+"px";p.style.left="0px";
 const T=x=>"translate3d("+x+"px,0,0)";
-if(!had||x0===x1||matchMedia("(prefers-reduced-motion:reduce)").matches){p.style.transform=T(x1);return}
+if(!had||Date.now()-p._t0<1800||x0===x1||matchMedia("(prefers-reduced-motion:reduce)").matches){p.style.transform=T(x1);return}
 const sx=(Math.abs(x1-x0)+w1)/w1,mx=(x0+x1)/2;
 if(p._a)p._a.cancel();p.style.transform=T(x1);
 p._a=p.animate([
