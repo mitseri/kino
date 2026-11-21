@@ -1079,11 +1079,12 @@ function roomSummary(){if(!room)return;const n=room.people.length,list=(room.dec
   document.querySelectorAll("[data-rk]").forEach(b=>b.onclick=()=>{closeSheet();openDetail(list.find(o=>o.x.k===b.dataset.rk).x)});
   const rl=$("#rmRoll");if(rl)rl.onclick=()=>{const top=list.filter(o=>o.yes.length===list[0].yes.length),w=top[Math.floor(Math.random()*top.length)].x;closeSheet();confetti();snd("match");toast("🎲 Смотрим: «"+w.t+"»");openDetail(w)};
   $("#rmInv").onclick=()=>shareRoom(room);$("#rmOut").onclick=()=>{try{REAL_SB.removeChannel(roomCh)}catch(e){}room=null;closeSheet();resetDeck();go("swipe")}}
-async function roomsSection(){const el=$("#roomsBox");if(!el)return;const rs=await loadRooms();if(!$("#roomsBox"))return;
-  el.innerHTML=`<div class="sh"><h2>👥 Комнаты с друзьями</h2><span class="sub">2–8 человек</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><button class="btn red sm" id="rmNew">Создать комнату</button><button class="btn sm" id="rmCode">Войти по коду</button></div>
-    ${rs.map(r=>`<button class="lrow" style="width:100%;text-align:left" data-room="${r.id}"><div class="lt"><b>${esc(r.name)}</b><span>код ${esc(r.code)} · ${fdate(r.created_at)}</span></div></button>`).join("")}`;
+async function roomsSection(){const el=$("#roomsBox");if(!el)return;
+  el.innerHTML=`<div class="sh"><h2>👥 Комнаты с друзьями</h2><span class="sub">2–8 человек</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><button class="btn red sm" id="rmNew">Создать комнату</button><button class="btn sm" id="rmCode">Войти по коду</button></div><div id="rmList"></div>`;
   $("#rmNew").onclick=createRoom;$("#rmCode").onclick=()=>{sheet(`<h2>Войти в комнату</h2><input id="rmC" maxlength="6" placeholder="Код из 6 символов" style="text-transform:uppercase"><div class="sticky"><button class="btn red" id="rmJ" style="flex:1">Войти</button></div>`);$("#rmJ").onclick=()=>{const c=$("#rmC").value.trim();if(c){closeSheet();joinRoom(c)}}};
-  el.querySelectorAll("[data-room]").forEach(b=>b.onclick=()=>enterRoom(rs.find(r=>r.id===b.dataset.room)))}
+  const rs=await loadRooms();const L=$("#rmList");if(!L)return;
+  L.innerHTML=rs.map(r=>`<button class="lrow" style="width:100%;text-align:left" data-room="${r.id}"><div class="lt"><b>${esc(r.name)}</b><span>код ${esc(r.code)} · ${fdate(r.created_at)}</span></div></button>`).join("");
+  L.querySelectorAll("[data-room]").forEach(b=>b.onclick=()=>enterRoom(rs.find(r=>r.id===b.dataset.room)))}
 
 /* ---------- public profile ---------- */
 async function openPublic(u){let j=null;try{j=(await REAL_SB.rpc("km_public",{u})).data}catch(e){}const L=$("#layer");

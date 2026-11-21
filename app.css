@@ -306,7 +306,7 @@ select{background:var(--surface);color:var(--ink);border:1px solid var(--line);b
 :root[data-theme=light] .sheet{box-shadow:0 -10px 40px rgb(0 0 0/.15)}
 :root[data-theme=light] .scrim,:root[data-theme=light] .modal{background:rgb(20 20 25/.45)}
 :root[data-theme=light] .pcard .pt,:root[data-theme=light] .pcard .ps{color:#fff}
-.view{animation:vin .3s cubic-bezier(.2,.8,.3,1)}@keyframes vin{from{opacity:0;transform:translateY(12px)}}
+.view{animation:vin .3s cubic-bezier(.2,.8,.3,1)}@keyframes vin{from{opacity:0}}
 .detail{animation:din .34s cubic-bezier(.2,.9,.3,1)}@keyframes din{from{opacity:0;transform:translateY(40px) scale(.98)}}
 .detail .dhero img{animation:hz 1.2s ease-out}@keyframes hz{from{transform:scale(1.08)}}
 .sheet{animation:sin .3s cubic-bezier(.2,.9,.3,1)}@keyframes sin{from{transform:translateY(60px);opacity:.4}}
