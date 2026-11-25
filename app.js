@@ -366,7 +366,7 @@ async function catPull(c){
   if(c.yes.length)q=q.overlaps("genres",c.yes);if(c.no.length)q=q.not("genres","ov","{"+c.no.join(",")+"}");
   const {data,error}=await q;if(error)throw error;
   return (data||[]).filter(x=>x.poster).map(x=>itemFrom({id:x.id,title:x.title,original_title:x.orig,release_date:x.year+"-01-01",vote_average:x.rating,overview:"",poster_path:x.poster,genre_ids:x.genres||[],original_language:x.lang},x.kind))}
-function seenK(k){return mine.swipes.has(k)||mine.shelf.has(k)||deck.some(x=>x.k===k)}
+function seenK(k){return mine.swipes.has(k)||mine.shelf.has(k)||deck.some(x=>x.k===k)||!!room?.votes.get(k)?.has(me?.user_id)}
 function taste(){const w={};for(const r of mine.swipes.values()){const s=r.v==="like"?(r.mega?3:1.5):r.v==="nope"?-1:.6;(r.data?.g||[]).forEach(g=>w[g]=(w[g]||0)+s)}return w}
 function smartSort(items){if(mine.swipes.size<12)return items;const w=taste(),sc=it=>{const g=it.g||[];return g.reduce((a,x)=>a+(w[x]||0),0)/Math.max(1,g.length)/Math.max(1,mine.swipes.size/40)+(it.r||0)/4+Math.random()*1.6};
   return items.map(it=>[sc(it),it]).sort((a,b)=>b[0]-a[0]).map(x=>x[1])}
@@ -376,7 +376,7 @@ async function becauseYouLiked(){const p=prefs||{};if(p.person?.id||p.fresh||nig
     const rec=(r.results||[]).filter(x=>x.poster_path&&x.overview).map(x=>itemFrom(x,x.media_type||base.kind)).filter(x=>!seenK(x.k)&&(!kinds||kinds.includes(x.ty))).slice(0,3);
     rec.forEach((x,i)=>{x.why=base.t;deck.splice(Math.min(deck.length,2+i*3),0,x)})}catch(e){}}
 async function fill(min=8){
-  if(loading||night||room)return;loading=true;
+  if(loading||night)return;loading=true;
   try{let guard=0;
     while(deck.length<min&&src.some(s=>!s.done)&&guard++<12){
       const live=src.filter(s=>!s.done),s=live[guard%live.length];s.page++;
@@ -398,6 +398,7 @@ async function fill(min=8){
     const rs=[...recsIn.values()].filter(r=>!r.seen&&r.data?.kind&&!mine.swipes.has(r.tmdb)&&!deck.some(x=>x.k===r.tmdb)).map(r=>r.data);if(rs.length)deck.unshift(...rs);
     deckErr=false;if(Math.random()<.6)await becauseYouLiked();
   }catch(e){deckErr=true}finally{loading=false}
+  if(room)await roomMix();
 }
 function resetDeck(){deck=[];hist=[];buildSources();renderSwipe(true);fill().then(()=>renderSwipe())}
 
@@ -567,10 +568,10 @@ function tilt(el){if(!matchMedia("(hover:hover)").matches)return;const g=el.quer
 function renderSwipeView(){
   const p=prefs||DEF_PREFS(),nf=(p.yes?.length||0)+(p.no?.length||0)+(p.eras?.length||0)+(p.minR?1:0)+(p.mood?1:0)+(p.len?1:0)+(p.cc?.length||0)+(p.prov?.length||0),kk=p.fresh?"fresh":p.kinds?.length===1?p.kinds[0]:"";
   $("#main").innerHTML=`<div class="view swv" style="overflow:hidden"><div class="wrap pad" style="width:100%">${topBar("Свайп",partner?`Вы с ${esc(ptName())} в паре`:"")}
-    ${room?`<div class="nightbar"><span style="font-size:1.5rem">👥</span><span class="grow"><b>Комната «${esc(room.name)}»</b><span id="roomInfo">${roomInfo()}</span></span><button class="btn sm" id="roomEnd">Итоги</button></div>`:night?`<div class="nightbar"><span style="font-size:1.5rem">🍿</span><span class="grow"><b>Вечер кино с ${esc(ptName())}</b><span id="nightInfo">${nightInfo()}</span></span><button class="btn sm" id="nightEnd">Итоги</button></div>`
+    ${room?`<div class="nightbar"><span class="grow"><b>👥 Комната «${esc(room.name)}»</b><span id="roomInfo">${roomInfo()}</span></span><button class="btn sm" id="roomEnd">Итоги</button><button class="btn sm" id="roomOut">✕ Выйти</button></div>`:night?`<div class="nightbar"><span style="font-size:1.5rem">🍿</span><span class="grow"><b>Вечер кино с ${esc(ptName())}</b><span id="nightInfo">${nightInfo()}</span></span><button class="btn sm" id="nightEnd">Итоги</button></div>`
       :""}
-    ${night||room?"":p.person?`<div class="row"><button class="pill act" id="noPerson">🎭 ${esc(p.person.name)} <b>✕</b></button></div>`:""}
-    <div class="row" id="kinds" ${night||room?"hidden":""}><button class="pill sel ${kk&&!p.person?"act":""}" id="kindBtn" aria-haspopup="true">${esc(([{k:"",t:"Всё"},{k:"fresh",t:"🆕 Новинки"},...KINDS].find(x=>x.k===kk&&!p.person)||{t:"Всё"}).t)}<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg></button><button class="pill" id="trBtn">🔥 Тренды</button>
+    ${night?"":p.person?`<div class="row"><button class="pill act" id="noPerson">🎭 ${esc(p.person.name)} <b>✕</b></button></div>`:""}
+    <div class="row" id="kinds" ${night?"hidden":""}><button class="pill sel ${kk&&!p.person?"act":""}" id="kindBtn" aria-haspopup="true">${esc(([{k:"",t:"Всё"},{k:"fresh",t:"🆕 Новинки"},...KINDS].find(x=>x.k===kk&&!p.person)||{t:"Всё"}).t)}<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg></button><button class="pill" id="trBtn">🔥 Тренды</button>
       <button class="pill ${nf?"act":""}" id="flt"><svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Фильтры${nf?` <b>${nf}</b>`:""}</button></div></div>
     <div class="stage"><div class="stack" id="stack"></div></div>
     <div class="ctrl2 pad">
@@ -590,7 +591,7 @@ function renderSwipeView(){
     mn.innerHTML=[{k:"",t:"Всё"},{k:"fresh",t:"🆕 Новинки"},...KINDS].map(x=>`<button data-k="${x.k}" class="${x.k===cur?"on":""}">${x.t}</button>`).join("");document.body.appendChild(mn);
     mn.onclick=ev=>{const b=ev.target.closest("[data-k]");if(!b)return;mn.remove();const v=b.dataset.k,p={...DEF_PREFS(),...(prefs||{})};p.person=null;p.fresh=v==="fresh";p.kinds=v&&!p.fresh?[v]:[];savePrefs(p)};
     setTimeout(()=>document.addEventListener("click",function cl(ev){if(!mn.contains(ev.target)){mn.remove();document.removeEventListener("click",cl)}}),0)};
-  const ng=$("#nightGo");if(ng)ng.onclick=startNight;const rg=$("#roomGo");if(rg)rg.onclick=()=>{if(needAccount("Комнаты с друзьями"))return;go("matches")};const re=$("#roomEnd");if(re)re.onclick=roomSummary;const ne=$("#nightEnd");if(ne)ne.onclick=nightSummary;
+  const ng=$("#nightGo");if(ng)ng.onclick=startNight;const rg=$("#roomGo");if(rg)rg.onclick=()=>{if(needAccount("Комнаты с друзьями"))return;go("matches")};const re=$("#roomEnd");if(re)re.onclick=roomSummary;const ro=$("#roomOut");if(ro)ro.onclick=leaveRoom;const ne=$("#nightEnd");if(ne)ne.onclick=nightSummary;
   const np=$("#noPerson");if(np)np.onclick=()=>savePrefs({...DEF_PREFS(),...prefs,person:null});$("#bS").onclick=()=>decide("seen");
   $("#flt").onclick=openPrefs;$("#bN").onclick=()=>decide("nope");$("#bY").onclick=()=>decide("like");$("#bM").onclick=()=>decide("mega");$("#bU").onclick=undo;
 
@@ -598,11 +599,11 @@ function renderSwipeView(){
   renderSwipe(!deck.length);if(deck.length<6)fill().then(()=>{if(view==="swipe")renderSwipe()});
 }
 async function savePrefs(p){prefs=p;resetDeck();renderSwipeView();await sb.from("km_prefs").upsert({user_id:me.user_id,prefs:p})}
-function cardHTML(it,front){const pl=partner&&theirs.swipes.get(it.k)?.v==="like",rc=recsIn.get(it.k);
+function cardHTML(it,front){const pl=partner&&theirs.swipes.get(it.k)?.v==="like",rc=recsIn.get(it.k),rw=room?roomYes(it.k):[];
   return `<div class="sc ${front?"front":"under"}" data-k="${esc(it.k)}">
     <div class="pic"><img class="bg" alt=""><img class="fg" alt="" ${it.poster?`src="${IMG}w500${it.poster}"`:""}>
       <div class="bars"></div><div class="glare"></div>
-      <div class="gen">${it.why?`<span class="why">✨ Похоже на «${esc(it.why)}»</span>`:""}${rc?`<span class="rc">💌 ${esc(ptName())} советует</span>`:""}${pl?`<span class="liked">♥ ${esc(ptName())} уже лайкнул(а)</span>`:""}<span class="ty">${TYPES[it.ty]||""}</span>${(it.g||[]).map(x=>`<span class="gn">${esc(cap1(x))}</span>`).join("")}</div>
+      <div class="gen">${it.why?`<span class="why">✨ Похоже на «${esc(it.why)}»</span>`:""}${rc?`<span class="rc">💌 ${esc(ptName())} советует</span>`:""}${rw.length?`<span class="liked">♥ Хочет ${esc(rw.map(roomName).join(", "))}</span>`:pl?`<span class="liked">♥ ${esc(ptName())} уже лайкнул(а)</span>`:""}<span class="ty">${TYPES[it.ty]||""}</span>${(it.g||[]).map(x=>`<span class="gn">${esc(cap1(x))}</span>`).join("")}</div>
       <span class="stamp yes">Нравится</span><span class="stamp no">Мимо</span><span class="stamp mega">Мега-лайк</span>
       <button class="trb" data-tr type="button"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>Трейлер</button>
       <div class="cap"><b>${esc(it.t)}</b><div class="m">${it.y?`<span>${esc(it.y)}</span>`:""}${it.r?`<span class="rt">★ ${it.r}</span>`:""}</div><div class="kf"></div></div></div>
@@ -657,7 +658,6 @@ function showFrame(el,i){const a=el._frames||[];if(!a.length)return;i=(i+a.lengt
 function renderSwipe(loadingNow){
   const S=$("#stack");if(!S)return;$("#bU").disabled=!hist.length;
   const off=!deck.length;["#bN","#bY","#bM"].forEach(s=>$(s).disabled=off);
-  if(!deck.length&&room){S.innerHTML=`<div class="swempty"><strong>Колода комнаты закончилась 👥</strong>Смотрим, что выбрала компания.<button class="btn red" id="rt">Итоги</button></div>`;$("#rt").onclick=roomSummary;return}
   if(!deck.length&&night){S.innerHTML=`<div class="swempty"><strong>Колода вечера закончилась 🍿</strong>Посмотрим, что совпало.<button class="btn red" id="rt">Итоги</button></div>`;$("#rt").onclick=nightSummary;return}
   if(!deck.length){S.innerHTML=deckErr?`<div class="swempty"><strong>Не загрузилось</strong>Проверьте интернет.<button class="btn red" id="rt">Ещё раз</button></div>`
     :(loading||loadingNow)?`<div class="swempty"><div class="spin"></div>Подбираю фильмы…</div>`
@@ -697,23 +697,24 @@ async function decide(v,dragged){
   if(busy||!deck.length)return;pairNudge();busy=true;const it=deck[0],el=$("#stack .sc.front"),like=v==="like"||v==="mega";
   if(el){const dir=like?1:-1;el.style.transition="transform .3s ease-out,opacity .3s";const sp=el.querySelector(".stamp."+(v==="mega"?"mega":like?"yes":"no"));if(v!=="seen")sp.style.opacity=1;
     el.style.transform=v==="mega"?`translateY(${-Math.max(innerHeight,700)}px)`:v==="seen"?`translateY(${Math.max(innerHeight,700)}px) scale(.9)`:`translate(${dir*Math.max(innerWidth,500)}px,${dragged?0:-30}px) rotate(${dir*24}deg)`;el.style.opacity=.6}
-  if(v!=="seen")burst(v,$(v==="mega"?"#bM":like?"#bY":"#bN"));snd(v);if(night)nightSend("swipe",{k:it.k,v:v==="seen"?"seen":like?"like":"nope"});if(room&&v!=="seen")roomVote(it,like?"like":"nope");if(!nativeHaptic(v==="mega"?"mega":"swipe")&&navigator.vibrate)try{navigator.vibrate(v==="mega"?[10,40,10]:8)}catch(e){}
+  if(v!=="seen")burst(v,$(v==="mega"?"#bM":like?"#bY":"#bN"));snd(v);if(night)nightSend("swipe",{k:it.k,v:v==="seen"?"seen":like?"like":"nope"});if(room)roomVote(it,like?"like":"nope");const rmY=room&&like?roomYes(it.k):[],rmN=rmY.map(roomName).join(", ");if(!nativeHaptic(v==="mega"?"mega":"swipe")&&navigator.vibrate)try{navigator.vibrate(v==="mega"?[10,40,10]:8)}catch(e){}
   const row={user_id:me.user_id,tmdb:it.k,v:v==="seen"?"seen":like?"like":"nope",mega:v==="mega",data:slim(it),at:new Date().toISOString()};
   mine.swipes.set(it.k,row);deck.shift();if(++swCount>=25)flushSw();if(me.guest&&mine.swipes.size%15===0)setTimeout(()=>needAccount(`Вы уже оценили ${mine.swipes.size} фильмов — сохраните их`),500);if(night){night.mine.set(it.k,row.v);setTimeout(nightUpd,0)}hist.push({it,mega:v==="mega",seen:v==="seen"});
   const rc=recsIn.get(it.k);if(rc&&!rc.seen){rc.seen=true;sb.from("km_recs").update({seen:true}).eq("id",rc.id).then(()=>{})}if(hist.length>30)hist.shift();
-  setTimeout(()=>{busy=false;renderSwipe();counts();if(deck.length<6)fill().then(()=>{if(view==="swipe")renderSwipe()})},230);
+  setTimeout(()=>{busy=false;renderSwipe();counts();if(deck.length<6)fill().then(()=>{if(view==="swipe")renderSwipe()});else if(room)roomMix()},230);
   const {error}=await sb.from("km_swipes").upsert(row);if(error)return toast("Не сохранилось: "+error.message);
   if(v==="mega"){await addToShelf(it);toast("Мега-лайк! «"+it.t+"» уже на полке")}
   if(v==="seen"){await addToShelf(it,"done");toast("«"+it.t+"» — в «Посмотрено». Оценить можно на полке")}
   const ps=theirs.swipes.get(it.k);if(like&&partner&&ps?.v==="like"){showMatch(it,v==="mega"&&ps.mega);tgCall({action:"notify",kind:"match",tmdb:it.k})}
+  else if(rmY.length)showMatch(it,false,rmN)
 }
-async function undo(){const h=hist.pop();if(!h)return;mine.swipes.delete(h.it.k);await sb.from("km_swipes").delete().match({user_id:me.user_id,tmdb:h.it.k});
+async function undo(){const h=hist.pop();if(!h)return;mine.swipes.delete(h.it.k);if(room){room.votes.get(h.it.k)?.delete(me.user_id);roomUpd()}await sb.from("km_swipes").delete().match({user_id:me.user_id,tmdb:h.it.k});
   if(h.mega||h.seen){mine.shelf.delete(h.it.k);await sb.from("km_shelf").delete().match({user_id:me.user_id,tmdb:h.it.k})}
   deck=deck.filter(x=>x.k!==h.it.k);deck.unshift(h.it);renderSwipe();counts()}
 async function addToShelf(it,status){const row={user_id:me.user_id,tmdb:it.k,data:slim(it),status:status||"want",rating:0,note:"",updated_at:new Date().toISOString()};
   mine.shelf.set(it.k,{...row,added_at:row.updated_at});const {error}=await sb.from("km_shelf").upsert(row);if(error)toast("Не сохранилось: "+error.message)}
-function showMatch(it,sup){initPush();confetti();snd("match");track(sup?"supermatch":"match");if(night&&!night.matches.some(x=>x.k===it.k))night.matches.push(it);if(sup)setTimeout(confetti,500);try{navigator.vibrate&&navigator.vibrate(sup?[30,50,30,50,30,50,80]:[20,60,20,60,40])}catch(e){}const L=$("#layer");L.innerHTML=`<div class="match ${sup?"super":""}" id="mt"><div class="mcard"><h3>${sup?"Супер-мэтч!":"Мэтч!"}</h3>${it.poster?`<img src="${IMG}w342${it.poster}" alt="">`:""}<p>${sup?`Вы с ${esc(ptName())} <b>оба поставили мега-лайк</b> — смотрите сегодня!<br>`:`Вы с ${esc(ptName())} оба хотите посмотреть<br>`}<b>${esc(it.t)}</b></p><div style="display:flex;gap:10px"><button class="btn red" id="mtS">На полку</button><button class="btn" id="mtOk">Дальше</button></div><button class="btn ghost sm" id="mtSh" style="margin-top:8px">📸 Поделиться мэтчем</button></div></div>`;
-  $("#mtOk").onclick=()=>L.innerHTML="";$("#mtS").onclick=async()=>{await addToShelf(it);L.innerHTML="";toast("На полке")};$("#mt").onclick=e=>{if(e.target.id==="mt")L.innerHTML=""};$("#mtSh").onclick=()=>matchImage(it,sup)}
+function showMatch(it,sup,who){initPush();confetti();snd("match");track(sup?"supermatch":"match");if(night&&!night.matches.some(x=>x.k===it.k))night.matches.push(it);if(sup)setTimeout(confetti,500);try{navigator.vibrate&&navigator.vibrate(sup?[30,50,30,50,30,50,80]:[20,60,20,60,40])}catch(e){}const L=$("#layer");L.innerHTML=`<div class="match ${sup?"super":""}" id="mt"><div class="mcard"><h3>${sup?"Супер-мэтч!":"Мэтч!"}</h3>${it.poster?`<img src="${IMG}w342${it.poster}" alt="">`:""}<p>${sup?`Вы с ${esc(ptName())} <b>оба поставили мега-лайк</b> — смотрите сегодня!<br>`:who?`Это хотят посмотреть: вы и ${esc(who)}<br>`:`Вы с ${esc(ptName())} оба хотите посмотреть<br>`}<b>${esc(it.t)}</b></p><div style="display:flex;gap:10px"><button class="btn red" id="mtS">На полку</button><button class="btn" id="mtOk">Дальше</button></div>${who?"":`<button class="btn ghost sm" id="mtSh" style="margin-top:8px">📸 Поделиться мэтчем</button>`}</div></div>`;
+  $("#mtOk").onclick=()=>L.innerHTML="";$("#mtS").onclick=async()=>{await addToShelf(it);L.innerHTML="";toast("На полке")};$("#mt").onclick=e=>{if(e.target.id==="mt")L.innerHTML=""};const sh=$("#mtSh");if(sh)sh.onclick=()=>matchImage(it,sup)}
 function playTrailer(it,tr){
   if(!tr){if(it)window.open("https://www.youtube.com/results?search_query="+encodeURIComponent((it.o||it.t)+" трейлер"),"_blank");return}
   const L=$("#modalRoot");L.innerHTML=`<div class="vid" id="vd"><button class="x" id="vx" aria-label="Закрыть">✕</button><div class="frame"><iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(tr.key)}?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="Трейлер"></iframe></div></div>`;
@@ -1051,7 +1052,7 @@ function addMsg(x){const m=$("#msgs");if(!m||chatFor!==x.tmdb||m.querySelector(`
 /* ---------- rooms for 2–8 friends ---------- */
 let roomCh=null;
 async function loadRooms(){if(!me||me.guest)return[];const {data}=await sb.from("km_rooms").select("*").order("created_at",{ascending:false});myRooms=data||[];return myRooms}
-async function createRoom(){if(needAccount("Комнаты с друзьями"))return;sheet(`<h2>👥 Новая комната</h2><p class="sub" style="margin:-6px 0 0">Все свайпают одну колоду из 36 фильмов по вашим фильтрам. В итогах — что понравилось всем или большинству.</p>
+async function createRoom(){if(needAccount("Комнаты с друзьями"))return;sheet(`<h2>👥 Новая комната</h2><p class="sub" style="margin:-6px 0 0">Каждый листает своё по своим фильтрам, сколько хочет. Что лайкнул один, обязательно появится у остальных. Все лайки — в «Итогах».</p>
     <input id="rmN" maxlength="40" placeholder="Название, например «Пятница у Димы»"><div class="sticky"><button class="btn red" id="rmGo" style="flex:1">Создать и позвать друзей</button></div>`);
   $("#rmGo").onclick=async()=>{const b=$("#rmGo");b.disabled=true;toast("Собираю колоду…");const keep=night;night=null;await fill(36);night=keep;
     const d=deck.filter(x=>!mine.swipes.has(x.k)).slice(0,36).map(slim);const {data,error}=await sb.rpc("km_room_create",{n:$("#rmN").value,d});
@@ -1059,26 +1060,71 @@ async function createRoom(){if(needAccount("Комнаты с друзьями")
 function roomLink(r){return SITE+"?room="+r.code}
 async function shareRoom(r){const url=roomLink(r),text=`Залетай в комнату «${r.name}» в Kinomatch — выберем фильм вместе 🍿`;if(navigator.share){try{await navigator.share({title:"Kinomatch",text,url});return}catch(e){}}copy(text+" "+url)}
 async function joinRoom(code){if(needAccount("Комнаты с друзьями"))return;const {data,error}=await sb.rpc("km_room_join",{c:code});if(error||!data||data.error)return toast(data?.error==="full"?"Комната заполнена (макс. 8)":data?.error==="not_found"?"Комната не найдена":"Не получилось войти");await enterRoom(data);toast("Вы в комнате «"+data.name+"»")}
-async function enterRoom(r){room={...r,people:[],votes:new Map()};const [pp,vs]=await Promise.all([sb.rpc("km_room_people",{r:r.id}),sb.from("km_room_swipes").select("*").eq("room_id",r.id)]);
-  room.people=pp.data||[];(vs.data||[]).forEach(v=>{if(!room.votes.has(v.tmdb))room.votes.set(v.tmdb,new Map());room.votes.get(v.tmdb).set(v.user_id,v.v)});
-  const done=new Set([...room.votes.entries()].filter(([,m])=>m.has(me.user_id)).map(([k])=>k));deck=(r.deck||[]).filter(x=>!done.has(x.k));hist=[];
+async function enterRoom(r){night=null;const cur=room={...r,people:[],votes:new Map(),items:new Map((r.deck||[]).map(x=>[x.k,x]))};hist=[];
+  const [pp]=await Promise.all([sb.rpc("km_room_people",{r:r.id}),roomLoadVotes()]);if(room!==cur)return;
+  room.people=pp.data||[];deck=deck.filter(x=>!room.votes.get(x.k)?.has(me.user_id));
   try{roomCh&&REAL_SB.removeChannel(roomCh)}catch(e){}
-  roomCh=REAL_SB.channel("room:"+r.id).on("postgres_changes",{event:"*",schema:"public",table:"km_room_swipes",filter:"room_id=eq."+r.id},pl=>{const v=pl.new;if(!v?.tmdb)return;if(!room.votes.has(v.tmdb))room.votes.set(v.tmdb,new Map());room.votes.get(v.tmdb).set(v.user_id,v.v);roomUpd()})
-    .on("postgres_changes",{event:"INSERT",schema:"public",table:"km_room_members",filter:"room_id=eq."+r.id},async()=>{const {data}=await sb.rpc("km_room_people",{r:r.id});room.people=data||room.people;roomUpd();toast("👋 В комнату зашёл новый человек")}).subscribe();
-  go("swipe")}
-function roomInfo(){if(!room)return"";const n=room.people.length,t=(room.deck||[]).length,mineN=[...room.votes.values()].filter(m=>m.has(me.user_id)).length;
-  const all=[...room.votes.values()].filter(m=>[...m.values()].filter(v=>v==="like").length>=Math.max(2,Math.ceil(n*.6))).length;return `${RN(n,"человек","человека","человек")} · вы: ${mineN}/${t} · совпадений: ${all}`}
+  roomCh=REAL_SB.channel("room:"+r.id).on("postgres_changes",{event:"*",schema:"public",table:"km_room_swipes",filter:"room_id=eq."+r.id},pl=>{const v=pl.new;if(!v?.tmdb||room!==cur)return;roomSet(cur,v);roomUpd();if(v.user_id!==me.user_id&&v.v==="like")roomMix()})
+    .on("postgres_changes",{event:"INSERT",schema:"public",table:"km_room_members",filter:"room_id=eq."+r.id},async()=>{const {data}=await sb.rpc("km_room_people",{r:r.id});if(room!==cur)return;room.people=data||room.people;roomUpd();toast("👋 В комнату зашёл новый человек")}).subscribe();
+  go("swipe");roomMix()}
+function leaveRoom(){try{roomCh&&REAL_SB.removeChannel(roomCh)}catch(e){}roomCh=null;room=null;closeSheet();resetDeck();go("swipe")}
+function roomSet(r,v){if(!r.votes.has(v.tmdb))r.votes.set(v.tmdb,new Map());r.votes.get(v.tmdb).set(v.user_id,v.v)}
+// the server returns at most 1000 rows per request
+async function roomLoadVotes(){const r=room;if(!r)return;for(let from=0;from<20000;from+=1000){const {data}=await sb.from("km_room_swipes").select("tmdb,user_id,v").eq("room_id",r.id).order("at").range(from,from+999);if(room!==r||!data)return;data.forEach(v=>roomSet(r,v));if(data.length<1000)return}}
+// who else in the room wants this film
+const roomYes=k=>[...(room?.votes.get(k)||[])].filter(([u,v])=>v==="like"&&u!==me.user_id).map(([u])=>u);
+const roomName=u=>u===me.user_id?"Вы":room?.people.find(p=>p.user_id===u)?.name||"?";
+async function roomItem(k){const r=room,c=r?.items.get(k)||mine.swipes.get(k)?.data||theirs.swipes.get(k)?.data;if(c?.kind)return c;
+  const m=/^(movie|tv)-(\d+)$/.exec(k);if(!m)return null;
+  try{const d=await tmdb(`/${m[1]}/${m[2]}`);if(!d?.id)return null;const it=itemFrom(d,m[1]);r?.items.set(k,it);return it}catch(e){return null}}
+// films the others liked must reach my feed: every third card; the two visible cards stay where they are
+let roomMixing=false;
+async function roomMix(){const r=room;if(!r||roomMixing)return;roomMixing=true;let added=false;
+  const want=k=>!r.votes.get(k)?.has(me.user_id)&&roomYes(k).length>0;
+  try{const keys=[...r.votes.keys()].filter(want);if(!keys.length)return;
+    deck.forEach(x=>{if(want(x.k))r.items.set(x.k,x)});
+    const inDeck=new Set(deck.map(x=>x.k)),order=[...deck.filter(x=>want(x.k)).map(x=>x.k),...keys.filter(k=>!inDeck.has(k))];
+    const got=(await Promise.all(order.slice(0,Math.floor(deck.length/2)+2).map(roomItem))).filter(Boolean);if(room!==r)return;
+    // no awaits below: the deck cannot change while it is rebuilt
+    const head=deck.slice(0,2),inHead=new Set(head.map(x=>x.k)),own=deck.slice(2).filter(x=>!want(x.k)),queue=got.filter(x=>want(x.k)&&!inHead.has(x.k));
+    let last=-1;head.forEach((x,i)=>{if(want(x.k))last=i});let next=last<0?2:last+3;const out=head.slice();
+    while(queue.length){if(out.length>=next||!own.length){if(out.length<next&&out.length>1&&src.some(s=>!s.done))break;out.push(queue.shift());next=out.length+2}else out.push(own.shift())}
+    out.push(...own);added=out.map(x=>x.k).join()!==deck.map(x=>x.k).join();deck=out;
+  }finally{roomMixing=false}
+  if(added&&room===r&&view==="swipe")roomRedraw()}
+// redraw only the card underneath, so the visible one does not jump
+function roomRedraw(){const S=$("#stack");if(!S||busy)return;const f=S.querySelector(".sc.front");if(!f||f.dataset.k!==deck[0]?.k){renderSwipe();return}
+  const u=S.querySelector(".sc.under"),n=deck[1];if(n&&u?.dataset.k!==n.k){u?.remove();f.insertAdjacentHTML("beforebegin",cardHTML(n,false))}}
+function roomInfo(){if(!room)return"";const n=room.people.length,mineN=[...room.votes.values()].filter(m=>m.has(me.user_id)).length;
+  const all=[...room.votes.values()].filter(m=>[...m.values()].filter(v=>v==="like").length>=Math.max(2,Math.ceil(n*.6))).length;return `${RN(n,"человек","человека","человек")} · вы: ${mineN} · совпадений: ${all}`}
 function roomUpd(){const el=$("#roomInfo");if(el)el.textContent=roomInfo()}
-async function roomVote(it,v){if(!room)return;if(!room.votes.has(it.k))room.votes.set(it.k,new Map());room.votes.get(it.k).set(me.user_id,v);roomUpd();
-  await sb.from("km_room_swipes").upsert({room_id:room.id,user_id:me.user_id,tmdb:it.k,v,at:new Date().toISOString()})}
-function roomSummary(){if(!room)return;const n=room.people.length,list=(room.deck||[]).map(x=>{const m=room.votes.get(x.k)||new Map();const yes=[...m.entries()].filter(([,v])=>v==="like").map(([u])=>u);return{x,yes,seen:m.size}}).filter(o=>o.yes.length).sort((a,b)=>b.yes.length-a.yes.length);
-  const nm=u=>room.people.find(p=>p.user_id===u)?.name||"?";
-  sheet(`<h2>👥 «${esc(room.name)}» — итоги</h2><p class="sub" style="margin:-6px 0 0">${RN(n,"участник","участника","участников")} · код комнаты <b>${esc(room.code)}</b></p>
-    <div class="list">${list.slice(0,20).map(o=>`<div class="lrow" data-rk="${esc(o.x.k)}">${thumb(o.x)}<div class="lt"><b>${esc(o.x.t)}</b><span>${o.yes.length===n?"🔥 Хотят все":`👍 ${o.yes.length} из ${n}`}</span><span class="clamp">${esc(o.yes.map(nm).join(", "))}</span></div></div>`).join("")||`<p class="sub">Пока никто ничего не лайкнул.</p>`}</div>
-    <div class="sticky">${list.length?`<button class="btn red" id="rmRoll" style="flex:1">🎲 Выбрать за нас</button>`:""}<button class="btn" id="rmInv">Позвать ещё</button><button class="btn ghost" id="rmOut">Выйти</button></div>`);
-  document.querySelectorAll("[data-rk]").forEach(b=>b.onclick=()=>{closeSheet();openDetail(list.find(o=>o.x.k===b.dataset.rk).x)});
-  const rl=$("#rmRoll");if(rl)rl.onclick=()=>{const top=list.filter(o=>o.yes.length===list[0].yes.length),w=top[Math.floor(Math.random()*top.length)].x;closeSheet();confetti();snd("match");toast("🎲 Смотрим: «"+w.t+"»");openDetail(w)};
-  $("#rmInv").onclick=()=>shareRoom(room);$("#rmOut").onclick=()=>{try{REAL_SB.removeChannel(roomCh)}catch(e){}room=null;closeSheet();resetDeck();go("swipe")}}
+async function roomVote(it,v){if(!room)return;const r=room;r.items.set(it.k,it);roomSet(r,{tmdb:it.k,user_id:me.user_id,v});roomUpd();
+  const {error}=await sb.from("km_room_swipes").upsert({room_id:r.id,user_id:me.user_id,tmdb:it.k,v,at:new Date().toISOString()});if(error)toast("Не сохранилось: "+error.message)}
+async function roomLikeFromList(it){const others=roomYes(it.k).length;roomVote(it,"like");
+  const row={user_id:me.user_id,tmdb:it.k,v:"like",mega:false,data:slim(it),at:new Date().toISOString()};mine.swipes.set(it.k,row);
+  const onTop=deck[0]?.k===it.k;deck=deck.filter(x=>x.k!==it.k);if(onTop)renderSwipe();else roomRedraw();counts();
+  if(others){confetti();snd("match");toast("🔥 Мэтч: «"+it.t+"»")}
+  const {error}=await sb.from("km_swipes").upsert(row);if(error)return toast("Не сохранилось: "+error.message);
+  if(partner&&theirs.swipes.get(it.k)?.v==="like")tgCall({action:"notify",kind:"match",tmdb:it.k})}
+async function roomSummary(){if(!room)return;const r=room;let who="";
+  sheet(`<h2>👥 «${esc(r.name)}» — итоги</h2><div id="rsBox" style="display:grid;gap:12px"><div class="spin"></div></div>`);const box=$("#rsBox");
+  await roomLoadVotes();const pp=await sb.rpc("km_room_people",{r:r.id});if(room!==r)return;r.people=pp.data||r.people;roomUpd();
+  const yesOf=k=>[...(r.votes.get(k)||[])].filter(([,v])=>v==="like").map(([u])=>u);
+  const keys=[...r.votes.keys()].filter(k=>yesOf(k).length).sort((a,b)=>yesOf(b).length-yesOf(a).length);
+  const got=new Map();
+  const draw=async()=>{if(!box.isConnected||room!==r)return;const n=r.people.length,sel=keys.filter(k=>!who||yesOf(k).includes(who)).slice(0,60);
+    await Promise.all(sel.filter(k=>!got.has(k)).map(async k=>{const it=await roomItem(k);if(it)got.set(k,it)}));if(!box.isConnected||room!==r)return;
+    const list=sel.filter(k=>got.has(k)).map(k=>({x:got.get(k),yes:yesOf(k)}));
+    box.innerHTML=`<p class="sub" style="margin:0">${RN(n,"участник","участника","участников")} · код комнаты <b>${esc(r.code)}</b></p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="pill ${who?"":"act"}" data-who="">Все · ${keys.length}</button>${r.people.map(p=>`<button class="pill ${who===p.user_id?"act":""}" data-who="${esc(p.user_id)}">${esc(roomName(p.user_id))} · ${keys.filter(k=>yesOf(k).includes(p.user_id)).length}</button>`).join("")}</div>
+      <div class="list">${list.map(o=>`<div class="lrow" data-rk="${esc(o.x.k)}">${thumb(o.x)}<div class="lt"><b>${esc(o.x.t)}</b><span>${o.yes.length===n&&n>1?"🔥 Хотят все":`👍 ${o.yes.length} из ${n}`}</span><span class="clamp">${esc(o.yes.map(roomName).join(", "))}</span><div class="la">${o.yes.includes(me.user_id)?`<span class="onsh">Вы тоже ♥</span>`:`<button class="btn red sm" data-me="${esc(o.x.k)}">❤ Тоже хочу</button>`}</div></div></div>`).join("")||`<p class="sub">${who?"Здесь пока нет лайков.":"Пока никто ничего не лайкнул."}</p>`}</div>
+      <div class="sticky">${list.length?`<button class="btn red" id="rmRoll" style="flex:1">🎲 Выбрать за нас</button>`:""}<button class="btn" id="rmInv">Позвать ещё</button><button class="btn ghost" id="rmOut">Выйти из комнаты</button></div>`;
+    box.onclick=e=>{const w=e.target.closest("[data-who]");if(w){who=w.dataset.who;draw();return}
+      const m=e.target.closest("[data-me]");if(m){m.disabled=true;roomLikeFromList(got.get(m.dataset.me));draw();return}
+      const row=e.target.closest("[data-rk]");if(row){closeSheet();openDetail(got.get(row.dataset.rk))}};
+    const rl=$("#rmRoll");if(rl)rl.onclick=()=>{const top=list.filter(o=>o.yes.length===list[0].yes.length),w=top[Math.floor(Math.random()*top.length)].x;closeSheet();confetti();snd("match");toast("🎲 Смотрим: «"+w.t+"»");openDetail(w)};
+    $("#rmInv").onclick=()=>shareRoom(r);$("#rmOut").onclick=leaveRoom};
+  draw()}
 async function roomsSection(){const el=$("#roomsBox");if(!el)return;
   el.innerHTML=`<div class="sh"><h2>👥 Комнаты с друзьями</h2><span class="sub">2–8 человек</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><button class="btn red sm" id="rmNew">Создать комнату</button><button class="btn sm" id="rmCode">Войти по коду</button></div><div id="rmList"></div>`;
   $("#rmNew").onclick=createRoom;$("#rmCode").onclick=()=>{sheet(`<h2>Войти в комнату</h2><input id="rmC" maxlength="6" placeholder="Код из 6 символов" style="text-transform:uppercase"><div class="sticky"><button class="btn red" id="rmJ" style="flex:1">Войти</button></div>`);$("#rmJ").onclick=()=>{const c=$("#rmC").value.trim();if(c){closeSheet();joinRoom(c)}}};
