@@ -122,6 +122,9 @@ async function initLanding(){document.documentElement.classList.remove("km-authe
   $("#land").hidden=false;document.body.classList.remove("inapp");setTimeout(()=>loadGenres().then(openFromLink).catch(()=>{}),300);
   document.querySelectorAll("[data-login]").forEach(b=>b.onclick=()=>openLogin());
   document.querySelectorAll("[data-guest]").forEach(b=>b.onclick=startGuest);
+  // значок App Store: на Android и внутри приложения не показываем; для uk/en — английский значок
+  document.querySelectorAll(".appstore").forEach(a=>{if(IOSAPP||/Android/i.test(navigator.userAgent)){a.hidden=true;return}
+    if(window.LANG&&window.LANG!=="ru"){const i=a.firstElementChild;i.src="badges/appstore-en.svg";i.alt="Download on the App Store"}});
   demoFan();sb.rpc("km_stats").then(({data})=>{if(data?.swipes>=200){$("#stSw").textContent=data.swipes.toLocaleString("ru-RU");$("#stSwL").textContent="свайпов уже сделали"}}).catch(()=>{});
   document.querySelectorAll("[data-privacy]").forEach(b=>b.onclick=e=>{e.preventDefault();openPrivacy()});
   if(location.hash==="#privacy")openPrivacy();

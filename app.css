@@ -56,6 +56,10 @@ body.inapp #world{display:none}
 .hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--red),#ff9a3c);-webkit-background-clip:text;background-clip:text;color:transparent}
 .hero p.lead{font-size:clamp(1rem,2vw,1.2rem);color:#c9c9d3;max-width:34rem;margin:0 0 28px}
 .hero .cta{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.stores:empty,.stores:has(.appstore[hidden]){display:none}
+.stores{margin-top:16px}
+.appstore{display:inline-block;line-height:0;border-radius:8px}
+.appstore img{height:48px;width:auto}
 .hero .proof{margin-top:28px;display:flex;gap:22px;flex-wrap:wrap;color:var(--muted);font-weight:700;font-size:.88rem}
 .hero .proof b{color:var(--ink);font:800 1.4rem var(--display);display:block}
 .fan{position:relative;height:520px;max-width:100%}
