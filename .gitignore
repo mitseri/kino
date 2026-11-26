@@ -3,7 +3,7 @@ uk/
 podborki/
 aktery/
 pohozhie/
-sitemap.xml
+sitemap*.xml
 node_modules/
 en/
 rare.js.map

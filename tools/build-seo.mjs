@@ -50,7 +50,7 @@ async function tmdb(p, q = {}, lang = "ru-RU", tries = 3) {
 }
 async function pool(items, n, fn) { let i = 0; await Promise.all(Array.from({length: n}, async () => { while (i < items.length) { const j = i++; await fn(items[j], j); } })); }
 
-const filmUrl = (lang, f) => `/${LANGS[lang].dir}film/${f.kind}-${f.id}-${slug(f.titleEn || f.title)}.html`;
+const filmUrl = (lang, f) => `/${LANGS[lang].dir}film/${f.kind}-${f.id}-${slug(f.titleEn || f.title)}`;
 const appUrl = f => `/?m=${f.kind}-${f.id}`;
 
 function page(lang, {title, desc, canon, alt, body, ld, img}) {
@@ -81,7 +81,7 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:22px 0 40px;colo
 @media(max-width:700px){.film{grid-template-columns:1fr}.film img.p{max-width:220px}header nav{display:none}}</style></head>
 <body><div class="w"><header><a class="logo" href="/"><img src="/logo.svg" alt="" width="28" height="28">Kinomatch</a><nav><a href="/${LANGS[lang].dir}podborki/">${t.colls}</a><a href="/${LANGS[lang].dir}aktery/">${t.actors}</a>${Object.keys(LANGS).filter(l => l !== lang).map(l => `<a href="${alt ? alt[l] : "/" + LANGS[l].dir}">${({ru: "RU", uk: "UA", en: "EN"})[l]}</a>`).join("")}</nav><a class="cta" href="/">${t.cta}</a></header>
 ${body}
-<footer><p>${t.about}</p><p><a href="/${LANGS[lang].dir}podborki/">${t.allColls}</a> · <a href="/privacy.html">Privacy</a></p><p>${t.tmdb}</p></footer></div></body></html>`;
+<footer><p>${t.about}</p><p><a href="/${LANGS[lang].dir}podborki/">${t.allColls}</a> · <a href="/privacy">Privacy</a></p><p>${t.tmdb}</p></footer></div></body></html>`;
 }
 
 const BUILT = new Set();
@@ -134,13 +134,13 @@ async function main() {
   await pool(actors, 10, async p => { for (const lang of Object.keys(LANGS)) p[lang] = await tmdb(`/person/${p.id}`, {}, LANGS[lang].tmdb); });
   const ACT = new Map(actors.filter(p => Object.keys(LANGS).every(l => p[l])).map(p => [p.id, p]));
   for (const p of ACT.values()) p.slug = slug(p.name, "akter");
-  const actUrl = (lang, p) => `/${LANGS[lang].dir}aktery/${p.id}-${p.slug}.html`;
+  const actUrl = (lang, p) => `/${LANGS[lang].dir}aktery/${p.id}-${p.slug}`;
   // "similar to X" pages for the most popular titles
   const SIM = new Set([...BUILT].sort((a, b) => (films.get(b).ru.popularity || 0) - (films.get(a).ru.popularity || 0)).slice(0, Number(process.env.MAXS || 400)).filter(k => (films.get(k).ru.recommendations?.results || []).length >= 6));
-  const simUrl = (lang, f) => `/${LANGS[lang].dir}pohozhie/${f.kind}-${f.id}-${slug(f.titleEn || f.title)}.html`;
+  const simUrl = (lang, f) => `/${LANGS[lang].dir}pohozhie/${f.kind}-${f.id}-${slug(f.titleEn || f.title)}`;
   console.log("actors", ACT.size, "similar", SIM.size);
   const urls = [];
-  const out = async (rel, html) => { const p = path.join(ROOT, rel); await fs.mkdir(path.dirname(p), {recursive: true}); await fs.writeFile(p, html); urls.push(rel.replace(/index\.html$/, "")); };
+  const out = async (rel, html) => { const p = path.join(ROOT, rel); await fs.mkdir(path.dirname(p), {recursive: true}); await fs.writeFile(p, html); urls.push(rel.replace(/index\.html$|\.html$/g, "")); };  // Cloudflare serves pages without .html
   // clean old generated folders
   for (const d of ["film", "podborki", "uk", "en", "aktery", "pohozhie"]) await fs.rm(path.join(ROOT, d), {recursive: true, force: true});
 
@@ -148,14 +148,14 @@ async function main() {
     const t = T[lang], dir = LANGS[lang].dir;
     // hub
     const hubBody = `<h1>${({ru: "Подборки фильмов и сериалов", uk: "Добірки фільмів і серіалів", en: "Film and TV collections"}[lang])}</h1><p class="lead">${esc(t.hubD)}</p>
-      ${collData[lang].map(({c, list}) => `<h2><a href="/${dir}podborki/${c.s}.html">${esc(c[lang][0])}</a></h2><div class="grid">${list.slice(0, 6).map(f => cardHTML(lang, f)).join("")}</div>`).join("")}`;
+      ${collData[lang].map(({c, list}) => `<h2><a href="/${dir}podborki/${c.s}">${esc(c[lang][0])}</a></h2><div class="grid">${list.slice(0, 6).map(f => cardHTML(lang, f)).join("")}</div>`).join("")}`;
     await out(`${dir}podborki/index.html`, page(lang, {title: t.hubT, desc: t.hubD, canon: `/${dir}podborki/`, alt: ALL(l => `/${LANGS[l].dir}podborki/`), body: hubBody}));
     for (const {c, list} of collData[lang]) {
       const [h, lead] = c[lang], year = new Date().getFullYear();
       const body = `<h1>${esc(h)}</h1><p class="lead">${esc(lead)} ${lang === "ru" ? `Список обновляется каждую неделю (${year}). Откройте любой фильм — трейлер, рейтинг и где смотреть в Украине.` : `Список оновлюється щотижня (${year}). Відкрийте будь-який фільм — трейлер, рейтинг і де дивитися в Україні.`}</p>
         <p><a class="cta" href="/">${t.cta}</a></p><div class="grid">${list.map(f => cardHTML(lang, f)).join("")}</div>
-        <h2>${t.allColls}</h2><div class="chips">${COLLS.filter(x => x !== c).map(x => `<a class="chip" href="/${dir}podborki/${x.s}.html">${esc(x[lang][0])}</a>`).join("")}</div>`;
-      await out(`${dir}podborki/${c.s}.html`, page(lang, {title: `${h} — ${year} | Kinomatch`, desc: `${lead} ${list.slice(0, 5).map(f => f.title).join(", ")} ${({ru: "и другие", uk: "та інші", en: "and more"}[lang])}.`.slice(0, 300), canon: `/${dir}podborki/${c.s}.html`, alt: ALL(l => `/${LANGS[l].dir}podborki/${c.s}.html`), body, img: list[0] ? IMG + "w780" + list[0].poster : null}));
+        <h2>${t.allColls}</h2><div class="chips">${COLLS.filter(x => x !== c).map(x => `<a class="chip" href="/${dir}podborki/${x.s}">${esc(x[lang][0])}</a>`).join("")}</div>`;
+      await out(`${dir}podborki/${c.s}.html`, page(lang, {title: `${h} — ${year} | Kinomatch`, desc: `${lead} ${list.slice(0, 5).map(f => f.title).join(", ")} ${({ru: "и другие", uk: "та інші", en: "and more"}[lang])}.`.slice(0, 300), canon: `/${dir}podborki/${c.s}`, alt: ALL(l => `/${LANGS[l].dir}podborki/${c.s}`), body, img: list[0] ? IMG + "w780" + list[0].poster : null}));
     }
     // film pages
     for (const k of BUILT) {
@@ -184,12 +184,12 @@ async function main() {
         <dl class="facts">${genres.length ? `<dt>${t.genres}</dt><dd>${esc(genres.join(", "))}</dd>` : ""}${year ? `<dt>${t.year}</dt><dd>${year}</dd>` : ""}${rt ? `<dt>${t.runtime}</dt><dd>${rt} ${t.min}</dd>` : ""}${tv && d.number_of_seasons ? `<dt>${t.seasons}</dt><dd>${d.number_of_seasons}</dd>` : ""}${dirs.length ? `<dt>${tv ? t.creators : t.dir}</dt><dd>${esc(dirs.slice(0, 3).join(", "))}</dd>` : ""}${cast.length ? `<dt>${t.cast}</dt><dd>${castP.map(x => ACT.has(x.id) ? `<a href="${actUrl(lang, ACT.get(x.id))}">${esc(x.name)}</a>` : esc(x.name)).join(", ")}</dd>` : ""}${f.rating ? `<dt>${t.rating}</dt><dd>${f.rating} / 10</dd>` : ""}</dl>
         <h2>${t.where}</h2>${prov.length ? `<div class="chips">${prov.map(([n, w]) => `<span class="chip">${esc(n)} · ${w}</span>`).join("")}</div>` : `<p style="color:var(--mu)">${t.none}</p>`}
       </div></div>${sim.length ? `<h2>${t.similar}</h2><div class="grid">${sim.map(x => cardHTML(lang, x)).join("")}</div>${SIM.has(k) ? `<p><a class="ghost" href="${simUrl(lang, f)}">${t.allSim}: «${esc(f.title)}» →</a></p>` : ""}` : ""}`;
-      await out(alt[lang].slice(1), page(lang, {title, desc, canon: alt[lang], alt, body, ld, img: d.backdrop_path ? IMG + "w1280" + d.backdrop_path : IMG + "w780" + f.poster}));
+      await out(alt[lang].slice(1) + ".html", page(lang, {title, desc, canon: alt[lang], alt, body, ld, img: d.backdrop_path ? IMG + "w1280" + d.backdrop_path : IMG + "w780" + f.poster}));
       if (SIM.has(k)) {
         const salt = ALL(l => simUrl(l, f)), list = recs.slice(0, 20);
         const h = `${tv ? (({ru: "Сериалы", uk: "Серіали", en: "Series"}[lang])) : (({ru: "Фильмы", uk: "Фільми", en: "Films"}[lang]))}, ${({ru: "похожие на", uk: "схожі на", en: "similar to"}[lang])} «${f.title}»`;
         const sb = `<h1>${esc(h)}</h1><p class="lead">${t.simL} <a href="${alt[lang]}">«${esc(f.title)}»${year ? ` (${year})` : ""}</a></p><p><a class="cta" href="/">${t.cta}</a></p><div class="grid">${list.map(x => cardHTML(lang, x)).join("")}</div>`;
-        await out(salt[lang].slice(1), page(lang, {title: `${h} — ${list.length} ${({ru: "вариантов", uk: "варіантів", en: "picks"}[lang])} | Kinomatch`, desc: `${h}: ${list.slice(0, 6).map(x => x.title).join(", ")}${({ru: " и другие", uk: " та інші", en: " and more"}[lang])}.`, canon: salt[lang], alt: salt, body: sb, img: IMG + "w780" + f.poster}));
+        await out(salt[lang].slice(1) + ".html", page(lang, {title: `${h} — ${list.length} ${({ru: "вариантов", uk: "варіантів", en: "picks"}[lang])} | Kinomatch`, desc: `${h}: ${list.slice(0, 6).map(x => x.title).join(", ")}${({ru: " и другие", uk: " та інші", en: " and more"}[lang])}.`, canon: salt[lang], alt: salt, body: sb, img: IMG + "w780" + f.poster}));
       }
     }
   }
@@ -208,14 +208,20 @@ async function main() {
         ${bio ? `<h2>${t.bio}</h2><p>${esc(bio.slice(0, 1500))}${bio.length > 1500 ? "…" : ""}</p>` : ""}<p><a class="cta" href="/">${t.cta}</a></p></div></div>
         <h2>${t.actorFilms}</h2><div class="grid">${list.map(f => cardHTML(lang, f)).join("")}</div>`;
       const ld = {"@context": "https://schema.org", "@type": "Person", name: n, image: IMG + "w500" + (d.profile_path || p.prof), birthDate: d.birthday || undefined, description: bio.slice(0, 300) || undefined, url: SITE + aalt[lang]};
-      await out(aalt[lang].slice(1), page(lang, {title: `${n} — ${({ru: "фильмы и сериалы", uk: "фільми та серіали", en: "films and series"}[lang])} | Kinomatch`, desc: `${n}: ${list.slice(0, 6).map(f => f.title).join(", ")}. ${bio.slice(0, 120)}`.trim(), canon: aalt[lang], alt: aalt, body, ld, img: IMG + "w500" + (d.profile_path || p.prof)}));
+      await out(aalt[lang].slice(1) + ".html", page(lang, {title: `${n} — ${({ru: "фильмы и сериалы", uk: "фільми та серіали", en: "films and series"}[lang])} | Kinomatch`, desc: `${n}: ${list.slice(0, 6).map(f => f.title).join(", ")}. ${bio.slice(0, 120)}`.trim(), canon: aalt[lang], alt: aalt, body, ld, img: IMG + "w500" + (d.profile_path || p.prof)}));
     }
   }
-  // sitemap
+  // sitemap: an index (sitemap.xml) pointing to parts of 2000 addresses each
   const today = new Date().toISOString().slice(0, 10);
-  const all = ["", "privacy.html", ...urls];
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${all.map(u => `  <url><loc>${SITE}/${u}</loc><lastmod>${today}</lastmod><changefreq>${u.includes("podborki") || u.includes("aktery/") && !u.endsWith(".html") || u === "" ? "weekly" : "monthly"}</changefreq><priority>${u === "" ? "1.0" : u.includes("podborki") ? "0.8" : "0.6"}</priority></url>`).join("\n")}\n</urlset>\n`;
-  await fs.writeFile(path.join(ROOT, "sitemap.xml"), xml);
+  const all = ["", "about", "privacy", ...urls];
+  const NS = "http://www.sitemaps.org/schemas/sitemap/0.9", PER = 2000, parts = [];
+  const xml = (root, tag, list) => [`<?xml version="1.0" encoding="UTF-8"?>`, `<${root} xmlns="${NS}">`,
+    ...list.map(u => `  <${tag}><loc>${SITE}/${u}</loc><lastmod>${today}</lastmod></${tag}>`), `</${root}>`, ""].join(String.fromCharCode(10));
+  for (let i = 0; i * PER < all.length; i++) {
+    parts.push(`sitemap-${i + 1}.xml`);
+    await fs.writeFile(path.join(ROOT, parts[i]), xml("urlset", "url", all.slice(i * PER, (i + 1) * PER)));
+  }
+  await fs.writeFile(path.join(ROOT, "sitemap.xml"), xml("sitemapindex", "sitemap", parts));
   console.log("pages:", urls.length);
 }
 main().catch(e => { console.error(e); process.exit(1); });
